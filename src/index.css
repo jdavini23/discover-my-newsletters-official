@@ -1,0 +1,376 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root Color Variables */
+:root {
+  /* Color Palette */
+  --primary: #4A90E2;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5A623;
+  --secondary-foreground: #FFFFFF;
+  --accent: #50E3C2;
+  --accent-foreground: #000000;
+  
+  /* Background and Foreground */
+  --background: #F8F9FA;
+  --foreground: #333333;
+  
+  /* Text Colors */
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --text-primary-dark: #EDEDED;
+  --text-secondary-dark: #A1A1A1;
+  
+  /* Neutral Colors */
+  --neutral-background-100: #F5F5F5;
+  --neutral-text-500: #6B7280;
+  --neutral-text-700: #374151;
+  
+  /* Semantic Colors */
+  --destructive: #FF4D4D;
+  --destructive-foreground: #FFFFFF;
+  
+  /* Border and Input */
+  --border: #E5E7EB;
+  --input: #E5E7EB;
+  --ring: rgba(74, 144, 226, 0.5);
+  
+  /* Card and Popover */
+  --card: #FFFFFF;
+  --card-foreground: #333333;
+  --popover: #FFFFFF;
+  --popover-foreground: #333333;
+  
+  /* Muted Colors */
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+
+  /* Radius */
+  --radius: 0.5rem;
+}
+
+/* Dark Mode Overrides */
+.dark {
+  --background: #121212;
+  --foreground: #EDEDED;
+  
+  --text-primary: #EDEDED;
+  --text-secondary: #A1A1A1;
+  
+  --card: #1E1E1E;
+  --card-foreground: #EDEDED;
+  --popover: #1E1E1E;
+  --popover-foreground: #EDEDED;
+  
+  --primary: #4A90E2;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5A623;
+  --secondary-foreground: #000000;
+  
+  --muted: #2C2C2C;
+  --muted-foreground: #9CA3AF;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  @apply w-2 bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-neutral-300 dark:bg-neutral-700 rounded-full;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+/* Global Styles */
+body {
+  @apply bg-background text-foreground font-sans antialiased;
+}
+
+/* Hover and Focus States */
+.hover-lift {
+  @apply transition-transform duration-200 ease-in-out;
+}
+
+.hover-lift:hover {
+  @apply -translate-y-0.5;
+}
+
+/* Accessibility Enhancements */
+*:focus-visible {
+  @apply outline-2 outline-primary ring-2 ring-primary;
+}
+
+/* Transition and Animation Utilities */
+.transition-fade {
+  @apply transition-opacity duration-300 ease-in-out;
+}
+
+.fade-enter {
+  @apply opacity-0;
+}
+
+.fade-enter-active {
+  @apply opacity-100;
+}
+
+.fade-exit {
+  @apply opacity-100;
+}
+
+.fade-exit-active {
+  @apply opacity-0;
+}
+
+@layer base {
+  body {
+    @apply antialiased text-foreground transition-colors duration-200;
+  }
+
+  .dark body {
+    @apply text-foreground;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-foreground;
+  }
+
+  p {
+    @apply text-gray-600 dark:text-gray-400;
+  }
+
+  /* Focus states */
+  *:focus {
+    @apply outline-none ring-2 ring-primary;
+  }
+
+  /* Custom scrollbar */
+  *::-webkit-scrollbar {
+    @apply w-2 bg-transparent;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-background dark:bg-gray-900;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 dark:bg-gray-700 rounded-full;
+  }
+
+  /* Transition classes */
+  html,
+  body {
+    @apply antialiased 
+      text-gray-900 
+      transition-colors 
+      duration-300 
+      ease-in-out 
+      selection:bg-primary 
+      selection:text-white;
+  }
+
+  .dark {
+    @apply text-gray-100 
+      selection:bg-primary 
+      selection:text-white;
+  }
+
+  /* Responsive Typography */
+  html {
+    @apply text-base;
+  }
+
+  @screen sm {
+    html {
+      @apply text-base;
+    }
+  }
+
+  @screen md {
+    html {
+      @apply text-lg;
+    }
+  }
+
+  @screen lg {
+    html {
+      @apply text-xl;
+    }
+  }
+
+  @screen xl {
+    html {
+      @apply text-2xl;
+    }
+  }
+
+  @screen 2xl {
+    html {
+      @apply text-3xl;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold 
+      text-gray-900 
+      dark:text-white 
+      tracking-tight 
+      leading-tight;
+  }
+
+  p {
+    @apply text-gray-700 
+      dark:text-gray-300 
+      leading-relaxed;
+  }
+
+  /* Enhanced Focus States */
+  *:focus-visible {
+    @apply outline-none 
+      ring-2 
+      ring-primary 
+      ring-offset-2 
+      dark:ring-primary;
+  }
+
+  /* Improved Scrollbar */
+  *::-webkit-scrollbar {
+    @apply w-2 
+      bg-transparent;
+  }
+
+  *::-webkit-scrollbar-track {
+    @apply bg-gray-100 
+      dark:bg-gray-900;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    @apply bg-primary-300 
+      dark:bg-primary-700 
+      rounded-full 
+      hover:bg-primary-400 
+      dark:hover:bg-primary-600;
+  }
+
+  /* Transition Utilities */
+  .transition-fast {
+    @apply transition-all duration-150 ease-in-out;
+  }
+
+  .transition-medium {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .transition-slow {
+    @apply transition-all duration-500 ease-in-out;
+  }
+
+  /* Utility classes */
+  .container-max {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  a {
+    @apply text-blue-600 hover:text-blue-700;
+  }
+
+  button {
+    @apply px-4 py-2 rounded-md bg-blue-500 text-white font-medium transition-colors duration-300 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  :root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      color: #213547;
+    }
+    a:hover {
+      color: #747bff;
+    }
+  }
+
+  /* Responsive Animations */
+  @screen sm {
+    .animate-slide-in-right {
+      animation: slide-in-right 0.5s ease-out;
+    }
+
+    @keyframes slide-in-right {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  }
+
+  /* Remove custom background classes */
+  .badge {
+    @apply rounded-full;
+  }
+
+  /* Remove selection background classes */
+  ::selection {
+    @apply bg-blue-500 text-white;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white font-medium py-2 px-4 rounded-lg 
+           transition-all duration-200 hover:bg-primary-600
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white font-medium py-2 px-4 rounded-lg 
+           transition-all duration-200 hover:bg-secondary-600
+           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 
+           border border-gray-200 dark:border-gray-700 
+           text-gray-700 dark:text-gray-300
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+  }
+
+  .input {
+    @apply w-full border border-gray-200 dark:border-gray-700 
+           rounded-lg px-4 py-2 
+           text-gray-700 dark:text-gray-300
+           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary to-primary-600;
+  }
+
+  .gradient-secondary {
+    @apply bg-gradient-to-r from-secondary to-secondary-600;
+  }
+}
+
+@layer utilities {
+  .sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    clip: auto;
+  }
+}
