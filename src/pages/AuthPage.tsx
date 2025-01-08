@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from '@/lib/react-hot-toast';
-import { UserIcon, EnvelopeIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { 
+  UserIcon, 
+  EnvelopeIcon, 
+  LockClosedIcon, 
+  EyeIcon, 
+  EyeSlashIcon 
+} from '@heroicons/react/24/outline';
 import { AuthService } from '@/services/authService';
 import { PasswordResetModal } from '@/components/auth/PasswordResetModal';
 
@@ -50,11 +57,63 @@ const AuthPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Form validation states
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [displayNameError, setDisplayNameError] = useState('');
+
+  const validateEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setEmailError('Email is required');
+      return false;
+    }
+    if (!re.test(email)) {
+      setEmailError('Invalid email format');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) {
+      setPasswordError('Password is required');
+      return false;
+    }
+    if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
+
+  const validateDisplayName = (name: string) => {
+    if (!isLogin && !name) {
+      setDisplayNameError('Display name is required');
+      return false;
+    }
+    setDisplayNameError('');
+    return true;
+  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate all fields
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    const isDisplayNameValid = !isLogin ? validateDisplayName(displayName) : true;
+
+    if (!isEmailValid || !isPasswordValid || !isDisplayNameValid) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -85,36 +144,73 @@ const AuthPage = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    setShowPasswordReset(true);
+  };
+
+  // Reset errors when switching between login/signup
+  useEffect(() => {
+    setEmailError('');
+    setPasswordError('');
+    setDisplayNameError('');
+  }, [isLogin]);
+
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
-      <div className='max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-medium'>
+    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8'>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.3 }}
+        className='max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl border border-gray-100'
+      >
         <div>
-          <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900'>
-            {isLogin ? 'Sign in to your account' : 'Create a new account'}
+          <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900 mb-2'>
+            {isLogin ? 'Welcome Back' : 'Create Your Account'}
           </h2>
+          <p className='text-center text-gray-500'>
+            {isLogin 
+              ? 'Sign in to continue exploring newsletters' 
+              : 'Join our community of newsletter enthusiasts'}
+          </p>
         </div>
 
-        <form className='mt-8 space-y-6' onSubmit={handleEmailAuth}>
-          {!isLogin && (
-            <div>
-              <label htmlFor='displayName' className='sr-only'>
-                Display Name
-              </label>
-              <div className='relative'>
-                <UserIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
-                <input
-                  id='displayName'
-                  name='displayName'
-                  type='text'
-                  required={!isLogin}
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  className='appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500'
-                  placeholder='Display Name'
-                />
-              </div>
-            </div>
-          )}
+        <form onSubmit={handleEmailAuth} className='mt-8 space-y-6'>
+          <AnimatePresence>
+            {!isLogin && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <label htmlFor='displayName' className='sr-only'>
+                  Display Name
+                </label>
+                <div className='relative'>
+                  <UserIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+                  <input
+                    id='displayName'
+                    name='displayName'
+                    type='text'
+                    value={displayName}
+                    onChange={(e) => {
+                      setDisplayName(e.target.value);
+                      validateDisplayName(e.target.value);
+                    }}
+                    className={`appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border ${
+                      displayNameError 
+                        ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                        : 'border-gray-300 placeholder-gray-500 text-gray-900 focus:ring-primary-500 focus:border-primary-500'
+                    }`}
+                    placeholder='Display Name'
+                  />
+                  {displayNameError && (
+                    <p className='mt-2 text-sm text-red-600'>{displayNameError}</p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <div>
             <label htmlFor='email' className='sr-only'>
@@ -127,12 +223,21 @@ const AuthPage = () => {
                 name='email'
                 type='email'
                 autoComplete='email'
-                required
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className='appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500'
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  validateEmail(e.target.value);
+                }}
+                className={`appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border ${
+                  emailError 
+                    ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500' 
+                    : 'border-gray-300 placeholder-gray-500 text-gray-900 focus:ring-primary-500 focus:border-primary-500'
+                }`}
                 placeholder='Email address'
               />
+              {emailError && (
+                <p className='mt-2 text-sm text-red-600'>{emailError}</p>
+              )}
             </div>
           </div>
 
@@ -145,58 +250,99 @@ const AuthPage = () => {
               <input
                 id='password'
                 name='password'
-                type='password'
-                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                type={showPassword ? 'text' : 'password'}
                 required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className='appearance-none rounded-md relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500'
+                className='appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-0 focus:border-gray-300 focus:z-10 sm:text-sm'
                 placeholder='Password'
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  validatePassword(e.target.value);
+                }}
               />
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='absolute right-3 top-1/2 transform -translate-y-1/2 
+                text-gray-400 hover:text-gray-600
+                focus:outline-none focus:ring-0 rounded-full p-1'
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? 
+                  <EyeSlashIcon className='h-5 w-5 text-current' /> : 
+                  <EyeIcon className='h-5 w-5 text-current' />
+                }
+              </button>
+              {passwordError && (
+                <p className='mt-2 text-sm text-red-600'>{passwordError}</p>
+              )}
             </div>
           </div>
 
-          {isLogin && (
-            <div className='text-right'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center'>
+              <input
+                id='remember-me'
+                name='remember-me'
+                type='checkbox'
+                className='h-4 w-4 text-[#6A82FB] focus:ring-[#FC5C7D] border-gray-300 rounded'
+              />
+              <label htmlFor='remember-me' className='ml-2 block text-sm text-neutral-text-700'>
+                Remember me
+              </label>
+            </div>
+
+            <div className='text-sm'>
               <button
                 type='button'
-                onClick={() => setShowPasswordReset(true)}
-                className='text-sm text-primary-600 hover:text-primary-700 hover:underline transition-all duration-200 px-2 py-1 rounded-md'
+                onClick={handleForgotPassword}
+                className='font-medium text-[#333333] hover:text-[#4A90E2] 
+                transition-colors duration-200 hover:underline 
+                focus:outline-none focus:ring-2 focus:ring-blue-200 rounded-md px-2 -mx-2
+                bg-transparent hover:bg-blue-50 py-1'
               >
-                Forgot password?
+                Forgot your password?
               </button>
             </div>
-          )}
+          </div>
 
           <div>
             <button
               type='submit'
               disabled={isLoading}
-              className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              className='group relative w-full flex justify-center items-center py-3 px-4 border-none text-sm font-semibold rounded-lg text-white 
+              bg-gradient-to-r from-[#6A82FB] to-[#FC5C7D] 
+              hover:from-[#5A72EB] hover:to-[#E44B6B]
+              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 
+              transition-all duration-300 ease-in-out 
+              transform hover:scale-[1.02] active:scale-[0.98]
+              disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed'
             >
-              {isLoading ? 'Processing...' : isLogin ? 'Sign in' : 'Sign up'}
+              {isLoading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
             </button>
           </div>
 
-          <div className='flex items-center justify-between'>
-            <div className='text-sm'>
-              <button
-                type='button'
-                onClick={() => setIsLogin(!isLogin)}
-                className='font-medium text-primary-600 hover:text-primary-500'
-              >
-                {isLogin ? 'Need an account? Register' : 'Already have an account? Sign in'}
-              </button>
-            </div>
+          <div className='text-center'>
+            <button
+              type='button'
+              onClick={() => setIsLogin(!isLogin)}
+              className='font-medium text-[#333333] hover:text-[#4A90E2] 
+              transition-colors duration-200 hover:underline 
+              focus:outline-none focus:ring-2 focus:ring-blue-200 rounded-md px-2 -mx-2 text-sm
+              bg-transparent hover:bg-blue-50 py-1'
+            >
+              {isLogin 
+                ? 'Need an account? Create a new account' 
+                : 'Already have an account? Sign in'}
+            </button>
           </div>
 
-          <div className='relative'>
+          <div className='relative my-4'>
             <div className='absolute inset-0 flex items-center'>
               <div className='w-full border-t border-gray-300' />
             </div>
             <div className='relative flex justify-center text-sm'>
-              <span className='px-2 bg-white text-gray-500'>Or continue with</span>
+              <span className='px-2 bg-white text-gray-600'>Or continue with</span>
             </div>
           </div>
 
@@ -204,22 +350,34 @@ const AuthPage = () => {
             <button
               type='button'
               onClick={() => handleSocialLogin('google')}
-              className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
+              className='w-full inline-flex justify-center items-center py-2 px-4 
+              border border-gray-300 rounded-lg 
+              bg-white text-gray-700 
+              hover:bg-gray-50 hover:border-[#6A82FB] 
+              focus:outline-none focus:ring-2 focus:ring-blue-200
+              transition-all duration-200 
+              font-semibold space-x-2'
             >
-              <GoogleIcon />
-              Google
+              <GoogleIcon className='w-5 h-5' />
+              <span>Google</span>
             </button>
             <button
               type='button'
               onClick={() => handleSocialLogin('github')}
-              className='w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50'
+              className='w-full inline-flex justify-center items-center py-2 px-4 
+              rounded-lg 
+              bg-gray-900 text-white 
+              hover:bg-gray-800 
+              focus:outline-none focus:ring-2 focus:ring-gray-500
+              transition-all duration-200 
+              font-semibold space-x-2'
             >
-              <GitHubIcon />
-              GitHub
+              <GitHubIcon className='w-5 h-5' />
+              <span>GitHub</span>
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
 
       {/* Password Reset Modal */}
       <PasswordResetModal isOpen={showPasswordReset} onClose={() => setShowPasswordReset(false)} />
