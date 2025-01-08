@@ -1,4 +1,7 @@
-import { React } from 'react';
+import React from 'react';
+import { motion } from 'framer-motion';
+import { DarkModeToggle } from '../ui/DarkModeToggle';
+import { useResponsive } from '../../hooks/useResponsive';
 
 interface ResponsiveContainerProps {
   children: React.ReactNode;
@@ -11,6 +14,8 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   className = '',
   showDarkModeToggle = true,
 }) => {
+  const { isMobile } = useResponsive();
+
   return (
     <div
       className={`
@@ -26,7 +31,11 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
       `}
     >
       {showDarkModeToggle && (
-        <div className='fixed top-4 right-4 z-50'>
+        <div className={`
+          fixed 
+          ${isMobile ? 'top-2 right-2' : 'top-4 right-4'} 
+          z-50
+        `}>
           <DarkModeToggle />
         </div>
       )}
@@ -35,15 +44,18 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className='
+        className={`
           container 
           mx-auto 
           px-4 
           sm:px-6 
           lg:px-8 
           max-w-7xl 
-          space-y-8
-        '
+          space-y-4 
+          sm:space-y-6 
+          lg:space-y-8
+          ${isMobile ? 'py-4' : 'py-8'}
+        `}
       >
         {children}
       </motion.div>
