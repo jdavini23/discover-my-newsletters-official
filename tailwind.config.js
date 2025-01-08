@@ -1,6 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+const forms = require('@tailwindcss/forms');
+const typography = require('@tailwindcss/typography');
+
+module.exports = {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     screens: {
@@ -12,6 +18,10 @@ export default {
       '2xl': '1536px', // 2X large devices
     },
     extend: {
+      fontFamily: {
+        // Add a modern sans-serif font stack
+        'sans': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', 'sans-serif'],
+      },
       colors: {
         background: 'var(--background)',
         foreground: 'var(--foreground)',
@@ -32,38 +42,36 @@ export default {
           foreground: 'var(--popover-foreground)',
         },
         primary: {
-          DEFAULT: 'var(--primary)',
-          foreground: 'var(--primary-foreground)',
+          50: '#f0f5ff',
+          100: '#e6edff',
+          200: '#c3dafe',
+          300: '#a3bffa',
+          400: '#7f9cf5',
+          500: '#667eea', // Base primary color
+          600: '#5a67d8',
+          700: '#4c51bf',
+          800: '#434190',
+          900: '#3c366b',
+          DEFAULT: '#4A90E2',
           ...Array.from({length: 10}, (_, i) => ({
             [`${(i + 1) * 10}`]: `color-mix(in srgb, var(--primary) ${(i + 1) * 10}%, white)`,
           })).reduce((acc, curr) => ({...acc, ...curr}), {}),
-          50: '#EBF5FF',
-          100: '#D6EBFF',
-          200: '#ADDBFF',
-          300: '#84CAFF',
-          400: '#5AB9FF',
-          500: '#4A90E2',
-          600: '#3A77C4',
-          700: '#2A5EA6',
-          800: '#1A4588',
-          900: '#0A2C6A',
         },
         secondary: {
-          DEFAULT: 'var(--secondary)',
-          foreground: 'var(--secondary-foreground)',
+          50: '#f9fafb',
+          100: '#f4f5f7',
+          200: '#e9ecef',
+          300: '#dee2e6',
+          400: '#ced4da',
+          500: '#adb5bd', // Base secondary color
+          600: '#6c757d',
+          700: '#495057',
+          800: '#343a40',
+          900: '#212529',
+          DEFAULT: '#F5A623',
           ...Array.from({length: 10}, (_, i) => ({
             [`${(i + 1) * 10}`]: `color-mix(in srgb, var(--secondary) ${(i + 1) * 10}%, white)`,
           })).reduce((acc, curr) => ({...acc, ...curr}), {}),
-          50: '#FFF4E5',
-          100: '#FFEACC',
-          200: '#FFD699',
-          300: '#FFC266',
-          400: '#FFAD33',
-          500: '#F5A623',
-          600: '#D68C1A',
-          700: '#B87311',
-          800: '#9A5A08',
-          900: '#7C4100',
         },
         destructive: {
           DEFAULT: 'var(--destructive)',
@@ -95,27 +103,48 @@ export default {
           700: 'var(--neutral-text-700, #374151)',
         }
       },
+      ringOpacity: {
+        DEFAULT: '0.5',
+        primary: '0.5',
+      },
+      outlineColor: {
+        primary: 'var(--primary)',
+      },
       ringColor: {
-        DEFAULT: 'rgba(74, 144, 226, 0.5)', // Primary color with opacity
         primary: 'rgba(74, 144, 226, 0.5)',
-        secondary: 'rgba(245, 166, 35, 0.5)',
-        accent: 'rgba(80, 227, 194, 0.5)'
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+      boxShadow: {
+        soft: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+        'lg-purple': '0 10px 15px -3px rgba(124, 58, 237, 0.2), 0 4px 6px -2px rgba(124, 58, 237, 0.1)',
+      },
+      animation: {
+        'bounce-slow': 'bounce 2s infinite',
+        'pulse-slow': 'pulse 3s infinite',
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'hero-pattern': 'linear-gradient(to right, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1))',
       },
       fontSize: {
         'xs-mobile': '0.65rem',
       },
-      boxShadow: {
-        soft: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-      },
     },
   },
-  plugins: [],
+  plugins: [
+    forms,
+    typography,
+    function({ addBase, theme }) {
+      addBase({
+        '::selection': {
+          backgroundColor: theme('colors.primary.500'),
+          color: theme('colors.white'),
+        },
+      });
+    }
+  ],
 };

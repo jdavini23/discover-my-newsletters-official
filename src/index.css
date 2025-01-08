@@ -101,7 +101,7 @@ body {
 
 /* Accessibility Enhancements */
 *:focus-visible {
-  @apply outline-2 outline-primary ring-2 ring-primary;
+  @apply outline-2 outline-primary ring-2 ring-primary/50;
 }
 
 /* Transition and Animation Utilities */
@@ -144,7 +144,7 @@ body {
 
   /* Focus states */
   *:focus {
-    @apply outline-none ring-2 ring-primary;
+    @apply outline-none ring-2 ring-primary/50;
   }
 
   /* Custom scrollbar */
@@ -167,15 +167,11 @@ body {
       text-gray-900 
       transition-colors 
       duration-300 
-      ease-in-out 
-      selection:bg-primary 
-      selection:text-white;
+      ease-in-out;
   }
 
   .dark {
-    @apply text-gray-100 
-      selection:bg-primary 
-      selection:text-white;
+    @apply text-gray-100;
   }
 
   /* Responsive Typography */
@@ -323,9 +319,10 @@ body {
     @apply rounded-full;
   }
 
-  /* Remove selection background classes */
+  /* Selection Styling */
   ::selection {
-    @apply bg-blue-500 text-white;
+    background-color: theme('colors.primary.200');
+    color: theme('colors.primary.900');
   }
 }
 
@@ -333,27 +330,27 @@ body {
   .btn-primary {
     @apply bg-primary text-white font-medium py-2 px-4 rounded-lg 
            transition-all duration-200 hover:bg-primary-600
-           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 
   .btn-secondary {
     @apply bg-secondary text-white font-medium py-2 px-4 rounded-lg 
            transition-all duration-200 hover:bg-secondary-600
-           focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
+           focus:outline-none focus:ring-2 focus:ring-secondary/50;
   }
 
   .card {
     @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 
            border border-gray-200 dark:border-gray-700 
            text-gray-700 dark:text-gray-300
-           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 
   .input {
     @apply w-full border border-gray-200 dark:border-gray-700 
            rounded-lg px-4 py-2 
            text-gray-700 dark:text-gray-300
-           focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50;
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 
   .gradient-primary {
