@@ -31,11 +31,13 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
       `}
     >
       {showDarkModeToggle && (
-        <div className={`
+        <div
+          className={`
           fixed 
           ${isMobile ? 'top-2 right-2' : 'top-4 right-4'} 
           z-50
-        `}>
+        `}
+        >
           <DarkModeToggle />
         </div>
       )}

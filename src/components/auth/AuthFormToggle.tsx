@@ -6,10 +6,7 @@ interface AuthFormToggleProps {
   onToggle: () => void;
 }
 
-export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ 
-  isLogin, 
-  onToggle 
-}) => {
+export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) => {
   return (
     <div className='text-center mt-4'>
       <motion.button
@@ -19,9 +16,7 @@ export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({
         whileTap={{ scale: 0.95 }}
         className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
       >
-        {isLogin 
-          ? "Don't have an account? Sign Up" 
-          : "Already have an account? Sign In"}
+        {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
       </motion.button>
     </div>
   );

@@ -24,12 +24,16 @@ const firebaseConfig = {
 // Validate Firebase configuration
 const validateFirebaseConfig = (config: typeof firebaseConfig) => {
   const requiredKeys: (keyof typeof firebaseConfig)[] = [
-    'apiKey', 'authDomain', 'projectId', 
-    'storageBucket', 'messagingSenderId', 'appId'
+    'apiKey',
+    'authDomain',
+    'projectId',
+    'storageBucket',
+    'messagingSenderId',
+    'appId',
   ];
 
-  const missingKeys = requiredKeys.filter(key => !config[key]);
-  
+  const missingKeys = requiredKeys.filter((key) => !config[key]);
+
   if (missingKeys.length > 0) {
     console.error('Missing Firebase configuration keys:', missingKeys);
     throw new Error(`Invalid Firebase configuration. Missing keys: ${missingKeys.join(', ')}`);
@@ -98,11 +102,4 @@ const onAuthChange = (callback: (user: User | null) => void) => {
 // Initialize Firebase on module import
 initializeFirebase();
 
-export {
-  auth,
-  firestore,
-  signUp,
-  signIn,
-  logOut,
-  onAuthChange
-};
+export { auth, firestore, signUp, signIn, logOut, onAuthChange };

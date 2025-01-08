@@ -184,5 +184,5 @@ export default {
   trackEvent,
   trackError,
   trackPageView,
-  EventTypes
+  EventTypes,
 };

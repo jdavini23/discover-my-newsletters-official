@@ -12,8 +12,8 @@ export const AuthFormHeader: React.FC<AuthFormHeaderProps> = ({ isLogin }) => {
         {isLogin ? 'Welcome Back' : 'Create Your Account'}
       </h2>
       <p className='text-center text-gray-500'>
-        {isLogin 
-          ? 'Sign in to continue exploring newsletters' 
+        {isLogin
+          ? 'Sign in to continue exploring newsletters'
           : 'Join our community of newsletter enthusiasts'}
       </p>
     </div>

@@ -20,7 +20,7 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Form validation states
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -64,7 +64,7 @@ const AuthPage = () => {
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate all fields
     const isEmailValid = validateEmail(email);
     const isPasswordValid = validatePassword(password);
@@ -117,7 +117,7 @@ const AuthPage = () => {
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8'>
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
@@ -134,7 +134,7 @@ const AuthPage = () => {
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <AuthInput 
+                <AuthInput
                   type='text'
                   name='displayName'
                   value={displayName}
@@ -150,7 +150,7 @@ const AuthPage = () => {
             )}
           </AnimatePresence>
 
-          <AuthInput 
+          <AuthInput
             type='email'
             name='email'
             value={email}
@@ -163,7 +163,7 @@ const AuthPage = () => {
             error={emailError}
           />
 
-          <AuthInput 
+          <AuthInput
             type='password'
             name='password'
             value={password}
@@ -195,7 +195,7 @@ const AuthPage = () => {
             disabled={isLoading}
             className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
           >
-            {isLoading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+            {isLoading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
           </button>
         </form>
 
@@ -204,27 +204,22 @@ const AuthPage = () => {
             <div className='w-full border-t border-gray-300'></div>
           </div>
           <div className='relative flex justify-center text-sm'>
-            <span className='px-2 bg-white text-gray-500'>
-              Or continue with
-            </span>
+            <span className='px-2 bg-white text-gray-500'>Or continue with</span>
           </div>
         </div>
 
-        <SocialLoginButtons 
+        <SocialLoginButtons
           onGoogleLogin={() => handleSocialLogin('google')}
           onGitHubLogin={() => handleSocialLogin('github')}
         />
 
-        <AuthFormToggle 
-          isLogin={isLogin}
-          onToggle={() => setIsLogin(!isLogin)}
-        />
+        <AuthFormToggle isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
       </motion.div>
 
       {showPasswordReset && (
-        <PasswordResetModal 
-          isOpen={showPasswordReset} 
-          onClose={() => setShowPasswordReset(false)} 
+        <PasswordResetModal
+          isOpen={showPasswordReset}
+          onClose={() => setShowPasswordReset(false)}
         />
       )}
     </div>

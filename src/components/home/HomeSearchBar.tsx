@@ -9,44 +9,44 @@ export const HomeSearchBar: React.FC = () => {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate('/newsletters', { state: { initialSearch: searchQuery } });
-    }
-  }, [searchQuery, navigate]);
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        navigate('/newsletters', { state: { initialSearch: searchQuery } });
+      }
+    },
+    [searchQuery, navigate]
+  );
 
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
 
   return (
-    <div className="relative w-full max-w-xl mx-auto lg:mx-0">
-      <form 
-        onSubmit={handleSearch} 
-        className="flex w-full group"
-      >
-        <div className="relative flex-grow">
-          <motion.div 
-            className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+    <div className='relative w-full max-w-xl mx-auto lg:mx-0'>
+      <form onSubmit={handleSearch} className='flex w-full group'>
+        <div className='relative flex-grow'>
+          <motion.div
+            className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'
             initial={{ opacity: 0, x: -10 }}
-            animate={{ 
-              opacity: isFocused ? 0.7 : 0.5, 
-              x: isFocused ? 0 : -10 
+            animate={{
+              opacity: isFocused ? 0.7 : 0.5,
+              x: isFocused ? 0 : -10,
             }}
             transition={{ duration: 0.3 }}
           >
-            <MagnifyingGlassIcon className="h-5 w-5 text-primary-500 transition-colors" />
+            <MagnifyingGlassIcon className='h-5 w-5 text-primary-500 transition-colors' />
           </motion.div>
 
-          <input 
+          <input
             ref={inputRef}
-            type="text" 
+            type='text'
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder="Discover amazing newsletters..." 
-            className="
+            placeholder='Discover amazing newsletters...'
+            className='
               block w-full 
               pl-10 pr-3 py-3 
               border-2 border-transparent 
@@ -61,7 +61,7 @@ export const HomeSearchBar: React.FC = () => {
               transition-all 
               duration-300 
               ease-in-out
-            "
+            '
           />
 
           <AnimatePresence>
@@ -70,22 +70,22 @@ export const HomeSearchBar: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
+                className='absolute right-3 top-1/2 -translate-y-1/2'
               >
-                <SparklesIcon 
-                  className="h-5 w-5 text-primary-600 animate-pulse" 
-                  aria-hidden="true" 
+                <SparklesIcon
+                  className='h-5 w-5 text-primary-600 animate-pulse'
+                  aria-hidden='true'
                 />
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-        
-        <motion.button 
-          type="submit" 
+
+        <motion.button
+          type='submit'
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="
+          className='
             btn-primary 
             rounded-xl 
             px-5 
@@ -101,16 +101,16 @@ export const HomeSearchBar: React.FC = () => {
             flex 
             items-center 
             gap-2
-          "
+          '
         >
-          <SparklesIcon className="h-5 w-5 opacity-70" />
+          <SparklesIcon className='h-5 w-5 opacity-70' />
           Discover
         </motion.button>
       </form>
 
       {/* Playful background effect */}
-      <motion.div 
-        className="
+      <motion.div
+        className='
           absolute 
           -z-10 
           top-0 
@@ -125,11 +125,11 @@ export const HomeSearchBar: React.FC = () => {
           group-hover:opacity-100 
           transition-opacity 
           duration-500
-        "
+        '
         initial={{ opacity: 0 }}
-        animate={{ 
+        animate={{
           opacity: isFocused ? 0.5 : 0,
-          scale: isFocused ? 1.02 : 1 
+          scale: isFocused ? 1.02 : 1,
         }}
         transition={{ duration: 0.5 }}
       />

@@ -12,7 +12,7 @@ export const useResponsive = (mobileBreakpoint = 640, tabletBreakpoint = 1024): 
     isMobile: false,
     isTablet: false,
     isDesktop: false,
-    screenWidth: 0
+    screenWidth: 0,
   });
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export const useResponsive = (mobileBreakpoint = 640, tabletBreakpoint = 1024): 
         isMobile: width < mobileBreakpoint,
         isTablet: width >= mobileBreakpoint && width < tabletBreakpoint,
         isDesktop: width >= tabletBreakpoint,
-        screenWidth: width
+        screenWidth: width,
       });
     };
 

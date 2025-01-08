@@ -43,22 +43,22 @@ const Navigation = () => {
   };
 
   const mobileMenuVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       x: '100%',
-      transition: { duration: 0.3 }
+      transition: { duration: 0.3 },
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
-      transition: { duration: 0.3 }
-    }
+      transition: { duration: 0.3 },
+    },
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-white dark:bg-dark-background shadow-sm">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-        <Link to="/" className="flex items-center">
+    <nav className='fixed top-0 left-0 w-full z-50 bg-white dark:bg-dark-background shadow-sm'>
+      <div className='container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16'>
+        <Link to='/' className='flex items-center'>
           <div className='w-10 h-10 bg-[#FF7E5F] rounded-lg flex items-center justify-center mr-2'>
             <span className='text-white font-bold text-xl'>D</span>
           </div>
@@ -68,15 +68,15 @@ const Navigation = () => {
         </Link>
 
         {isMobile ? (
-          <button 
-            onClick={toggleMobileMenu} 
-            className="text-gray-600 hover:text-primary-600 focus:outline-none"
-            aria-label="Toggle mobile menu"
+          <button
+            onClick={toggleMobileMenu}
+            className='text-gray-600 hover:text-primary-600 focus:outline-none'
+            aria-label='Toggle mobile menu'
           >
-            {isMobileMenuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+            {isMobileMenuOpen ? <XIcon className='h-6 w-6' /> : <MenuIcon className='h-6 w-6' />}
           </button>
         ) : (
-          <div className="ml-10 flex items-baseline space-x-4">
+          <div className='ml-10 flex items-baseline space-x-4'>
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -102,14 +102,14 @@ const Navigation = () => {
         <AnimatePresence>
           {isMobile && isMobileMenuOpen && (
             <motion.div
-              key="mobile-menu"
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
+              key='mobile-menu'
+              initial='hidden'
+              animate='visible'
+              exit='hidden'
               variants={mobileMenuVariants}
-              className="fixed top-16 right-0 w-64 bg-white dark:bg-dark-background shadow-lg h-full"
+              className='fixed top-16 right-0 w-64 bg-white dark:bg-dark-background shadow-lg h-full'
             >
-              <div className="flex flex-col p-4 space-y-4">
+              <div className='flex flex-col p-4 space-y-4'>
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}

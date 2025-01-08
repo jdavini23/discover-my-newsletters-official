@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-  UserIcon, 
-  EnvelopeIcon, 
-  LockClosedIcon, 
-  EyeIcon, 
-  EyeSlashIcon 
+import {
+  UserIcon,
+  EnvelopeIcon,
+  LockClosedIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 
 interface AuthInputProps {
@@ -28,11 +28,11 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   error,
   icon,
   showPassword,
-  onTogglePasswordVisibility
+  onTogglePasswordVisibility,
 }) => {
   const renderIcon = () => {
     const iconProps = {
-      className: 'absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400'
+      className: 'absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400',
     };
 
     switch (icon) {
@@ -74,16 +74,15 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             focus:outline-none focus:ring-0 rounded-full p-1'
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? 
-              <EyeSlashIcon className='h-5 w-5 text-current' /> : 
+            {showPassword ? (
+              <EyeSlashIcon className='h-5 w-5 text-current' />
+            ) : (
               <EyeIcon className='h-5 w-5 text-current' />
-            }
+            )}
           </button>
         )}
       </div>
-      {error && (
-        <p className='mt-2 text-sm text-red-600'>{error}</p>
-      )}
+      {error && <p className='mt-2 text-sm text-red-600'>{error}</p>}
     </div>
   );
 };

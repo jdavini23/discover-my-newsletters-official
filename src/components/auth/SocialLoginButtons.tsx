@@ -44,9 +44,9 @@ interface SocialLoginButtonsProps {
   onGitHubLogin: () => void;
 }
 
-export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({ 
-  onGoogleLogin, 
-  onGitHubLogin 
+export const SocialLoginButtons: React.FC<SocialLoginButtonsProps> = ({
+  onGoogleLogin,
+  onGitHubLogin,
 }) => {
   return (
     <div className='flex justify-center space-x-4 mt-4'>
