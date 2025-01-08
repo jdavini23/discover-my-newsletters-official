@@ -14,31 +14,48 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting */
+    /* Strict Type Checking */
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "allowJs": true,
+    "allowJs": false,
+
+    /* Performance and Optimization */
+    "removeComments": true,
+    "incremental": true,
 
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
-      "@containers/*": ["src/containers/*"],
       "@hooks/*": ["src/hooks/*"],
-      "@images/*": ["src/images/*"],
       "@pages/*": ["src/pages/*"],
-      "@styles/*": ["src/styles/*"],
+      "@stores/*": ["src/stores/*"],
+      "@services/*": ["src/services/*"],
       "@utils/*": ["src/utils/*"],
-      "@/types/*": ["src/types/*"]
+      "@types/*": ["src/types/*"]
     },
-    "types": ["node"],
-    "noImplicitAny": false,
-    "strictNullChecks": false,
-    "allowSyntheticDefaultImports": true
+
+    /* Module Resolution */
+    "allowSyntheticDefaultImports": true,
+    "types": ["node", "vite/client", "vitest"],
+
+    /* Experimental */
+    "experimentalDecorators": false
   },
-  "include": ["src", "scripts"],
+  "include": ["src/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "dist", "build"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
