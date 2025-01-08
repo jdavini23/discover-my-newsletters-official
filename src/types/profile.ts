@@ -1,5 +1,30 @@
 import { Timestamp } from 'firebase/firestore';
 
+export enum ReadingFrequency {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly'
+}
+
+export enum ContentDepth {
+  QUICK_INSIGHTS = 'quick_insights',
+  DEEP_DIVE = 'deep_dive'
+}
+
+export interface UserOnboardingProfile {
+  isOnboardingComplete: boolean;
+  selectedCategories: string[];
+  readingFrequency: ReadingFrequency;
+  contentPreferences: {
+    depth: ContentDepth;
+    formats: string[];
+  };
+  recommendationScore?: number;
+  lastOnboardingUpdate?: Date;
+}
+
+export type UserRole = 'user' | 'admin' | 'moderator';
+
 export interface UserProfile {
   uid: string;
   email: string;
@@ -13,6 +38,11 @@ export interface UserProfile {
     frequency: 'daily' | 'weekly' | 'monthly';
     categories: string[];
   };
+  onboarding: UserOnboardingProfile;
+  preferences?: {
+    darkMode?: boolean;
+    notifications?: boolean;
+  };
 
   // Interaction Tracking
   activityLog: UserActivity[];
@@ -20,6 +50,9 @@ export interface UserProfile {
   // Account Settings
   accountCreatedAt: Timestamp;
   lastLoginAt: Timestamp;
+
+  role: UserRole;
+  adminInviteCode?: string;
 }
 
 export interface UserActivity {
@@ -36,6 +69,10 @@ export interface UpdateProfileParams {
   interests?: string[];
   newsletterPreferences?: UserProfile['newsletterPreferences'];
   activityLog?: UserProfile['activityLog'];
+  onboarding?: UserOnboardingProfile;
+  preferences?: UserProfile['preferences'];
+  role?: UserProfile['role'];
+  adminInviteCode?: UserProfile['adminInviteCode'];
 }
 
 export interface User {

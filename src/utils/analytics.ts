@@ -83,73 +83,141 @@ export const initAnalytics = () => {
   }
 };
 
-// Define a more specific type for error context
-interface ErrorContext {
-  [key: string]: string | number | boolean | null | undefined;
-}
+// Enhanced event types
+export const EventTypes = {
+  // Recommendation Events
+  RECOMMENDATION_GENERATED: 'recommendation_generated',
+  RECOMMENDATION_INTERACTION: 'recommendation_interaction',
+  RECOMMENDATION_FEEDBACK: 'recommendation_feedback',
 
-// Define a more specific type for event data
-type EventData = {
-  message: string;
-  stack?: string;
-  context?: ErrorContext;
-  severity: string;
-  query?: string;
-  source?: string;
+  // Newsletter Events
+  NEWSLETTER_SEARCH: 'newsletter_search',
+  NEWSLETTER_SIGNUP: 'newsletter_signup',
+  NEWSLETTER_VIEW: 'newsletter_view',
+  NEWSLETTER_SAVE: 'newsletter_save',
+
+  // User Journey Events
+  ONBOARDING_START: 'onboarding_start',
+  ONBOARDING_COMPLETE: 'onboarding_complete',
+  USER_PREFERENCE_UPDATE: 'user_preference_update',
+
+  // Performance Events
+  PAGE_LOAD_TIME: 'page_load_time',
+  API_RESPONSE_TIME: 'api_response_time',
+
+  // Error Events
+  RECOMMENDATION_ERROR: 'recommendation_error',
+  NETWORK_ERROR: 'network_error',
+  ERROR: 'error'
 };
 
-// Enhanced event tracking
-export const trackEvent = (
-  eventName: string,
-  eventData: EventData,
-  options: {
-    nonInteraction?: boolean;
-    category?: string;
-  } = {}
-) => {
-  // Skip tracking if analytics is disabled or rate limited
-  if (!config.enabled || isRateLimited(eventName)) return;
+// Enhanced tracking context
+interface TrackingContext {
+  userId?: string;
+  userSegment?: string;
+  platform?: 'web' | 'mobile';
+  source?: string;
+}
 
+// Performance tracking utility
+export const performanceTracker = {
+  markStart: (eventName: string) => {
+    performance.mark(`${eventName}_start`);
+  },
+
+  markEnd: (eventName: string, context?: TrackingContext) => {
+    performance.mark(`${eventName}_end`);
+    performance.measure(eventName, `${eventName}_start`, `${eventName}_end`);
+    
+    const duration = performance.getEntriesByName(eventName)[0].duration;
+    
+    // Log performance metrics
+    trackEvent(EventTypes.PAGE_LOAD_TIME, {
+      duration,
+      ...context
+    });
+
+    // Clean up marks and measures
+    performance.clearMarks(`${eventName}_start`);
+    performance.clearMarks(`${eventName}_end`);
+    performance.clearMeasures(eventName);
+  }
+};
+
+// Advanced event tracking with more context
+export const trackEvent = (
+  eventName: string, 
+  eventData: Record<string, any> = {}, 
+  context: TrackingContext = {}
+) => {
   try {
-    // Prepare event data
-    const enhancedEventData = {
-      props: {
-        category: options.category || 'general',
-        ...eventData,
-        timestamp: new Date().toISOString(),
-      },
+    // Enrich event with context
+    const enrichedEventData = {
+      ...eventData,
+      userId: context.userId || 'anonymous',
+      userSegment: context.userSegment || 'undefined',
+      platform: context.platform || 'web',
+      source: context.source || 'unknown'
     };
 
-    // Track event with Plausible
-    try {
-      // Use trackEvent method from the Plausible instance
-      plausibleInstance.trackEvent(eventName, enhancedEventData.props);
-
+    // Rate limit and log event
+    if (!isRateLimited(eventName)) {
+      plausibleInstance.trackEvent(eventName, enrichedEventData);
+      
       // Optional: Log to console in development
-      if (config.debug) {
-        console.log(`[Analytics] Event: ${eventName}`, enhancedEventData);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`📊 Event: ${eventName}`, enrichedEventData);
       }
-    } catch (error) {
-      console.error('Analytics tracking error:', error);
     }
   } catch (error) {
-    console.error('Analytics event preparation error:', error);
+    console.error('Analytics tracking error:', error);
+  }
+};
+
+// Recommendation tracking utility
+export const recommendationTracker = {
+  trackGeneration: (recommendations: any[], context: TrackingContext) => {
+    trackEvent(EventTypes.RECOMMENDATION_GENERATED, {
+      recommendationCount: recommendations.length,
+      recommendationIds: recommendations.map(r => r.id)
+    }, context);
+  },
+
+  trackInteraction: (
+    newsletter: any, 
+    interactionType: 'view' | 'save' | 'share',
+    context: TrackingContext
+  ) => {
+    trackEvent(EventTypes.RECOMMENDATION_INTERACTION, {
+      newsletterId: newsletter.id,
+      newsletterTitle: newsletter.title,
+      interactionType
+    }, context);
+  },
+
+  trackFeedback: (
+    newsletter: any, 
+    feedbackType: 'positive' | 'negative',
+    context: TrackingContext
+  ) => {
+    trackEvent(EventTypes.RECOMMENDATION_FEEDBACK, {
+      newsletterId: newsletter.id,
+      newsletterTitle: newsletter.title,
+      feedbackType
+    }, context);
   }
 };
 
 // Error tracking
-export const trackError = (error: Error, context?: ErrorContext) => {
+export const trackError = (error: Error, context?: TrackingContext) => {
   try {
-    const eventData: EventData = {
+    const eventData: Record<string, any> = {
       message: error.message,
       stack: error.stack,
-      context,
       severity: 'high',
     };
 
-    trackEvent('error', eventData, {
-      nonInteraction: true,
-    });
+    trackEvent(EventTypes.ERROR, eventData, context);
   } catch (trackingError) {
     console.error('Error tracking failed:', trackingError);
   }
@@ -157,32 +225,22 @@ export const trackError = (error: Error, context?: ErrorContext) => {
 
 // Page view tracking
 export const trackPageView = (path?: string, options?: { referrer?: string }) => {
-  // Skip tracking if analytics is disabled
-  if (!config.enabled) return;
-
   try {
     plausibleInstance.trackPageview({
-      url: path || window.location.href,
-      referrer: options?.referrer || document.referrer,
+      url: path,
+      referrer: options?.referrer
     });
   } catch (error) {
-    console.error('Page view tracking error:', error);
+    console.error('Page view tracking failed:', error);
   }
 };
 
-// Custom event types for better type checking
-export const EventTypes = {
-  NEWSLETTER_SEARCH: 'newsletter_search',
-  NEWSLETTER_SIGNUP: 'newsletter_signup',
-  NEWSLETTER_VIEW: 'newsletter_view',
-  ERROR: 'error',
-} as const;
-
-export type EventType = (typeof EventTypes)[keyof typeof EventTypes];
-
+// Default export for backwards compatibility
 export default {
   trackEvent,
   trackError,
   trackPageView,
-  EventTypes,
+  performanceTracker,
+  recommendationTracker,
+  EventTypes
 };

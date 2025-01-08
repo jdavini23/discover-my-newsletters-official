@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { User, UserCredential } from 'firebase/auth';
 import { signIn, signUp, logOut, onAuthChange } from '@/config/firebase';
 import { createUserProfile } from '@/services/firestore';
+import { AdminInviteService } from '@/services/adminInviteService';
 
 interface AuthState {
   user: User | null;
@@ -16,6 +17,10 @@ interface AuthState {
 
   // Authentication state management
   initializeAuth: () => void;
+
+  // Admin promotion methods
+  promoteToAdmin: (inviteCode: string) => Promise<boolean>;
+  generateAdminInviteCode: () => Promise<string | null>;
 }
 
 const useAuthStore = create<AuthState>((set) => ({
@@ -27,9 +32,18 @@ const useAuthStore = create<AuthState>((set) => ({
   login: async (email: string, password: string) => {
     set({ isLoading: true, error: null });
     try {
-      const user = await signIn(email, password);
+      const userCredential = await signIn(email, password);
+      const user = userCredential.user;
+
+      // Fetch user profile to get the role
+      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+      const userData = userDoc.data() as UserProfile;
+
       set({
-        user,
+        user: {
+          ...user,
+          role: userData?.role || 'user'
+        },
         isAuthenticated: true,
         isLoading: false,
       });
@@ -47,14 +61,14 @@ const useAuthStore = create<AuthState>((set) => ({
     try {
       const userCredential: UserCredential = await signUp(email, password);
 
-      // Create user profile
-      await createUserProfile(userCredential.user.uid, {
-        email: userCredential.user.email || '',
-        displayName: name || userCredential.user.displayName || '',
-      });
+      // Create user profile with default role
+      await createUserProfile(userCredential.user);
 
       set({
-        user: userCredential.user,
+        user: {
+          ...userCredential.user,
+          role: 'user'
+        },
         isAuthenticated: true,
         isLoading: false,
       });
@@ -92,7 +106,10 @@ const useAuthStore = create<AuthState>((set) => ({
       if (user) {
         console.log('User authenticated:', user.email);
         set({
-          user,
+          user: {
+            ...user,
+            role: 'user'
+          },
           isAuthenticated: true,
           isLoading: false,
         });
@@ -106,6 +123,49 @@ const useAuthStore = create<AuthState>((set) => ({
       }
     });
   },
+
+  promoteToAdmin: async (inviteCode: string): Promise<boolean> => {
+    if (!useAuthStore.getState().user) {
+      throw new Error('No authenticated user');
+    }
+
+    try {
+      const isValidInvite = await AdminInviteService.validateAdminInviteCode(
+        useAuthStore.getState().user.uid, 
+        inviteCode
+      );
+
+      if (isValidInvite) {
+        // Update local state
+        set({
+          user: {
+            ...useAuthStore.getState().user,
+            role: 'admin'
+          }
+        });
+
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Admin promotion failed:', error);
+      return false;
+    }
+  },
+
+  generateAdminInviteCode: async (): Promise<string | null> => {
+    if (!useAuthStore.getState().user || useAuthStore.getState().user.role !== 'admin') {
+      return null;
+    }
+
+    try {
+      return await AdminInviteService.generateAdminInviteCode();
+    } catch (error) {
+      console.error('Failed to generate admin invite code:', error);
+      return null;
+    }
+  }
 }));
 
 // Export both default and named exports

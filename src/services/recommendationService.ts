@@ -10,6 +10,7 @@ import {
   Timestamp,
   orderBy,
   limit,
+  increment,
 } from 'firebase/firestore';
 import { auth } from '@/config/firebase';
 import { User, Newsletter, UserNewsletterInteraction, NewsletterFilter } from '@/types/firestore';
@@ -212,6 +213,15 @@ export const findSimilarNewsletters = async (newsletterId: string) => {
 import { User, UserNewsletterInteraction, NewsletterFilter } from '../types/firestore';
 
 import { RecommendationEngine } from '../types/recommendation';
+
+import { RecommendationScorer } from '@/ml/recommendationScorer';
+import { RecommendationLearningService } from './recommendationLearningService';
+import { recommendationTracker } from '@/utils/analytics';
+
+import { 
+  RecommendationAlgorithmVariant, 
+  ABTestingService 
+} from '@/ml/abTestingFramework';
 
 class RecommendationService implements RecommendationEngine {
   private calculateContentBasedScore(
@@ -621,6 +631,398 @@ class RecommendationService implements RecommendationEngine {
     } catch (error) {
       console.error('Error fetching trending newsletters:', error);
       return []; // Return empty array instead of throwing
+    }
+  }
+
+  async generateInitialRecommendations(
+    userId: string, 
+    preferences: {
+      categories: string[];
+      readingFrequency: ReadingFrequency;
+      contentDepth: ContentDepth;
+    }
+  ): Promise<Newsletter[]> {
+    try {
+      // Fetch newsletters matching user's initial preferences
+      const recommendedNewsletters = await NewsletterService.fetchNewsletters({
+        categories: preferences.categories,
+        pageSize: 10,
+        sortBy: 'subscribers_desc'
+      });
+
+      // Score and rank newsletters based on user preferences
+      const scoredNewsletters = recommendedNewsletters.newsletters.map(newsletter => ({
+        ...newsletter,
+        recommendationScore: this.calculateInitialRecommendationScore(newsletter, preferences)
+      }));
+
+      // Sort by recommendation score
+      const rankedNewsletters = scoredNewsletters.sort(
+        (a, b) => b.recommendationScore - a.recommendationScore
+      );
+
+      // Update user's recommendation profile
+      await this.updateUserRecommendationProfile(userId, {
+        initialRecommendations: rankedNewsletters.map(nl => nl.id),
+        recommendationPreferences: preferences
+      });
+
+      return rankedNewsletters.slice(0, 5); // Return top 5
+    } catch (error) {
+      console.error('Initial recommendation generation failed:', error);
+      return [];
+    }
+  },
+
+  calculateInitialRecommendationScore(
+    newsletter: Newsletter, 
+    preferences: {
+      categories: string[];
+      readingFrequency: ReadingFrequency;
+      contentDepth: ContentDepth;
+    }
+  ): number {
+    let score = 0;
+
+    // Category match
+    if (preferences.categories.some(cat => 
+      newsletter.category.toLowerCase().includes(cat.toLowerCase())
+    )) {
+      score += 50;
+    }
+
+    // Subscriber count bonus
+    score += Math.min(newsletter.subscribers / 1000, 30);
+
+    // Reading frequency alignment
+    switch (preferences.readingFrequency) {
+      case ReadingFrequency.DAILY:
+        score += newsletter.frequency === 'daily' ? 20 : 0;
+        break;
+      case ReadingFrequency.WEEKLY:
+        score += newsletter.frequency === 'weekly' ? 20 : 0;
+        break;
+      case ReadingFrequency.MONTHLY:
+        score += newsletter.frequency === 'monthly' ? 20 : 0;
+        break;
+    }
+
+    // Content depth alignment
+    score += newsletter.contentType === preferences.contentDepth ? 20 : 0;
+
+    return score;
+  },
+
+  async updateUserRecommendationProfile(
+    userId: string, 
+    profileUpdate: {
+      initialRecommendations: string[];
+      recommendationPreferences: any;
+    }
+  ) {
+    try {
+      await updateDoc(doc(firestore, 'users', userId), {
+        'recommendationProfile.initialRecommendations': profileUpdate.initialRecommendations,
+        'recommendationProfile.preferences': profileUpdate.recommendationPreferences
+      });
+    } catch (error) {
+      console.error('Failed to update recommendation profile:', error);
+    }
+  }
+
+  async recordRecommendationFeedback(feedback: {
+    newsletterId: string;
+    feedbackType: 'positive' | 'negative';
+    comment?: string;
+  }) {
+    try {
+      const user = auth.currentUser;
+      if (!user) throw new Error('User not authenticated');
+
+      const feedbackRef = collection(db, 'recommendationFeedback');
+      
+      await addDoc(feedbackRef, {
+        userId: user.uid,
+        newsletterId: feedback.newsletterId,
+        feedbackType: feedback.feedbackType,
+        comment: feedback.comment || '',
+        timestamp: Timestamp.now()
+      });
+
+      // Adjust recommendation score based on feedback
+      await this.adjustRecommendationScore(
+        feedback.newsletterId, 
+        feedback.feedbackType
+      );
+    } catch (error) {
+      console.error('Failed to record recommendation feedback:', error);
+      throw error;
+    }
+  },
+
+  async adjustRecommendationScore(
+    newsletterId: string, 
+    feedbackType: 'positive' | 'negative'
+  ) {
+    try {
+      const newsletterRef = doc(db, 'newsletters', newsletterId);
+      
+      const scoreAdjustment = feedbackType === 'positive' ? 5 : -5;
+      
+      await updateDoc(newsletterRef, {
+        recommendationScore: increment(scoreAdjustment),
+        totalFeedbackCount: increment(1),
+        positiveFeedbackCount: feedbackType === 'positive' 
+          ? increment(1) 
+          : undefined
+      });
+    } catch (error) {
+      console.error('Failed to adjust recommendation score:', error);
+    }
+  }
+
+  async generatePersonalizedRecommendations(
+    userProfile: UserProfile, 
+    options: { 
+      limit?: number; 
+      refreshCache?: boolean;
+      abTestId?: string; 
+    } = {}
+  ): Promise<Newsletter[]> {
+    try {
+      const { 
+        limit = 10, 
+        refreshCache = false, 
+        abTestId 
+      } = options;
+
+      let selectedVariant: RecommendationAlgorithmVariant = 
+        RecommendationAlgorithmVariant.BASELINE;
+
+      // If A/B test ID is provided, assign user to a test variant
+      if (abTestId) {
+        selectedVariant = await ABTestingService.assignUserToTest(
+          userProfile.id, 
+          abTestId
+        );
+      }
+
+      // Generate recommendations based on selected variant
+      let recommendations: Newsletter[];
+      switch (selectedVariant) {
+        case RecommendationAlgorithmVariant.BASELINE:
+          recommendations = await this.generateBaselineRecommendations(
+            userProfile, 
+            { limit }
+          );
+          break;
+        
+        case RecommendationAlgorithmVariant.ML_SCORER_V1:
+          recommendations = await this.generateMLScorerV1Recommendations(
+            userProfile, 
+            { limit }
+          );
+          break;
+        
+        case RecommendationAlgorithmVariant.ML_SCORER_V2:
+          recommendations = await this.generateMLScorerV2Recommendations(
+            userProfile, 
+            { limit }
+          );
+          break;
+        
+        case RecommendationAlgorithmVariant.COLLABORATIVE_FILTERING:
+          recommendations = await this.generateCollaborativeFilteringRecommendations(
+            userProfile, 
+            { limit }
+          );
+          break;
+        
+        default:
+          recommendations = await this.generateBaselineRecommendations(
+            userProfile, 
+            { limit }
+          );
+      }
+
+      // Log recommendation insights
+      await this.logRecommendationInsights(
+        userProfile, 
+        recommendations, 
+        selectedVariant
+      );
+
+      return recommendations;
+    } catch (error) {
+      console.error('Failed to generate personalized recommendations:', error);
+      throw error;
+    }
+  }
+
+  // Method to log recommendation insights
+  private async logRecommendationInsights(
+    userProfile: UserProfile,
+    recommendations: Newsletter[],
+    algorithmVariant: RecommendationAlgorithmVariant
+  ): Promise<void> {
+    try {
+      const insightsRef = collection(firestore, 'recommendationInsights');
+
+      // Calculate interaction metrics
+      const positiveInteractions = recommendations.filter(
+        nl => nl.score && nl.score > 70
+      ).length;
+
+      const negativeInteractions = recommendations.filter(
+        nl => nl.score && nl.score < 30
+      ).length;
+
+      const averageScore = recommendations.reduce(
+        (sum, nl) => sum + (nl.score || 0), 
+        0
+      ) / recommendations.length;
+
+      // Create insights document
+      await addDoc(insightsRef, {
+        userId: userProfile.id,
+        date: Timestamp.now(),
+        algorithmVariant,
+        totalRecommendations: recommendations.length,
+        positiveInteractions,
+        negativeInteractions,
+        averageScore,
+        userCategories: userProfile.onboarding.selectedCategories,
+        contentDepth: userProfile.onboarding.contentPreferences.depth
+      });
+    } catch (error) {
+      console.error('Failed to log recommendation insights:', error);
+    }
+  },
+
+  // Baseline recommendation generation method
+  private async generateBaselineRecommendations(
+    userProfile: UserProfile,
+    options: { limit?: number } = {}
+  ): Promise<Newsletter[]> {
+    const { limit = 10 } = options;
+
+    // Existing baseline recommendation logic
+    const newsletters = await this.fetchNewsletters({
+      categories: userProfile.onboarding.selectedCategories,
+      contentDepth: userProfile.onboarding.contentPreferences.depth
+    });
+
+    return newsletters.slice(0, limit);
+  },
+
+  // ML Scorer V1 recommendation generation
+  private async generateMLScorerV1Recommendations(
+    userProfile: UserProfile,
+    options: { limit?: number } = {}
+  ): Promise<Newsletter[]> {
+    const { limit = 10 } = options;
+
+    const newsletters = await this.fetchNewsletters({
+      categories: userProfile.onboarding.selectedCategories,
+      contentDepth: userProfile.onboarding.contentPreferences.depth
+    });
+
+    // Use ML Scorer V1 (existing implementation)
+    const scoredNewsletters = newsletters
+      .map(newsletter => ({
+        ...newsletter,
+        score: RecommendationScorer.calculateScore(newsletter, userProfile)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    return scoredNewsletters;
+  },
+
+  // ML Scorer V2 recommendation generation (more advanced)
+  private async generateMLScorerV2Recommendations(
+    userProfile: UserProfile,
+    options: { limit?: number } = {}
+  ): Promise<Newsletter[]> {
+    const { limit = 10 } = options;
+
+    const newsletters = await this.fetchNewsletters({
+      categories: userProfile.onboarding.selectedCategories,
+      contentDepth: userProfile.onboarding.contentPreferences.depth
+    });
+
+    // More advanced scoring algorithm (placeholder for future implementation)
+    const scoredNewsletters = newsletters
+      .map(newsletter => ({
+        ...newsletter,
+        score: this.calculateAdvancedMLScore(newsletter, userProfile)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    return scoredNewsletters;
+  },
+
+  // Collaborative filtering recommendation generation
+  private async generateCollaborativeFilteringRecommendations(
+    userProfile: UserProfile,
+    options: { limit?: number } = {}
+  ): Promise<Newsletter[]> {
+    const { limit = 10 } = options;
+
+    // Placeholder for collaborative filtering logic
+    // This would typically involve finding similar users and their newsletter interactions
+    const newsletters = await this.fetchNewsletters({
+      categories: userProfile.onboarding.selectedCategories,
+      contentDepth: userProfile.onboarding.contentPreferences.depth
+    });
+
+    // Simplified collaborative filtering simulation
+    const scoredNewsletters = newsletters
+      .map(newsletter => ({
+        ...newsletter,
+        score: this.calculateCollaborativeFilteringScore(newsletter, userProfile)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit);
+
+    return scoredNewsletters;
+  },
+
+  // Advanced ML scoring method (placeholder)
+  private calculateAdvancedMLScore(
+    newsletter: Newsletter, 
+    userProfile: UserProfile
+  ): number {
+    // More sophisticated scoring logic
+    // Could incorporate additional factors like:
+    // - More complex user interaction history
+    // - Temporal factors
+    // - Network effects
+    return RecommendationScorer.calculateScore(newsletter, userProfile) * 1.2;
+  },
+
+  // Collaborative filtering score calculation (placeholder)
+  private calculateCollaborativeFilteringScore(
+    newsletter: Newsletter, 
+    userProfile: UserProfile
+  ): number {
+    // Simulated collaborative filtering score
+    // In a real implementation, this would use more complex algorithms
+    const baseScore = RecommendationScorer.calculateScore(newsletter, userProfile);
+    
+    // Simulate collaborative filtering boost
+    const collaborativeBoost = Math.random() * 20;
+    
+    return baseScore + collaborativeBoost;
+  }
+
+  async updateRecommendationModel(): Promise<void> {
+    try {
+      // Trigger periodic model retraining
+      await RecommendationLearningService.periodicModelRetraining();
+    } catch (error) {
+      console.error('Recommendation model update failed:', error);
     }
   }
 }
