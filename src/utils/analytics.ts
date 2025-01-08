@@ -179,3 +179,10 @@ export const EventTypes = {
 } as const;
 
 export type EventType = (typeof EventTypes)[keyof typeof EventTypes];
+
+export default {
+  trackEvent,
+  trackError,
+  trackPageView,
+  EventTypes
+};

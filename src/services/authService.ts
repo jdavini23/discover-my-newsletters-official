@@ -8,11 +8,15 @@ import {
   signOut,
   FirebaseError,
   User,
+  signInWithPopup,
+  confirmPasswordReset,
 } from 'firebase/auth';
 
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 import { GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+
+import analytics from '@/utils/analytics';
 
 interface UserProfile {
   id: string;
@@ -66,7 +70,7 @@ export class AuthService {
       const result = await signInWithPopup(this.auth, this.googleProvider);
       const user = result.user;
 
-      trackEvent('social_login', { provider: 'google' });
+      analytics.trackEvent('social_login', { provider: 'google' });
 
       return this.formatUserProfile(user);
     } catch (error: unknown) {
@@ -81,7 +85,7 @@ export class AuthService {
       const result = await signInWithPopup(this.auth, this.githubProvider);
       const user = result.user;
 
-      trackEvent('social_login', { provider: 'github' });
+      analytics.trackEvent('social_login', { provider: 'github' });
 
       return this.formatUserProfile(user);
     } catch (error: unknown) {
@@ -103,7 +107,7 @@ export class AuthService {
         await this.updateProfile({ displayName });
       }
 
-      trackEvent('user_signup', { method: 'email' });
+      analytics.trackEvent('user_signup', { method: 'email' });
 
       return this.formatUserProfile(user);
     } catch (error: unknown) {
@@ -117,7 +121,7 @@ export class AuthService {
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
 
-      trackEvent('user_login', { method: 'email' });
+      analytics.trackEvent('user_login', { method: 'email' });
 
       return this.formatUserProfile(userCredential.user);
     } catch (error: unknown) {
@@ -132,7 +136,7 @@ export class AuthService {
     try {
       await sendPasswordResetEmail(this.auth, email);
 
-      trackEvent('password_reset_request', { email });
+      analytics.trackEvent('password_reset_request', { email });
 
       return true;
     } catch (error: unknown) {
@@ -164,7 +168,7 @@ export class AuthService {
       // Firebase method for password reset
       await confirmPasswordReset(this.auth, code, newPassword);
 
-      trackEvent('password_reset_success', { email });
+      analytics.trackEvent('password_reset_success', { email });
 
       return true;
     } catch (error: unknown) {
