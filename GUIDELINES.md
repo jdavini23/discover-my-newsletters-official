@@ -208,23 +208,74 @@ docker-compose down -v
 - Data backup procedures
 - Audit logging
 
-## 7. Performance Guidelines
+## 7. Frontend Design and UX Guidelines
 
-### Frontend
+### Responsive Design Principles
 
+- Mobile-first approach
+- Consistent scaling across devices
+- Adaptive typography
+- Flexible layout systems
+- Performance-optimized responsive techniques
+
+### UI/UX Best Practices
+
+- Consistent design language
+- Animated interactions with Framer Motion
+- Accessibility-first design
+- Intuitive user interfaces
+- Micro-interactions and feedback
+- Dark mode support
+- Responsive component design
+
+### Performance Optimization
+
+- Lazy loading of components
+- Memoization of expensive computations
+- Minimal re-renders
 - Code splitting
-- Lazy loading
-- Image optimization
-- Bundle size monitoring
-- Performance monitoring
+- Efficient state management
+- Optimized asset loading
+- Reduced layout shifts
 
-### Backend
+### Animation and Interaction Design
 
-- Query optimization
-- Caching strategy
-- Connection pooling
-- Memory management
-- Response compression
+- Use Framer Motion for declarative animations
+- Subtle, purposeful motion
+- Performance-conscious animations
+- Consistent easing and timing
+- Accessibility-compliant animations
+- Reduced motion support
+
+### Styling and Design System
+
+- Tailwind CSS utility-first approach
+- CSS variables for theme management
+- Consistent spacing and sizing
+- Responsive typography
+- Dynamic theming
+- Modular design tokens
+- Centralized style management
+
+### State Management Guidelines
+
+- Use Zustand for lightweight, atomic state
+- Separate read and write logic
+- Immutable state updates
+- Middleware for logging and persistence
+- Minimal global state
+- Context for deeply nested prop sharing
+- Performance-optimized selectors
+
+### Error Handling and User Feedback
+
+- Comprehensive error boundaries
+- User-friendly error messages
+- Contextual error logging
+- Toast notifications
+- Graceful error recovery
+- Client-side error tracking
+- Proactive error prevention
 
 ## 8. Monitoring and Observability
 
