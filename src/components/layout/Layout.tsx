@@ -9,7 +9,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className='min-h-screen bg-background dark:bg-gray-900 transition-colors duration-300'>
       <Navigation />
-      <main className='pt-16 container mx-auto px-4 sm:px-6 lg:px-8'>{children}</main>
+      <main className='w-full pt-16 px-0 sm:px-0 lg:px-0'>{children}</main>
     </div>
   );
 };
