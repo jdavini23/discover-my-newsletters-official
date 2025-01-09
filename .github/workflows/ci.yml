@@ -1,4 +1,4 @@
-name: Solo Developer CI
+name: Discover My Newsletters CI
 
 on:
   push:
@@ -12,67 +12,31 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         cache: 'npm'
-        cache-dependency-path: 'newsletter-frontend/package-lock.json'
+        cache-dependency-path: 'package-lock.json'
     
     - name: Install Dependencies
-      run: |
-        cd newsletter-frontend
-        npm ci
+      run: npm ci
     
     - name: Lint Code
-      run: |
-        cd newsletter-frontend
-        npm run lint
+      run: npm run lint
     
     - name: Run Tests
-      run: |
-        cd newsletter-frontend
-        npm test
+      run: npm test
     
     - name: Build Project
-      run: |
-        cd newsletter-frontend
-        npm run build
+      run: npm run build
     
     - name: Performance Check
-      uses: treosh/lighthouse-ci-action@v9
+      uses: treosh/lighthouse-ci-action@v10
       with:
         urls: |
-          https://your-staging-url.com
+          https://discover-my-newsletters.com
         budgetPath: ./budget.json
         uploadArtifacts: true
-    
-    - name: Notify on Failure
-      if: failure()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: ${{ job.status }}
-        text: "Build failed! Check the details."
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.PERSONAL_SLACK_WEBHOOK }}
-
-  dependency-update-check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Check for Dependency Updates
-      run: |
-        cd newsletter-frontend
-        npx npm-check-updates
-        
-    - name: Notify of Available Updates
-      if: success()
-      uses: 8398a7/action-slack@v3
-      with:
-        status: custom
-        text: "Dependency updates are available! Run npm-check-updates to review."
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.PERSONAL_SLACK_WEBHOOK }}
