@@ -62,10 +62,17 @@ const Sidebar: React.FC = () => {
   });
 
   return (
-    <aside className='fixed left-0 top-0 h-full w-64 bg-white shadow-lg z-50 p-4'>
-      <div className='flex flex-col h-full'>
-        <div className='mb-8'>
-          <h1 className='text-2xl font-bold text-primary-600'>Newsletter Discovery</h1>
+    <aside 
+      className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white dark:bg-dark-background border-r border-gray-200 dark:border-dark-border overflow-y-auto transition-transform duration-300 ease-in-out`}
+    >
+      <div className='p-4'>
+        <div className='flex items-center mb-6'>
+          <div className='w-10 h-10 bg-[#FF7E5F] rounded-lg flex items-center justify-center mr-2'>
+            <span className='text-white font-bold text-xl'>D</span>
+          </div>
+          <span className='text-xl font-bold text-gray-800'>
+            Newsletter Discovery
+          </span>
         </div>
 
         <nav className='flex-grow'>
