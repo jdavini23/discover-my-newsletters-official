@@ -1,9 +1,42 @@
+import { addDoc, collection, Timestamp, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
+
 import { firestore } from '@/config/firebase';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
 import { RecommendationScorer } from '@/ml/recommendationScorer';
 import { Newsletter } from '@/types/Newsletter';
 import { UserProfile } from '@/types/profile';
 import { recommendationTracker } from '@/utils/analytics';
+import { validateNonEmptyString } from '@/utils/typeUtils';
+import { trackEvent } from '@/utils/analytics';
+
+// Enhanced error handling for recommendation learning
+enum RecommendationLearningErrorType {
+  INVALID_INPUT = 'Invalid Input',
+  LOGGING_ERROR = 'Logging Error',
+  MODEL_RETRAINING_ERROR = 'Model Retraining Error',
+  FETCH_ERROR = 'Fetch Error',
+  UNKNOWN_ERROR = 'Unknown Error'
+}
+
+class RecommendationLearningError extends Error {
+  type: RecommendationLearningErrorType;
+  originalError?: Error;
+
+  constructor(message: string, type: RecommendationLearningErrorType, originalError?: Error) {
+    super(message);
+    this.name = 'RecommendationLearningError';
+    this.type = type;
+    this.originalError = originalError;
+  }
+
+  static fromError(error: Error): RecommendationLearningError {
+    return new RecommendationLearningError(
+      error.message, 
+      RecommendationLearningErrorType.UNKNOWN_ERROR, 
+      error
+    );
+  }
+}
 
 export interface RecommendationLearningData {
   userId: string;
@@ -14,7 +47,7 @@ export interface RecommendationLearningData {
 }
 
 export class RecommendationLearningService {
-  // Log recommendation generation and interaction
+  // Log recommendation generation and interaction with enhanced error handling
   static async logRecommendationInteraction(
     userId: string,
     newsletter: Newsletter,
@@ -22,6 +55,10 @@ export class RecommendationLearningService {
     feedback?: 'positive' | 'negative'
   ): Promise<void> {
     try {
+      // Validate inputs
+      validateNonEmptyString(userId, 'User ID');
+      validateNonEmptyString(newsletter.id, 'Newsletter ID');
+
       const recommendationScore = RecommendationScorer.calculateScore(newsletter, userProfile);
 
       const learningData: RecommendationLearningData = {
@@ -41,12 +78,29 @@ export class RecommendationLearningService {
         feedback === 'positive' ? 'save' : 'view',
         { userId }
       );
+
+      // Track learning interaction event
+      trackEvent('recommendation_learning_interaction', {
+        userId,
+        newsletterId: newsletter.id,
+        recommendationScore,
+        feedback
+      });
     } catch (error) {
-      console.error('Failed to log recommendation interaction:', error);
+      const learningError = error instanceof RecommendationLearningError
+        ? error
+        : new RecommendationLearningError(
+            'Failed to log recommendation interaction', 
+            RecommendationLearningErrorType.LOGGING_ERROR,
+            error as Error
+          );
+      
+      toast.error(learningError.message);
+      throw learningError;
     }
   }
 
-  // Periodic model retraining method
+  // Periodic model retraining method with improved error handling
   static async periodicModelRetraining(): Promise<void> {
     try {
       // Fetch recent recommendation learning data
@@ -64,18 +118,62 @@ export class RecommendationLearningService {
         }))
       );
 
+      // Track model retraining event
+      trackEvent('recommendation_model_retrained', {
+        totalNewsletters: Object.keys(newsletterFeedback).length,
+        positiveNewsletters: Object.values(newsletterFeedback).filter(
+          f => f.positiveCount > f.negativeCount
+        ).length
+      });
+
       // TODO: Persist or apply adapted weights to recommendation system
       console.log('Adapted Recommendation Weights:', adaptedWeights);
     } catch (error) {
-      console.error('Model retraining failed:', error);
+      const learningError = error instanceof RecommendationLearningError
+        ? error
+        : new RecommendationLearningError(
+            'Model retraining failed', 
+            RecommendationLearningErrorType.MODEL_RETRAINING_ERROR,
+            error as Error
+          );
+      
+      toast.error(learningError.message);
+      throw learningError;
     }
   }
 
-  // Helper method to fetch recent learning data
+  // Helper method to fetch recent learning data with improved error handling
   private static async fetchRecentLearningData(): Promise<RecommendationLearningData[]> {
-    // TODO: Implement actual Firestore query to fetch recent data
-    // This is a placeholder implementation
-    return [];
+    try {
+      // Fetch learning data from the last 30 days
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+      const learningDataQuery = query(
+        collection(firestore, 'recommendationLearningData'),
+        where('timestamp', '>=', Timestamp.fromDate(thirtyDaysAgo)),
+        orderBy('timestamp', 'desc'),
+        limit(1000)  // Limit to prevent excessive data retrieval
+      );
+
+      const learningDataSnapshot = await getDocs(learningDataQuery);
+
+      const learningData = learningDataSnapshot.docs.map(
+        (doc) => doc.data() as RecommendationLearningData
+      );
+
+      return learningData;
+    } catch (error) {
+      const learningError = error instanceof RecommendationLearningError
+        ? error
+        : new RecommendationLearningError(
+            'Failed to fetch recent learning data', 
+            RecommendationLearningErrorType.FETCH_ERROR,
+            error as Error
+          );
+      
+      toast.error(learningError.message);
+      throw learningError;
+    }
   }
 
   // Group feedback by newsletter
@@ -103,3 +201,8 @@ export class RecommendationLearningService {
     );
   }
 }
+
+export { 
+  RecommendationLearningErrorType, 
+  RecommendationLearningError 
+};
