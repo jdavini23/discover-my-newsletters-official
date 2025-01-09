@@ -1,34 +1,100 @@
 import axios, { AxiosError } from 'axios';
-
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-  FirebaseError,
-  User,
-  signInWithPopup,
   confirmPasswordReset,
+  createUserWithEmailAndPassword,
+  getAuth,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  User,
 } from 'firebase/auth';
-
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
-
-import { GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+import { FirebaseError } from 'firebase/app';
+import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 
 import analytics from '@/utils/analytics';
+import { 
+  isNonEmptyString, 
+  safeGet, 
+  validateEmail, 
+  validatePassword 
+} from '@/utils/typeUtils';
 
+// Comprehensive error handling for authentication
+enum AuthErrorType {
+  NETWORK_ERROR = 'Network Error',
+  INVALID_CREDENTIALS = 'Invalid Credentials',
+  USER_NOT_FOUND = 'User Not Found',
+  EMAIL_ALREADY_IN_USE = 'Email Already in Use',
+  WEAK_PASSWORD = 'Weak Password',
+  UNAUTHORIZED = 'Unauthorized',
+  UNKNOWN_ERROR = 'Unknown Error'
+}
+
+// Enhanced error class for authentication
+class AuthServiceError extends Error {
+  type: AuthErrorType;
+  originalError?: Error;
+
+  constructor(message: string, type: AuthErrorType, originalError?: Error) {
+    super(message);
+    this.name = 'AuthServiceError';
+    this.type = type;
+    this.originalError = originalError;
+  }
+
+  static fromFirebaseError(error: FirebaseError): AuthServiceError {
+    // Check if the error is specifically an auth error
+    const authErrorCodes = [
+      'auth/network-request-failed',
+      'auth/wrong-password',
+      'auth/invalid-credential',
+      'auth/user-not-found',
+      'auth/email-already-in-use',
+      'auth/weak-password'
+    ];
+
+    if (authErrorCodes.includes(error.code)) {
+      switch (error.code) {
+        case 'auth/network-request-failed':
+          return new AuthServiceError('Network error. Please check your connection.', AuthErrorType.NETWORK_ERROR, error);
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          return new AuthServiceError('Invalid email or password.', AuthErrorType.INVALID_CREDENTIALS, error);
+        case 'auth/user-not-found':
+          return new AuthServiceError('No user found with this email.', AuthErrorType.USER_NOT_FOUND, error);
+        case 'auth/email-already-in-use':
+          return new AuthServiceError('Email is already registered.', AuthErrorType.EMAIL_ALREADY_IN_USE, error);
+        case 'auth/weak-password':
+          return new AuthServiceError('Password is too weak.', AuthErrorType.WEAK_PASSWORD, error);
+      }
+    }
+
+    // Fallback for non-auth errors or unknown error codes
+    return new AuthServiceError(
+      error.message || 'An unknown authentication error occurred', 
+      AuthErrorType.UNKNOWN_ERROR, 
+      error
+    );
+  }
+}
+
+// Comprehensive user profile interface
 interface UserProfile {
   id: string;
   email: string;
   displayName?: string;
   photoURL?: string;
+  emailVerified: boolean;
   newsletterPreferences?: {
     categories: string[];
     frequency: 'daily' | 'weekly' | 'monthly';
   };
 }
 
+// Enhanced update profile payload
 interface UpdateProfilePayload {
   displayName?: string;
   email?: string;
@@ -39,7 +105,14 @@ interface UpdateProfilePayload {
   };
 }
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Authentication configuration
+const AUTH_CONFIG = {
+  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  SOCIAL_PROVIDERS: {
+    GOOGLE: 'google',
+    GITHUB: 'github'
+  }
+};
 
 export class AuthService {
   private static auth = getAuth();
@@ -47,147 +120,170 @@ export class AuthService {
   private static googleProvider = new GoogleAuthProvider();
   private static githubProvider = new GithubAuthProvider();
 
-  // Centralized method to get current user token
-  static async getCurrentUserToken(): Promise<string | null> {
+  // Centralized method to get current user token with enhanced error handling
+  static async getCurrentUserToken(): Promise<string> {
     const currentUser = this.auth.currentUser;
     if (!currentUser) {
-      toast.error('No authenticated user');
-      return null;
+      throw new AuthServiceError('No authenticated user', AuthErrorType.UNAUTHORIZED);
     }
 
     try {
-      return await currentUser.getIdToken();
-    } catch (error: unknown) {
-      console.error('Failed to get user token:', error);
-      toast.error('Authentication failed');
-      return null;
+      return await currentUser.getIdToken(true);
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Failed to get user token', AuthErrorType.UNAUTHORIZED, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  // Social Login Methods
-  static async signInWithGoogle() {
+  // Validate input before authentication
+  private static validateAuthInput(email: string, password: string): void {
+    if (!validateEmail(email)) {
+      throw new AuthServiceError('Invalid email format', AuthErrorType.INVALID_CREDENTIALS);
+    }
+
+    if (!validatePassword(password)) {
+      throw new AuthServiceError('Password must be at least 8 characters', AuthErrorType.WEAK_PASSWORD);
+    }
+  }
+
+  // Social Login Methods with comprehensive error handling
+  static async signInWithGoogle(): Promise<UserProfile> {
     try {
       const result = await signInWithPopup(this.auth, this.googleProvider);
       const user = result.user;
 
-      analytics.trackEvent('social_login', { provider: 'google' });
+      analytics.trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GOOGLE });
 
       return this.formatUserProfile(user);
-    } catch (error: unknown) {
-      console.error('Google Sign-In Error', error);
-      toast.error('Google sign-in failed');
-      throw error;
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Google sign-in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  static async signInWithGitHub() {
+  static async signInWithGitHub(): Promise<UserProfile> {
     try {
       const result = await signInWithPopup(this.auth, this.githubProvider);
       const user = result.user;
 
-      analytics.trackEvent('social_login', { provider: 'github' });
+      analytics.trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GITHUB });
 
       return this.formatUserProfile(user);
-    } catch (error: unknown) {
-      console.error('GitHub Sign-In Error', error);
-      toast.error('GitHub sign-in failed');
-      throw error;
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('GitHub sign-in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  // Email Authentication Methods
-  static async signUp(email: string, password: string, displayName?: string) {
+  // Email Authentication Methods with input validation
+  static async signUp(email: string, password: string, displayName?: string): Promise<UserProfile> {
+    this.validateAuthInput(email, password);
+
     try {
       const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-
       const user = userCredential.user;
 
       // Optional: Update profile
-      if (displayName) {
+      if (displayName && isNonEmptyString(displayName)) {
         await this.updateProfile({ displayName });
       }
 
       analytics.trackEvent('user_signup', { method: 'email' });
 
       return this.formatUserProfile(user);
-    } catch (error: unknown) {
-      console.error('Sign Up Error', error);
-      toast.error('Sign up failed');
-      throw error;
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Sign up failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  static async signIn(email: string, password: string) {
+  static async signIn(email: string, password: string): Promise<UserProfile> {
+    this.validateAuthInput(email, password);
+
     try {
       const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
 
       analytics.trackEvent('user_login', { method: 'email' });
 
       return this.formatUserProfile(userCredential.user);
-    } catch (error: unknown) {
-      console.error('Sign In Error', error);
-      toast.error('Sign in failed');
-      throw error;
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Sign in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  // Password Reset Methods
-  static async sendPasswordResetCode(email: string) {
+  // Password Reset Methods with enhanced error handling
+  static async sendPasswordResetCode(email: string): Promise<void> {
+    if (!validateEmail(email)) {
+      throw new AuthServiceError('Invalid email format', AuthErrorType.INVALID_CREDENTIALS);
+    }
+
     try {
       await sendPasswordResetEmail(this.auth, email);
 
       analytics.trackEvent('password_reset_request', { email });
-
-      return true;
-    } catch (error: unknown) {
-      console.error('Password Reset Error', error);
-      toast.error('Failed to send reset code');
-      throw error;
+      toast.success('Password reset email sent');
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Failed to send reset code', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  static async verifyPasswordResetCode(email: string, code: string) {
-    try {
-      // In Firebase, this is typically handled automatically
-      // You might need to implement custom backend logic
-      const response = await axios.post('/api/auth/verify-reset-code', {
-        email,
-        code,
-      });
-
-      return response.data.isValid;
-    } catch (error: unknown) {
-      console.error('Code Verification Error', error);
-      toast.error('Invalid reset code');
-      throw error;
+  static async resetPassword(code: string, newPassword: string): Promise<void> {
+    if (!validatePassword(newPassword)) {
+      throw new AuthServiceError('Password must be at least 8 characters', AuthErrorType.WEAK_PASSWORD);
     }
-  }
 
-  static async resetPassword(email: string, code: string, newPassword: string) {
     try {
-      // Firebase method for password reset
       await confirmPasswordReset(this.auth, code, newPassword);
 
-      analytics.trackEvent('password_reset_success', { email });
-
-      return true;
-    } catch (error: unknown) {
-      console.error('Password Reset Error', error);
-      toast.error('Password reset failed');
-      throw error;
+      analytics.trackEvent('password_reset_success');
+      toast.success('Password reset successfully');
+    } catch (error) {
+      const authError = error instanceof FirebaseError 
+        ? AuthServiceError.fromFirebaseError(error)
+        : new AuthServiceError('Password reset failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
   }
 
-  // Profile Management
-  static async updateProfile(payload: UpdateProfilePayload) {
+  // Profile Management with comprehensive validation
+  static async updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
     try {
-      // Get the current user token
       const token = await this.getCurrentUserToken();
-      if (!token) {
-        throw new Error('Unauthorized');
+      const currentUser = this.auth.currentUser;
+
+      if (!currentUser) {
+        throw new AuthServiceError('Unauthorized', AuthErrorType.UNAUTHORIZED);
       }
 
-      const response = await axios.patch(`${BASE_URL}/user/profile`, payload, {
+      const response = await axios.patch(`${AUTH_CONFIG.BASE_URL}/user/profile`, payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -195,139 +291,22 @@ export class AuthService {
       });
 
       // Update local Firestore document if backend update succeeds
-      const currentUser = this.auth.currentUser;
-      if (currentUser) {
-        const userDocRef = doc(this.db, 'users', currentUser.uid);
-        await setDoc(
-          userDocRef,
-          {
-            ...payload,
-            updatedAt: new Date(),
-          },
-          { merge: true }
-        );
-      }
+      const userDocRef = doc(this.db, 'users', currentUser.uid);
+      await setDoc(userDocRef, payload, { merge: true });
 
-      toast.success('Profile updated successfully');
-      return response.data;
-    } catch (error: unknown) {
-      console.error('Profile update error:', error);
-
-      // Handle specific error scenarios
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response) {
-          switch (axiosError.response.status) {
-            case 400:
-              toast.error('Invalid profile data');
-              break;
-            case 401:
-              toast.error('Unauthorized. Please log in again.');
-              this.signOut();
-              break;
-            case 404:
-              toast.error('User profile endpoint not found');
-              break;
-            case 500:
-              toast.error('Server error. Please try again later.');
-              break;
-            default:
-              toast.error('Failed to update profile');
-          }
-        } else if (axiosError.request) {
-          toast.error('No response from server. Check your connection.');
-        } else {
-          toast.error('Error updating profile');
-        }
-      }
-
-      throw error;
+      return this.formatUserProfile(currentUser);
+    } catch (error) {
+      const authError = error instanceof AxiosError 
+        ? new AuthServiceError(
+            error.response?.data?.message || 'Profile update failed', 
+            AuthErrorType.UNAUTHORIZED, 
+            error
+          )
+        : new AuthServiceError('Profile update failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+      
+      toast.error(authError.message);
+      throw authError;
     }
-  }
-
-  static async uploadProfileImage(formData: FormData) {
-    try {
-      // Get the current user token
-      const token = await this.getCurrentUserToken();
-      if (!token) {
-        throw new Error('Unauthorized');
-      }
-
-      const response = await axios.post(`${BASE_URL}/user/upload-avatar`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      // Update Firestore with new profile image
-      const currentUser = this.auth.currentUser;
-      if (currentUser) {
-        const userDocRef = doc(this.db, 'users', currentUser.uid);
-        await setDoc(
-          userDocRef,
-          {
-            profileImage: response.data.imageUrl,
-            updatedAt: new Date(),
-          },
-          { merge: true }
-        );
-      }
-
-      toast.success('Profile image updated');
-      return response.data;
-    } catch (error: unknown) {
-      console.error('Avatar upload error:', error);
-
-      if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response) {
-          switch (axiosError.response.status) {
-            case 400:
-              toast.error('Invalid image file');
-              break;
-            case 401:
-              toast.error('Unauthorized. Please log in again.');
-              this.signOut();
-              break;
-            case 413:
-              toast.error('Image file is too large');
-              break;
-            case 500:
-              toast.error('Server error uploading image');
-              break;
-            default:
-              toast.error('Failed to upload avatar');
-          }
-        } else if (axiosError.request) {
-          toast.error('No response from server. Check your connection.');
-        } else {
-          toast.error('Error uploading avatar');
-        }
-      }
-
-      throw error;
-    }
-  }
-
-  // Sign Out Method
-  static async signOut() {
-    try {
-      await this.auth.signOut();
-      // Clear any stored tokens or user data
-      localStorage.removeItem('token');
-      // Redirect to login page or home
-      window.location.href = '/login';
-    } catch (error: unknown) {
-      console.error('Sign out error:', error);
-      toast.error('Failed to sign out');
-    }
-  }
-
-  static async handleError(error: FirebaseError | Error): Promise<never> {
-    console.error('An error occurred:', error);
-    toast.error('An unexpected error occurred');
-    throw error;
   }
 
   // Utility method to format user profile
@@ -337,6 +316,9 @@ export class AuthService {
       email: user.email || '',
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
+      emailVerified: user.emailVerified
     };
   }
 }
+
+export { AuthErrorType, AuthServiceError };
