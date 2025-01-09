@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  UserIcon,
-  EnvelopeIcon,
-  LockClosedIcon,
-  EyeIcon,
-  EyeSlashIcon,
-} from '@heroicons/react/24/outline';
+import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 interface AuthInputProps {
   type: 'text' | 'email' | 'password';
@@ -37,11 +31,11 @@ export const AuthInput: React.FC<AuthInputProps> = ({
 
     switch (icon) {
       case 'user':
-        return <UserIcon {...iconProps} />;
+        return <User {...iconProps} />;
       case 'email':
-        return <EnvelopeIcon {...iconProps} />;
+        return <Mail {...iconProps} />;
       case 'password':
-        return <LockClosedIcon {...iconProps} />;
+        return <Lock {...iconProps} />;
       default:
         return null;
     }
@@ -75,9 +69,9 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? (
-              <EyeSlashIcon className='h-5 w-5 text-current' />
+              <EyeOff className='h-5 w-5 text-current' />
             ) : (
-              <EyeIcon className='h-5 w-5 text-current' />
+              <Eye className='h-5 w-5 text-current' />
             )}
           </button>
         )}

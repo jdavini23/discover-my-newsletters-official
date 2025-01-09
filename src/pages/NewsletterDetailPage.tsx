@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from '@/lib/react-hot-toast';
-import { BookmarkIcon, ShareIcon, FireIcon } from '@heroicons/react/24/outline';
+import { Bookmark, Share, Flame } from 'lucide-react';
 
 import { Newsletter } from '@/types';
 import { useAuthStore } from '@/stores/authStore';
@@ -122,14 +122,14 @@ const NewsletterDetailPage: React.FC = () => {
               onClick={handleBookmark}
               className='flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-500'
             >
-              <BookmarkIcon className='h-5 w-5' />
+              <Bookmark className='h-5 w-5' />
               <span>Bookmark</span>
             </button>
             <button
               onClick={handleShare}
               className='flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-500'
             >
-              <ShareIcon className='h-5 w-5' />
+              <Share className='h-5 w-5' />
               <span>Share</span>
             </button>
           </div>
@@ -137,7 +137,7 @@ const NewsletterDetailPage: React.FC = () => {
             onClick={() => {}}
             className='flex items-center space-x-2 text-gray-600 dark:text-gray-300 hover:text-primary-500'
           >
-            <FireIcon className='h-5 w-5' />
+            <Flame className='h-5 w-5' />
             <span>Trending</span>
           </button>
         </div>

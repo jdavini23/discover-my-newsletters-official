@@ -1,5 +1,5 @@
 import React, { useMemo, useCallback } from 'react';
-import { HeartIcon, ShareIcon } from '@heroicons/react/24/outline';
+import { Heart, Share } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { toast } from 'react-hot-toast';
 
@@ -24,7 +24,7 @@ const NewsletterInteractionPanel: React.FC<NewsletterInteractionPanelProps> = ({
   subscribeNewsletter,
   unsubscribeNewsletter,
 }) => {
-  const favoriteIcon = useMemo(() => (isInFavorites ? HeartIcon : HeartIcon), [isInFavorites]);
+  const favoriteIcon = useMemo(() => (isInFavorites ? Heart : Heart), [isInFavorites]);
 
   const handleFavoriteToggle = useCallback(() => {
     if (isInFavorites) {
@@ -68,13 +68,13 @@ const NewsletterInteractionPanel: React.FC<NewsletterInteractionPanelProps> = ({
           isSubscribed ? 'text-blue-500' : 'text-gray-500'
         }`}
       >
-        <ShareIcon className='w-6 h-6' />
+        <Share className='w-6 h-6' />
       </button>
       <button
         onClick={handleShare}
         className='text-gray-500 hover:text-green-500 transition-colors'
       >
-        <ShareIcon className='w-6 h-6' />
+        <Share className='w-6 h-6' />
       </button>
     </div>
   );

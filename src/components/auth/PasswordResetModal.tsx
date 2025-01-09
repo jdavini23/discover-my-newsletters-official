@@ -1,4 +1,9 @@
 import React, { useState } from 'react';
+import { MailIcon } from 'lucide-react';
+import { LockIcon } from 'lucide-react';
+import { AuthService } from '@/services/authService';
+import { toast } from '@/lib/react-hot-toast';
+import { motion } from '@/lib/framer-motion';
 
 interface PasswordResetModalProps {
   isOpen: boolean;
@@ -81,7 +86,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
         onClick={(e) => e.stopPropagation()}
       >
         <div className='text-center mb-6'>
-          <LockClosedIcon className='mx-auto h-12 w-12 text-primary-600 mb-4' />
+          <LockIcon className='mx-auto h-12 w-12 text-primary-600 mb-4' />
           <h2 className='text-2xl font-bold'>
             {resetStage === 'email' && 'Reset Your Password'}
             {resetStage === 'code' && 'Enter Reset Code'}
@@ -97,7 +102,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
               </label>
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <EnvelopeIcon className='h-5 w-5 text-gray-400' />
+                  <MailIcon className='h-5 w-5 text-gray-400' />
                 </div>
                 <input
                   type='email'

@@ -4,7 +4,7 @@ export enum ErrorSeverity {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export interface ErrorDetails {
@@ -19,8 +19,8 @@ export class AppError extends Error {
   public readonly details: ErrorDetails;
 
   constructor(
-    message: string, 
-    severity: ErrorSeverity = ErrorSeverity.MEDIUM, 
+    message: string,
+    severity: ErrorSeverity = ErrorSeverity.MEDIUM,
     details: Partial<ErrorDetails> = {}
   ) {
     super(message);
@@ -29,7 +29,7 @@ export class AppError extends Error {
     this.details = {
       message,
       timestamp: Date.now(),
-      ...details
+      ...details,
     };
   }
 }
@@ -54,8 +54,8 @@ export const handleError = (error: Error | AppError) => {
         toast.error(`Critical Error: ${error.message}`);
         break;
       case ErrorSeverity.CRITICAL:
-        toast.error(`SYSTEM ERROR: ${error.message}`, { 
-          duration: 10000 
+        toast.error(`SYSTEM ERROR: ${error.message}`, {
+          duration: 10000,
         });
         break;
     }
@@ -65,8 +65,8 @@ export const handleError = (error: Error | AppError) => {
 };
 
 export const createError = (
-  message: string, 
-  severity: ErrorSeverity = ErrorSeverity.MEDIUM, 
+  message: string,
+  severity: ErrorSeverity = ErrorSeverity.MEDIUM,
   context?: Record<string, unknown>
 ): AppError => {
   return new AppError(message, severity, { context });

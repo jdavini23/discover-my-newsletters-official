@@ -1,15 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { 
-  ABTestingService, 
+import {
+  ABTestingService,
   RecommendationAlgorithmVariant,
-  ABTestStatus 
+  ABTestStatus,
 } from '@/ml/abTestingFramework';
 
 // Custom hook for A/B testing integration
 export const useABTesting = (testId: string) => {
   const { user } = useAuthStore();
-  const [assignedVariant, setAssignedVariant] = useState<RecommendationAlgorithmVariant | null>(null);
+  const [assignedVariant, setAssignedVariant] = useState<RecommendationAlgorithmVariant | null>(
+    null
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -40,11 +42,7 @@ export const useABTesting = (testId: string) => {
     if (!user) return;
 
     try {
-      await ABTestingService.recordTestInteraction(
-        user.uid, 
-        testId, 
-        metrics
-      );
+      await ABTestingService.recordTestInteraction(user.uid, testId, metrics);
     } catch (err) {
       console.error('Failed to record A/B test interaction:', err);
     }
@@ -54,7 +52,7 @@ export const useABTesting = (testId: string) => {
     assignedVariant,
     isLoading,
     error,
-    recordInteraction
+    recordInteraction,
   };
 };
 
@@ -82,7 +80,7 @@ export const useCreateABTest = () => {
     createTest,
     testId,
     isCreating,
-    error
+    error,
   };
 };
 
@@ -98,20 +96,20 @@ export const createRecommendationABTest = async () => {
     variants: {
       [RecommendationAlgorithmVariant.BASELINE]: {
         weight: 0.25,
-        description: 'Original recommendation algorithm'
+        description: 'Original recommendation algorithm',
       },
       [RecommendationAlgorithmVariant.ML_SCORER_V1]: {
         weight: 0.25,
-        description: 'Machine Learning Scorer V1'
+        description: 'Machine Learning Scorer V1',
       },
       [RecommendationAlgorithmVariant.ML_SCORER_V2]: {
         weight: 0.25,
-        description: 'Machine Learning Scorer V2'
+        description: 'Machine Learning Scorer V2',
       },
       [RecommendationAlgorithmVariant.COLLABORATIVE_FILTERING]: {
         weight: 0.25,
-        description: 'Collaborative Filtering Algorithm'
-      }
-    }
+        description: 'Collaborative Filtering Algorithm',
+      },
+    },
   });
 };

@@ -3,12 +3,12 @@ import { Timestamp } from 'firebase/firestore';
 export enum ReadingFrequency {
   DAILY = 'daily',
   WEEKLY = 'weekly',
-  MONTHLY = 'monthly'
+  MONTHLY = 'monthly',
 }
 
 export enum ContentDepth {
   QUICK_INSIGHTS = 'quick_insights',
-  DEEP_DIVE = 'deep_dive'
+  DEEP_DIVE = 'deep_dive',
 }
 
 export interface UserOnboardingProfile {

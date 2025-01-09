@@ -1,14 +1,14 @@
 import { firestore } from '@/config/firebase';
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
-  query, 
-  where, 
+import {
+  collection,
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  query,
+  where,
   getDocs,
-  Timestamp 
+  Timestamp,
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,7 +17,7 @@ export enum ABTestStatus {
   DRAFT = 'draft',
   RUNNING = 'running',
   PAUSED = 'paused',
-  COMPLETED = 'completed'
+  COMPLETED = 'completed',
 }
 
 // Enum for Recommendation Algorithm Variants
@@ -25,7 +25,7 @@ export enum RecommendationAlgorithmVariant {
   BASELINE = 'baseline',
   ML_SCORER_V1 = 'ml_scorer_v1',
   ML_SCORER_V2 = 'ml_scorer_v2',
-  COLLABORATIVE_FILTERING = 'collaborative_filtering'
+  COLLABORATIVE_FILTERING = 'collaborative_filtering',
 }
 
 // A/B Test Configuration Interface
@@ -40,7 +40,7 @@ export interface ABTestConfiguration {
     [variant in RecommendationAlgorithmVariant]: {
       weight: number;
       description: string;
-    }
+    };
   };
   metrics: {
     clickThroughRate: number;
@@ -59,9 +59,7 @@ export interface ABTestParticipant {
 
 export class ABTestingService {
   // Create a new A/B test configuration
-  static async createABTest(
-    config: Omit<ABTestConfiguration, 'id' | 'metrics'>
-  ): Promise<string> {
+  static async createABTest(config: Omit<ABTestConfiguration, 'id' | 'metrics'>): Promise<string> {
     try {
       const testId = uuidv4();
       const testConfig: ABTestConfiguration = {
@@ -70,14 +68,11 @@ export class ABTestingService {
         metrics: {
           clickThroughRate: 0,
           conversionRate: 0,
-          averageEngagementTime: 0
-        }
+          averageEngagementTime: 0,
+        },
       };
 
-      await setDoc(
-        doc(firestore, 'abTests', testId), 
-        testConfig
-      );
+      await setDoc(doc(firestore, 'abTests', testId), testConfig);
 
       return testId;
     } catch (error) {
@@ -88,12 +83,12 @@ export class ABTestingService {
 
   // Assign a user to an A/B test variant
   static async assignUserToTest(
-    userId: string, 
+    userId: string,
     testId: string
   ): Promise<RecommendationAlgorithmVariant> {
     try {
       const testDoc = await getDoc(doc(firestore, 'abTests', testId));
-      
+
       if (!testDoc.exists()) {
         throw new Error('A/B Test not found');
       }
@@ -103,7 +98,7 @@ export class ABTestingService {
       // Weighted random selection of variant
       const variants = Object.entries(testConfig.variants);
       const totalWeight = variants.reduce((sum, [, variant]) => sum + variant.weight, 0);
-      
+
       let randomValue = Math.random() * totalWeight;
       let selectedVariant = variants[0][0] as RecommendationAlgorithmVariant;
 
@@ -120,13 +115,10 @@ export class ABTestingService {
         userId,
         assignedVariant: selectedVariant,
         assignedAt: Timestamp.now(),
-        testId
+        testId,
       };
 
-      await setDoc(
-        doc(firestore, 'abTestParticipants', `${testId}_${userId}`), 
-        participantDoc
-      );
+      await setDoc(doc(firestore, 'abTestParticipants', `${testId}_${userId}`), participantDoc);
 
       return selectedVariant;
     } catch (error) {
@@ -167,7 +159,7 @@ export class ABTestingService {
       await updateDoc(testRef, {
         'metrics.clickThroughRate': metrics.clickThroughRate,
         'metrics.conversionRate': metrics.conversionRate,
-        'metrics.averageEngagementTime': metrics.engagementTime
+        'metrics.averageEngagementTime': metrics.engagementTime,
       });
     } catch (error) {
       console.error('Failed to record A/B test interaction:', error);
@@ -181,7 +173,7 @@ export class ABTestingService {
   }> {
     try {
       const testDoc = await getDoc(doc(firestore, 'abTests', testId));
-      
+
       if (!testDoc.exists()) {
         throw new Error('A/B Test not found');
       }
@@ -193,22 +185,22 @@ export class ABTestingService {
       const variants = Object.entries(testConfig.variants);
       const variantPerformance = variants.map(([variant, config]) => ({
         variant: variant as RecommendationAlgorithmVariant,
-        performance: metrics.clickThroughRate * config.weight
+        performance: metrics.clickThroughRate * config.weight,
       }));
 
-      const winningVariant = variantPerformance.reduce(
-        (max, current) => current.performance > max.performance ? current : max
+      const winningVariant = variantPerformance.reduce((max, current) =>
+        current.performance > max.performance ? current : max
       ).variant;
 
       // Update test status
       await updateDoc(doc(firestore, 'abTests', testId), {
         status: ABTestStatus.COMPLETED,
-        endDate: Timestamp.now()
+        endDate: Timestamp.now(),
       });
 
       return {
         winningVariant,
-        conclusionReason: 'Highest weighted click-through rate'
+        conclusionReason: 'Highest weighted click-through rate',
       };
     } catch (error) {
       console.error('Failed to conclude A/B test:', error);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon, AdjustmentsHorizontalIcon } from '@heroicons/react/24/outline';
+import { Search, Settings } from 'lucide-react';
 import { Newsletter } from '@/types/Newsletter';
 import { NewsletterService, NewsletterFilters } from '@/services/newsletterService';
 import { useNewsletterStore } from '@/stores/newsletterStore';
@@ -11,7 +11,7 @@ import NewsletterCard from '@/components/newsletter/NewsletterCard';
 import { toast } from 'react-hot-toast';
 import OnboardingModal from '@/components/modals/OnboardingModal';
 import NewsletterPreviewModal from '@/components/modals/NewsletterPreviewModal';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { X } from 'lucide-react';
 
 const CATEGORIES = [
   'Technology',
@@ -191,7 +191,7 @@ const NewsletterDiscoveryPage: React.FC = () => {
               onChange={handleSearchChange}
               className='w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500'
             />
-            <MagnifyingGlassIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+            <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
           </div>
 
           <div className='w-full md:w-auto'>
@@ -199,7 +199,7 @@ const NewsletterDiscoveryPage: React.FC = () => {
               className='w-full flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition'
               onClick={() => setShowFilterModal(true)}
             >
-              <AdjustmentsHorizontalIcon className='h-5 w-5 mr-2' />
+              <Settings className='h-5 w-5 mr-2' />
               Filters
             </button>
           </div>

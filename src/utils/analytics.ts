@@ -108,7 +108,7 @@ export const EventTypes = {
   // Error Events
   RECOMMENDATION_ERROR: 'recommendation_error',
   NETWORK_ERROR: 'network_error',
-  ERROR: 'error'
+  ERROR: 'error',
 };
 
 // Enhanced tracking context
@@ -128,26 +128,26 @@ export const performanceTracker = {
   markEnd: (eventName: string, context?: TrackingContext) => {
     performance.mark(`${eventName}_end`);
     performance.measure(eventName, `${eventName}_start`, `${eventName}_end`);
-    
+
     const duration = performance.getEntriesByName(eventName)[0].duration;
-    
+
     // Log performance metrics
     trackEvent(EventTypes.PAGE_LOAD_TIME, {
       duration,
-      ...context
+      ...context,
     });
 
     // Clean up marks and measures
     performance.clearMarks(`${eventName}_start`);
     performance.clearMarks(`${eventName}_end`);
     performance.clearMeasures(eventName);
-  }
+  },
 };
 
 // Advanced event tracking with more context
 export const trackEvent = (
-  eventName: string, 
-  eventData: Record<string, any> = {}, 
+  eventName: string,
+  eventData: Record<string, any> = {},
   context: TrackingContext = {}
 ) => {
   try {
@@ -157,13 +157,13 @@ export const trackEvent = (
       userId: context.userId || 'anonymous',
       userSegment: context.userSegment || 'undefined',
       platform: context.platform || 'web',
-      source: context.source || 'unknown'
+      source: context.source || 'unknown',
     };
 
     // Rate limit and log event
     if (!isRateLimited(eventName)) {
       plausibleInstance.trackEvent(eventName, enrichedEventData);
-      
+
       // Optional: Log to console in development
       if (process.env.NODE_ENV === 'development') {
         console.log(`📊 Event: ${eventName}`, enrichedEventData);
@@ -177,35 +177,47 @@ export const trackEvent = (
 // Recommendation tracking utility
 export const recommendationTracker = {
   trackGeneration: (recommendations: any[], context: TrackingContext) => {
-    trackEvent(EventTypes.RECOMMENDATION_GENERATED, {
-      recommendationCount: recommendations.length,
-      recommendationIds: recommendations.map(r => r.id)
-    }, context);
+    trackEvent(
+      EventTypes.RECOMMENDATION_GENERATED,
+      {
+        recommendationCount: recommendations.length,
+        recommendationIds: recommendations.map((r) => r.id),
+      },
+      context
+    );
   },
 
   trackInteraction: (
-    newsletter: any, 
+    newsletter: any,
     interactionType: 'view' | 'save' | 'share',
     context: TrackingContext
   ) => {
-    trackEvent(EventTypes.RECOMMENDATION_INTERACTION, {
-      newsletterId: newsletter.id,
-      newsletterTitle: newsletter.title,
-      interactionType
-    }, context);
+    trackEvent(
+      EventTypes.RECOMMENDATION_INTERACTION,
+      {
+        newsletterId: newsletter.id,
+        newsletterTitle: newsletter.title,
+        interactionType,
+      },
+      context
+    );
   },
 
   trackFeedback: (
-    newsletter: any, 
+    newsletter: any,
     feedbackType: 'positive' | 'negative',
     context: TrackingContext
   ) => {
-    trackEvent(EventTypes.RECOMMENDATION_FEEDBACK, {
-      newsletterId: newsletter.id,
-      newsletterTitle: newsletter.title,
-      feedbackType
-    }, context);
-  }
+    trackEvent(
+      EventTypes.RECOMMENDATION_FEEDBACK,
+      {
+        newsletterId: newsletter.id,
+        newsletterTitle: newsletter.title,
+        feedbackType,
+      },
+      context
+    );
+  },
 };
 
 // Error tracking
@@ -228,7 +240,7 @@ export const trackPageView = (path?: string, options?: { referrer?: string }) =>
   try {
     plausibleInstance.trackPageview({
       url: path,
-      referrer: options?.referrer
+      referrer: options?.referrer,
     });
   } catch (error) {
     console.error('Page view tracking failed:', error);
@@ -242,5 +254,5 @@ export default {
   trackPageView,
   performanceTracker,
   recommendationTracker,
-  EventTypes
+  EventTypes,
 };

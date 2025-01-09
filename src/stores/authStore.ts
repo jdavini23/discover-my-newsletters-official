@@ -1,53 +1,53 @@
 import { create } from 'zustand';
-import { User, UserCredential } from 'firebase/auth';
-import { signIn, signUp, logOut, onAuthChange } from '@/config/firebase';
+
+import {
+  signIn,
+  signUp,
+  logOut,
+  onAuthChange,
+  auth as firebaseAuth,
+  firestore,
+  User as FirebaseUser,
+  doc,
+  getDoc,
+  updateDoc,
+  setDoc,
+} from '@/config/firebase';
 import { createUserProfile } from '@/services/firestore';
 import { AdminInviteService } from '@/services/adminInviteService';
+import { User } from '@/types/user';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-
-  // Authentication methods
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name?: string) => Promise<void>;
-  logout: () => Promise<void>;
-
-  // Authentication state management
-  initializeAuth: () => void;
-
-  // Admin promotion methods
-  promoteToAdmin: (inviteCode: string) => Promise<boolean>;
-  generateAdminInviteCode: () => Promise<string | null>;
 }
 
-const useAuthStore = create<AuthState>((set) => ({
+interface AuthActions {
+  login: (email: string, password: string) => Promise<any>;
+  signup: (email: string, password: string, additionalData: any) => Promise<any>;
+  logout: () => Promise<void>;
+  initializeAuth: () => Promise<() => void>;
+  promoteToAdmin: (inviteCode: string) => Promise<boolean>;
+}
+
+interface AuthStore extends AuthState, AuthActions {}
+
+const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false,
   error: null,
 
-  login: async (email: string, password: string) => {
+  login: async (email, password) => {
     set({ isLoading: true, error: null });
     try {
       const userCredential = await signIn(email, password);
-      const user = userCredential.user;
-
-      // Fetch user profile to get the role
-      const userDoc = await getDoc(doc(firestore, 'users', user.uid));
-      const userData = userDoc.data() as UserProfile;
-
-      set({
-        user: {
-          ...user,
-          role: userData?.role || 'user'
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      // Additional login logic if needed
+      return userCredential;
     } catch (error) {
+      console.error('Login error:', error);
       set({
         error: error instanceof Error ? error.message : 'Login failed',
         isLoading: false,
@@ -56,25 +56,24 @@ const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  register: async (email: string, password: string, name?: string) => {
+  signup: async (email, password, additionalData) => {
     set({ isLoading: true, error: null });
     try {
-      const userCredential: UserCredential = await signUp(email, password);
+      const userCredential = await signUp(email, password);
 
-      // Create user profile with default role
-      await createUserProfile(userCredential.user);
+      // Create user profile in Firestore
+      if (userCredential.user) {
+        await createUserProfile(userCredential.user.uid, {
+          email,
+          ...additionalData,
+        });
+      }
 
-      set({
-        user: {
-          ...userCredential.user,
-          role: 'user'
-        },
-        isAuthenticated: true,
-        isLoading: false,
-      });
+      return userCredential;
     } catch (error) {
+      console.error('Signup error:', error);
       set({
-        error: error instanceof Error ? error.message : 'Registration failed',
+        error: error instanceof Error ? error.message : 'Signup failed',
         isLoading: false,
       });
       throw error;
@@ -82,7 +81,6 @@ const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    set({ isLoading: true, error: null });
     try {
       await logOut();
       set({
@@ -91,81 +89,126 @@ const useAuthStore = create<AuthState>((set) => ({
         isLoading: false,
       });
     } catch (error) {
+      console.error('Logout error:', error);
       set({
         error: error instanceof Error ? error.message : 'Logout failed',
+      });
+    }
+  },
+
+  initializeAuth: async () => {
+    console.log('Initializing Authentication...');
+    set({ isLoading: true });
+
+    try {
+      // Return a cleanup function for the auth listener
+      return onAuthChange(async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            // Fetch user profile from Firestore
+            const userDocRef = doc(firestore, 'users', firebaseUser.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists()) {
+              const userData = userDoc.data() as User;
+              console.log('User Data Retrieved:', userData);
+
+              set({
+                user: {
+                  ...userData,
+                  uid: firebaseUser.uid,
+                  email: firebaseUser.email || userData.email,
+                },
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+            } else {
+              // If no user doc, create a basic profile
+              const newUserData: User = {
+                uid: firebaseUser.uid,
+                email: firebaseUser.email || '',
+                displayName: firebaseUser.displayName || '',
+                role: 'user',
+                createdAt: new Date(),
+                interests: [],
+              };
+
+              // Save to Firestore
+              await setDoc(userDocRef, newUserData);
+
+              set({
+                user: newUserData,
+                isAuthenticated: true,
+                isLoading: false,
+                error: null,
+              });
+            }
+          } catch (error) {
+            console.error('Error retrieving user data:', error);
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: 'Failed to retrieve user data',
+            });
+          }
+        } else {
+          // No user is signed in
+          set({
+            user: null,
+            isAuthenticated: false,
+            isLoading: false,
+            error: null,
+          });
+        }
+      });
+    } catch (error) {
+      console.error('Authentication initialization error:', error);
+      set({
+        user: null,
+        isAuthenticated: false,
         isLoading: false,
+        error: 'Authentication initialization failed',
       });
       throw error;
     }
   },
 
-  initializeAuth: () => {
-    console.log('Initializing authentication...');
-    onAuthChange((user) => {
-      console.log('Auth state changed:', user);
-      if (user) {
-        console.log('User authenticated:', user.email);
-        set({
-          user: {
-            ...user,
-            role: 'user'
-          },
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        console.log('No user authenticated');
-        set({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false,
-        });
-      }
-    });
-  },
-
-  promoteToAdmin: async (inviteCode: string): Promise<boolean> => {
-    if (!useAuthStore.getState().user) {
-      throw new Error('No authenticated user');
-    }
-
+  promoteToAdmin: async (inviteCode: string) => {
+    set({ isLoading: true, error: null });
     try {
-      const isValidInvite = await AdminInviteService.validateAdminInviteCode(
-        useAuthStore.getState().user.uid, 
+      const adminService = new AdminInviteService();
+      const success = await adminService.validateAdminInviteCode(
+        firebaseAuth.currentUser!.uid,
         inviteCode
       );
 
-      if (isValidInvite) {
-        // Update local state
-        set({
-          user: {
-            ...useAuthStore.getState().user,
-            role: 'admin'
-          }
-        });
+      if (success) {
+        // Permanently update user role in Firestore
+        const userRef = doc(firestore, 'users', firebaseAuth.currentUser!.uid);
+        await updateDoc(userRef, { role: 'admin', adminPromotedAt: new Date() });
+
+        // Update local user state
+        set((state) => ({
+          user: state.user ? { ...state.user, role: 'admin' } : null,
+          isLoading: false,
+        }));
 
         return true;
       }
 
+      set({ isLoading: false });
       return false;
     } catch (error) {
-      console.error('Admin promotion failed:', error);
+      console.error('Admin Promotion Error:', error);
+      set({
+        error: error instanceof Error ? error.message : 'Admin promotion failed',
+        isLoading: false,
+      });
       return false;
     }
   },
-
-  generateAdminInviteCode: async (): Promise<string | null> => {
-    if (!useAuthStore.getState().user || useAuthStore.getState().user.role !== 'admin') {
-      return null;
-    }
-
-    try {
-      return await AdminInviteService.generateAdminInviteCode();
-    } catch (error) {
-      console.error('Failed to generate admin invite code:', error);
-      return null;
-    }
-  }
 }));
 
 // Export both default and named exports

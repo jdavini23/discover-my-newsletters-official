@@ -22,28 +22,22 @@ export class RecommendationLearningService {
     feedback?: 'positive' | 'negative'
   ): Promise<void> {
     try {
-      const recommendationScore = RecommendationScorer.calculateScore(
-        newsletter, 
-        userProfile
-      );
+      const recommendationScore = RecommendationScorer.calculateScore(newsletter, userProfile);
 
       const learningData: RecommendationLearningData = {
         userId,
         newsletterId: newsletter.id,
         recommendationScore,
         userFeedback: feedback,
-        timestamp: Timestamp.now()
+        timestamp: Timestamp.now(),
       };
 
       // Store learning data in Firestore
-      await addDoc(
-        collection(firestore, 'recommendationLearningData'), 
-        learningData
-      );
+      await addDoc(collection(firestore, 'recommendationLearningData'), learningData);
 
       // Track recommendation interaction
       recommendationTracker.trackInteraction(
-        newsletter, 
+        newsletter,
         feedback === 'positive' ? 'save' : 'view',
         { userId }
       );
@@ -59,18 +53,14 @@ export class RecommendationLearningService {
       const recentLearningData = await this.fetchRecentLearningData();
 
       // Group data by newsletter
-      const newsletterFeedback = this.groupFeedbackByNewsletter(
-        recentLearningData
-      );
+      const newsletterFeedback = this.groupFeedbackByNewsletter(recentLearningData);
 
       // Adaptive weight adjustment
       const adaptedWeights = RecommendationScorer.adaptWeights(
-        Object.keys(newsletterFeedback).map(id => ({ id } as Newsletter)),
+        Object.keys(newsletterFeedback).map((id) => ({ id }) as Newsletter),
         Object.entries(newsletterFeedback).map(([id, feedback]) => ({
           newsletterId: id,
-          feedback: feedback.positiveCount > feedback.negativeCount 
-            ? 'positive' 
-            : 'negative'
+          feedback: feedback.positiveCount > feedback.negativeCount ? 'positive' : 'negative',
         }))
       );
 
@@ -92,21 +82,24 @@ export class RecommendationLearningService {
   private static groupFeedbackByNewsletter(
     learningData: RecommendationLearningData[]
   ): Record<string, { positiveCount: number; negativeCount: number }> {
-    return learningData.reduce((acc, data) => {
-      if (!acc[data.newsletterId]) {
-        acc[data.newsletterId] = { 
-          positiveCount: 0, 
-          negativeCount: 0 
-        };
-      }
+    return learningData.reduce(
+      (acc, data) => {
+        if (!acc[data.newsletterId]) {
+          acc[data.newsletterId] = {
+            positiveCount: 0,
+            negativeCount: 0,
+          };
+        }
 
-      if (data.userFeedback === 'positive') {
-        acc[data.newsletterId].positiveCount++;
-      } else if (data.userFeedback === 'negative') {
-        acc[data.newsletterId].negativeCount++;
-      }
+        if (data.userFeedback === 'positive') {
+          acc[data.newsletterId].positiveCount++;
+        } else if (data.userFeedback === 'negative') {
+          acc[data.newsletterId].negativeCount++;
+        }
 
-      return acc;
-    }, {} as Record<string, { positiveCount: number; negativeCount: number }>);
+        return acc;
+      },
+      {} as Record<string, { positiveCount: number; negativeCount: number }>
+    );
   }
 }

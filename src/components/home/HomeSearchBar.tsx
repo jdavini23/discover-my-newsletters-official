@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MagnifyingGlassIcon, SparklesIcon } from '@heroicons/react/24/outline';
+import { Search, Sparkles } from 'lucide-react';
 
 export const HomeSearchBar: React.FC = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ export const HomeSearchBar: React.FC = () => {
             }}
             transition={{ duration: 0.3 }}
           >
-            <MagnifyingGlassIcon className='h-5 w-5 text-primary-500 transition-colors' />
+            <Search className='h-5 w-5 text-primary-500 transition-colors' />
           </motion.div>
 
           <input
@@ -72,10 +72,7 @@ export const HomeSearchBar: React.FC = () => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 className='absolute right-3 top-1/2 -translate-y-1/2'
               >
-                <SparklesIcon
-                  className='h-5 w-5 text-primary-600 animate-pulse'
-                  aria-hidden='true'
-                />
+                <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />
               </motion.div>
             )}
           </AnimatePresence>
@@ -103,7 +100,7 @@ export const HomeSearchBar: React.FC = () => {
             gap-2
           '
         >
-          <SparklesIcon className='h-5 w-5 opacity-70' />
+          <Sparkles className='h-5 w-5 opacity-70' />
           Discover
         </motion.button>
       </form>

@@ -5,10 +5,18 @@ import './index.css';
 import { useAuthStore } from './stores/authStore';
 
 export function AppWrapper() {
-  // Initialize auth when the app starts
+  // Initialize auth only once when the app starts
   React.useEffect(() => {
-    useAuthStore.getState().initializeAuth();
-  }, []);
+    const initAuth = async () => {
+      try {
+        await useAuthStore.getState().initializeAuth();
+      } catch (error) {
+        console.error('Failed to initialize authentication:', error);
+      }
+    };
+
+    initAuth();
+  }, []); // Empty dependency array ensures this runs only once
 
   return <App />;
 }

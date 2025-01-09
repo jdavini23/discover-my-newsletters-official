@@ -4,15 +4,7 @@ import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../stores/authStore';
 import AuthService from '../../services/authService';
 
-import {
-  UserIcon,
-  EnvelopeIcon,
-  CameraIcon,
-  StarIcon,
-  SunIcon,
-  MoonIcon,
-  CogIcon,
-} from '@heroicons/react/24/outline';
+import { User, Mail as EnvelopeIcon, Camera, Star, Sun, Moon, Settings } from 'lucide-react';
 
 const NEWSLETTER_CATEGORIES = [
   'Technology',
@@ -43,17 +35,17 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
   onClose,
 }) => {
   const { user } = useAuthStore();
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [newsletterFrequency, setNewsletterFrequency] = useState<'daily' | 'weekly' | 'monthly'>(
     'weekly'
   );
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Dark mode state
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   useEffect(() => {
     if (user) {
@@ -124,7 +116,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
 
         try {
           await AuthService.uploadProfileImage(formData);
-        } catch (imageUploadError: Error) {
+        } catch (imageUploadError: unknown) {
           console.error('Image upload failed', imageUploadError);
           // Non-blocking error for image upload
         }
@@ -166,7 +158,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
         onClick={(e) => e.stopPropagation()}
       >
         <div className='text-center mb-6'>
-          <UserIcon className='mx-auto h-12 w-12 text-primary-600 mb-4' />
+          <User className='mx-auto h-12 w-12 text-primary-600 mb-4' />
           <h2 className='text-2xl font-bold'>Customize Your Profile</h2>
         </div>
 
@@ -187,7 +179,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
                 htmlFor='profileImage'
                 className='absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full cursor-pointer'
               >
-                <CameraIcon className='h-5 w-5' />
+                <Camera className='h-5 w-5' />
                 <input
                   type='file'
                   id='profileImage'
@@ -206,7 +198,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
                 Display Name
               </label>
               <div className='relative'>
-                <UserIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+                <User className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
                 <input
                   type='text'
                   id='displayName'
@@ -237,7 +229,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
           {/* Newsletter Preferences */}
           <div>
             <h3 className='text-lg font-semibold mb-4 flex items-center'>
-              <StarIcon className='h-6 w-6 mr-2 text-yellow-500 dark:text-yellow-300' />
+              <Star className='h-6 w-6 mr-2 text-yellow-500 dark:text-yellow-300' />
               Newsletter Interests
             </h3>
             <div className='flex flex-wrap gap-2'>
@@ -303,7 +295,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
           {/* Settings Section */}
           <div className='mt-6'>
             <h3 className='text-lg font-semibold mb-4 flex items-center'>
-              <CogIcon className='h-6 w-6 mr-2 text-gray-600 dark:text-gray-300' />
+              <Settings className='h-6 w-6 mr-2 text-gray-600 dark:text-gray-300' />
               User Settings
             </h3>
 
@@ -311,9 +303,9 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
             <div className='flex items-center justify-between bg-gray-100 dark:bg-dark-background p-4 rounded-lg mb-4'>
               <div className='flex items-center'>
                 {isDarkMode ? (
-                  <MoonIcon className='h-6 w-6 mr-3 text-indigo-600' />
+                  <Moon className='h-6 w-6 mr-3 text-indigo-600' />
                 ) : (
-                  <SunIcon className='h-6 w-6 mr-3 text-yellow-500' />
+                  <Sun className='h-6 w-6 mr-3 text-yellow-500' />
                 )}
                 <div>
                   <span className='text-sm font-medium block'>

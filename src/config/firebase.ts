@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
   User,
   AuthError,
+  setPersistence,
+  browserLocalPersistence,
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -49,14 +51,11 @@ const initializeFirebase = () => {
     validateFirebaseConfig(firebaseConfig);
     console.log('Firebase Config Validated:', firebaseConfig);
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-
-    // Initialize Firebase Authentication and Firestore
     auth = getAuth(app);
-    firestore = getFirestore(app);
+    firestore = getFirestore(app); // Initialize firestore with the app
   } catch (error) {
-    console.error('Firebase Configuration Error:', error);
+    console.error('Firebase initialization error:', error);
     throw error;
   }
 };
@@ -65,29 +64,35 @@ const initializeFirebase = () => {
 const signUp = async (email: string, password: string) => {
   if (!auth) initializeFirebase();
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth!, email, password);
+    // Set persistence before creating user
+    await setPersistence(auth, browserLocalPersistence);
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    const authError = error as AuthError;
-    throw new Error(authError.message);
+    console.error('Signup error:', error);
+    throw error;
   }
 };
 
 const signIn = async (email: string, password: string) => {
   if (!auth) initializeFirebase();
   try {
-    const userCredential = await signInWithEmailAndPassword(auth!, email, password);
+    // Set persistence before signing in
+    await setPersistence(auth, browserLocalPersistence);
+
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return userCredential.user;
   } catch (error) {
-    const authError = error as AuthError;
-    throw new Error(authError.message);
+    console.error('Login error:', error);
+    throw error;
   }
 };
 
 const logOut = async () => {
   if (!auth) initializeFirebase();
   try {
-    await signOut(auth!);
+    await signOut(auth);
   } catch (error) {
     console.error('Logout error:', error);
     throw error;
@@ -96,10 +101,15 @@ const logOut = async () => {
 
 const onAuthChange = (callback: (user: User | null) => void) => {
   if (!auth) initializeFirebase();
-  return onAuthStateChanged(auth!, callback);
+  return onAuthStateChanged(auth, callback);
 };
 
 // Initialize Firebase on module import
 initializeFirebase();
 
+// Firebase Authentication and Firestore exports
 export { auth, firestore, signUp, signIn, logOut, onAuthChange };
+
+// Direct Firebase Auth exports
+export * from 'firebase/auth';
+export * from 'firebase/firestore';

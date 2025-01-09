@@ -36,7 +36,7 @@ export const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
             <h2 className='text-2xl font-bold'>{newsletter.name}</h2>
             <div className='flex items-center text-yellow-500 mt-1'>
               {[...Array(5)].map((_, i) => (
-                <StarIcon
+                <Star
                   key={i}
                   className={`h-5 w-5 ${
                     i < Math.round(newsletter.rating || 0) ? 'text-yellow-500' : 'text-gray-300'
@@ -86,10 +86,10 @@ export const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
               Subscribe
             </button>
             <button className='p-2 text-gray-500 hover:bg-gray-100 rounded-full'>
-              <BookmarkIcon className='h-6 w-6' />
+              <Bookmark className='h-6 w-6' />
             </button>
             <button className='p-2 text-gray-500 hover:bg-gray-100 rounded-full'>
-              <ShareIcon className='h-6 w-6' />
+              <Share className='h-6 w-6' />
             </button>
           </div>
         </div>

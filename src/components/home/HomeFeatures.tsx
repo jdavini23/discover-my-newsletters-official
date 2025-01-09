@@ -1,22 +1,34 @@
 import React from 'react';
-import { SparklesIcon, LightBulbIcon, RocketLaunchIcon } from '@heroicons/react/24/outline';
+import { Sparkles, Lightbulb, Rocket, LucideIcon } from 'lucide-react';
+
+// Extend the LucideIcon type to include className
+interface ExtendedLucideIcon extends LucideIcon {
+  className?: string;
+}
 
 export const HomeFeatures: React.FC = () => {
-  const features = [
+  interface Feature {
+    icon: ExtendedLucideIcon;
+    title: string;
+    description: string;
+    color: string;
+  }
+
+  const features: Feature[] = [
     {
-      icon: SparklesIcon,
+      icon: Sparkles,
       title: 'Curated Selection',
       description: 'Handpicked newsletters across diverse topics, ensuring quality and relevance.',
       color: 'primary',
     },
     {
-      icon: RocketLaunchIcon,
+      icon: Rocket,
       title: 'Quick Discovery',
       description: 'Advanced search and smart filters to find your perfect newsletter in seconds.',
       color: 'primary',
     },
     {
-      icon: LightBulbIcon,
+      icon: Lightbulb,
       title: 'Personalized Insights',
       description: 'AI-powered recommendations tailored to your interests and reading preferences.',
       color: 'primary',

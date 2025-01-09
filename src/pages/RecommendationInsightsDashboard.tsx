@@ -1,40 +1,32 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ChartBarIcon, 
-  BoltIcon, 
-  StarIcon,
-  TrendingUpIcon 
-} from '@heroicons/react/24/outline';
+import { BarChart, Zap, Star, TrendingUp } from 'lucide-react';
 
 // Conditionally import recharts
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
-  PieChart, 
-  Pie, 
-  Cell 
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
 
 import { recommendationService } from '@/services/recommendationService';
 import { recommendationTracker } from '@/utils/analytics';
 import { useAuthStore } from '@/stores/authStore';
-import { 
-  RecommendationAlgorithmVariant, 
-  ABTestingService 
-} from '@/ml/abTestingFramework';
+import { RecommendationAlgorithmVariant, ABTestingService } from '@/ml/abTestingFramework';
 
 // Color palette for visualizations
 const COLOR_PALETTE = [
   '#3B82F6', // Blue
   '#10B981', // Green
   '#F43F5E', // Red
-  '#8B5CF6'  // Purple
+  '#8B5CF6', // Purple
 ];
 
 // Mock data generation for demonstration
@@ -44,18 +36,18 @@ const generateMockInsightsData = () => {
       { variant: 'Baseline', score: Math.random() * 100 },
       { variant: 'ML Scorer V1', score: Math.random() * 100 },
       { variant: 'ML Scorer V2', score: Math.random() * 100 },
-      { variant: 'Collaborative Filtering', score: Math.random() * 100 }
+      { variant: 'Collaborative Filtering', score: Math.random() * 100 },
     ],
     userInteractions: {
       totalRecommendations: Math.floor(Math.random() * 1000),
       positiveInteractions: Math.floor(Math.random() * 500),
-      negativeInteractions: Math.floor(Math.random() * 200)
+      negativeInteractions: Math.floor(Math.random() * 200),
     },
     timeSeriesData: Array.from({ length: 30 }, (_, i) => ({
       day: i + 1,
       recommendations: Math.floor(Math.random() * 50),
-      interactions: Math.floor(Math.random() * 30)
-    }))
+      interactions: Math.floor(Math.random() * 30),
+    })),
   };
 };
 
@@ -69,7 +61,7 @@ const RecommendationInsightsDashboard: React.FC = () => {
     const fetchInsightsData = async () => {
       try {
         setLoading(true);
-        
+
         // TODO: Implement actual data fetching
         // const data = await recommendationService.fetchRecommendationInsights();
         const data = generateMockInsightsData();
@@ -90,104 +82,96 @@ const RecommendationInsightsDashboard: React.FC = () => {
 
   const interactionRatio = useMemo(() => {
     const { totalRecommendations, positiveInteractions } = insightsData.userInteractions;
-    return totalRecommendations > 0 
-      ? (positiveInteractions / totalRecommendations * 100).toFixed(2) 
+    return totalRecommendations > 0
+      ? ((positiveInteractions / totalRecommendations) * 100).toFixed(2)
       : '0.00';
   }, [insightsData]);
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500"></div>
+      <div className='flex justify-center items-center h-screen'>
+        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500'></div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Recommendation Insights
-        </h1>
-        <p className="text-gray-600">
+    <div className='container mx-auto px-4 py-8'>
+      <div className='mb-8'>
+        <h1 className='text-3xl font-bold text-gray-900 mb-2'>Recommendation Insights</h1>
+        <p className='text-gray-600'>
           Comprehensive analytics of our newsletter recommendation system
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
         {/* Algorithm Performance Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-xl shadow-lg p-6"
+          className='bg-white rounded-xl shadow-lg p-6'
         >
-          <div className="flex justify-between items-center mb-4">
-            <ChartBarIcon className="w-8 h-8 text-primary-500" />
-            <h3 className="text-xl font-bold text-gray-900">
-              Algorithm Performance
-            </h3>
+          <div className='flex justify-between items-center mb-4'>
+            <BarChart className='w-8 h-8 text-primary-500' />
+            <h3 className='text-xl font-bold text-gray-900'>Algorithm Performance</h3>
           </div>
           {/* Fallback to simple div if PieChart fails */}
-          <div className="h-[200px] overflow-auto">
+          <div className='h-[200px] overflow-auto'>
             {insightsData.algorithmPerformance.map((perf, index) => (
-              <div 
-                key={perf.variant} 
-                className="flex items-center mb-2"
+              <div
+                key={perf.variant}
+                className='flex items-center mb-2'
                 style={{ color: COLOR_PALETTE[index % COLOR_PALETTE.length] }}
               >
-                <div 
-                  className="w-4 h-4 mr-2 rounded-full"
+                <div
+                  className='w-4 h-4 mr-2 rounded-full'
                   style={{ backgroundColor: COLOR_PALETTE[index % COLOR_PALETTE.length] }}
                 />
-                <span>{perf.variant}: {perf.score.toFixed(2)}</span>
+                <span>
+                  {perf.variant}: {perf.score.toFixed(2)}
+                </span>
               </div>
             ))}
           </div>
         </motion.div>
 
         {/* User Interactions Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
-          className="bg-white rounded-xl shadow-lg p-6"
+          className='bg-white rounded-xl shadow-lg p-6'
         >
-          <div className="flex justify-between items-center mb-4">
-            <StarIcon className="w-8 h-8 text-primary-500" />
-            <h3 className="text-xl font-bold text-gray-900">
-              User Interactions
-            </h3>
+          <div className='flex justify-between items-center mb-4'>
+            <Star className='w-8 h-8 text-primary-500' />
+            <h3 className='text-xl font-bold text-gray-900'>User Interactions</h3>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className='grid grid-cols-2 gap-4'>
             <div>
-              <p className="text-sm text-gray-500">Total Recommendations</p>
-              <p className="text-2xl font-bold text-primary-600">
+              <p className='text-sm text-gray-500'>Total Recommendations</p>
+              <p className='text-2xl font-bold text-primary-600'>
                 {insightsData.userInteractions.totalRecommendations}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-500">Interaction Ratio</p>
-              <p className="text-2xl font-bold text-green-600">
-                {interactionRatio}%
-              </p>
+              <p className='text-sm text-gray-500'>Interaction Ratio</p>
+              <p className='text-2xl font-bold text-green-600'>{interactionRatio}%</p>
             </div>
           </div>
         </motion.div>
 
         {/* Performance Trend Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0, transition: { delay: 0.4 } }}
-          className="bg-white rounded-xl shadow-lg p-6"
+          className='bg-white rounded-xl shadow-lg p-6'
         >
-          <div className="flex justify-between items-center mb-4">
-            <BoltIcon className="w-8 h-8 text-primary-500" />
-            <h3 className="text-xl font-bold text-gray-900">
-              Performance Trend
-            </h3>
+          <div className='flex justify-between items-center mb-4'>
+            <Zap className='w-8 h-8 text-primary-500' />
+            <h3 className='text-xl font-bold text-gray-900'>Performance Trend</h3>
           </div>
-          <div className="h-[200px] overflow-auto">
+          <div className='h-[200px] overflow-auto'>
             {insightsData.timeSeriesData.map((data) => (
-              <div key={data.day} className="flex justify-between mb-1">
+              <div key={data.day} className='flex justify-between mb-1'>
                 <span>Day {data.day}</span>
                 <span>Recommendations: {data.recommendations}</span>
                 <span>Interactions: {data.interactions}</span>
@@ -199,11 +183,11 @@ const RecommendationInsightsDashboard: React.FC = () => {
 
       {/* Active A/B Test Section */}
       {activeTest && (
-        <div className="bg-white rounded-xl shadow-lg p-6 mt-8">
-          <h2 className="text-2xl font-bold mb-4">Active A/B Test</h2>
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className='bg-white rounded-xl shadow-lg p-6 mt-8'>
+          <h2 className='text-2xl font-bold mb-4'>Active A/B Test</h2>
+          <div className='grid md:grid-cols-2 gap-4'>
             <div>
-              <p className="font-semibold">Test ID</p>
+              <p className='font-semibold'>Test ID</p>
               <p>{activeTest}</p>
             </div>
             {/* Add more A/B test details */}

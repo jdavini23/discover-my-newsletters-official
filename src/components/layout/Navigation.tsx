@@ -7,13 +7,13 @@ import { useAuthStore } from '@/stores/authStore';
 // Icons
 import {
   HomeIcon,
-  MagnifyingGlassIcon as SearchIcon,
+  Search as SearchIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon as LoginIcon,
   ArrowLeftOnRectangleIcon as LogoutIcon,
   Bars3Icon as MenuIcon,
-  XMarkIcon as XIcon,
-} from '@heroicons/react/24/outline';
+  X as XIcon,
+} from 'lucide-react';
 
 const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -115,7 +115,7 @@ const Navigation = () => {
                     key={link.path}
                     to={link.path}
                     onClick={toggleMobileMenu}
-                    className='text-gray-600 hover:bg-gray-100 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium flex items-center'
+                    className='text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium flex items-center'
                   >
                     {React.createElement(link.icon, { className: 'w-5 h-5 mr-2' })}
                     {link.name}
@@ -124,7 +124,7 @@ const Navigation = () => {
                 {isAuthenticated && (
                   <button
                     onClick={handleLogout}
-                    className='text-gray-600 hover:bg-gray-100 hover:text-gray-900 block w-full text-left px-3 py-2 rounded-md text-base font-medium flex items-center'
+                    className='text-gray-600 hover:bg-gray-100 hover:text-gray-900 px-3 py-2 rounded-md text-base font-medium flex items-center'
                   >
                     <LogoutIcon className='w-5 h-5 mr-2' />
                     Logout
