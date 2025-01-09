@@ -4,8 +4,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // Import Sidebar
 import Sidebar from '@/components/navigation/Sidebar';
 
+// Import Navigation
+import Navigation from '@/components/layout/Navigation';
+
 // Import LoadingSpinner
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+
+// Import Toaster
+import { Toaster } from 'react-hot-toast';
 
 // Authentication and Protected Routes
 import { useAuthStore } from '@/stores/authStore';
@@ -52,10 +58,13 @@ function App() {
   return (
     <BrowserRouter>
       <div className='flex'>
+        {/* Add Navigation at the top */}
+        <Navigation />
+        
         {/* Conditionally render Sidebar only when authenticated */}
         {isAuthenticated && <Sidebar />}
         
-        <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''}`}>
+        <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> {/* Add top margin for Navigation */}
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
               <Route path='/auth' element={<AuthPage />} />
@@ -121,6 +130,15 @@ function App() {
           </Suspense>
         </main>
       </div>
+
+      {/* Global Toast Notifications */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          success: { duration: 3000 },
+          error: { duration: 4000 },
+        }}
+      />
     </BrowserRouter>
   );
 }
