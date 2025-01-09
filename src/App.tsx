@@ -66,7 +66,7 @@ function App() {
           <Navigation />
           
           {/* Conditionally render Sidebar only when authenticated */}
-          {isAuthenticated && <Sidebar />}
+          {isAuthenticated && <Sidebar.default />}
           
           <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> {/* Add top margin for Navigation */}
             <Suspense fallback={<LoadingSpinner />}>
