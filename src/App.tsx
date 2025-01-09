@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Import Sidebar
-import Sidebar from '@/components/navigation/Sidebar';
+import { Sidebar } from '@/components/navigation/Sidebar';
 
 // Import Navigation
 import Navigation from '@/components/layout/Navigation';
@@ -66,7 +66,7 @@ function App() {
           <Navigation />
           
           {/* Conditionally render Sidebar only when authenticated */}
-          {isAuthenticated && <Sidebar.default />}
+          {isAuthenticated && <Sidebar />}
           
           <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> {/* Add top margin for Navigation */}
             <Suspense fallback={<LoadingSpinner />}>
