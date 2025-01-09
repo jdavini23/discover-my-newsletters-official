@@ -51,7 +51,9 @@ function App() {
   return (
     <BrowserRouter>
       <div className='flex'>
+        {/* Conditionally render Sidebar only when authenticated */}
         {isAuthenticated && <Sidebar />}
+        
         <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''}`}>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
