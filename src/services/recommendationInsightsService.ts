@@ -23,7 +23,7 @@ enum RecommendationInsightsErrorType {
   FETCH_ERROR = 'Fetch Error',
   PERFORMANCE_CALCULATION_ERROR = 'Performance Calculation Error',
   REPORT_GENERATION_ERROR = 'Report Generation Error',
-  UNKNOWN_ERROR = 'Unknown Error'
+  UNKNOWN_ERROR = 'Unknown Error',
 }
 
 class RecommendationInsightsError extends Error {
@@ -39,8 +39,8 @@ class RecommendationInsightsError extends Error {
 
   static fromError(error: Error): RecommendationInsightsError {
     return new RecommendationInsightsError(
-      error.message, 
-      RecommendationInsightsErrorType.UNKNOWN_ERROR, 
+      error.message,
+      RecommendationInsightsErrorType.UNKNOWN_ERROR,
       error
     );
   }
@@ -112,19 +112,20 @@ export class RecommendationInsightsService {
         endDate,
         userId,
         algorithmVariant,
-        insightsCount: insights.length
+        insightsCount: insights.length,
       });
 
       return insights;
     } catch (error) {
-      const insightsError = error instanceof RecommendationInsightsError
-        ? error
-        : new RecommendationInsightsError(
-            'Failed to fetch recommendation insights', 
-            RecommendationInsightsErrorType.FETCH_ERROR,
-            error as Error
-          );
-      
+      const insightsError =
+        error instanceof RecommendationInsightsError
+          ? error
+          : new RecommendationInsightsError(
+              'Failed to fetch recommendation insights',
+              RecommendationInsightsErrorType.FETCH_ERROR,
+              error as Error
+            );
+
       toast.error(insightsError.message);
       throw insightsError;
     }
@@ -190,7 +191,7 @@ export class RecommendationInsightsService {
       trackEvent('recommendation_performance_calculated', {
         totalRecommendations,
         positiveInteractionRate,
-        topAlgorithms: topPerformingAlgorithms.map(a => a.variant)
+        topAlgorithms: topPerformingAlgorithms.map((a) => a.variant),
       });
 
       return {
@@ -199,14 +200,15 @@ export class RecommendationInsightsService {
         topPerformingAlgorithms,
       };
     } catch (error) {
-      const insightsError = error instanceof RecommendationInsightsError
-        ? error
-        : new RecommendationInsightsError(
-            'Failed to calculate overall recommendation performance', 
-            RecommendationInsightsErrorType.PERFORMANCE_CALCULATION_ERROR,
-            error as Error
-          );
-      
+      const insightsError =
+        error instanceof RecommendationInsightsError
+          ? error
+          : new RecommendationInsightsError(
+              'Failed to calculate overall recommendation performance',
+              RecommendationInsightsErrorType.PERFORMANCE_CALCULATION_ERROR,
+              error as Error
+            );
+
       toast.error(insightsError.message);
       throw insightsError;
     }
@@ -223,7 +225,7 @@ export class RecommendationInsightsService {
 
       if (!testDoc.exists) {
         throw new RecommendationInsightsError(
-          'A/B Test not found', 
+          'A/B Test not found',
           RecommendationInsightsErrorType.INVALID_INPUT
         );
       }
@@ -258,7 +260,7 @@ export class RecommendationInsightsService {
       trackEvent('recommendation_performance_report_generated', {
         abTestId,
         winningVariant,
-        variantInteractions: variantPerformance
+        variantInteractions: variantPerformance,
       });
 
       // Update test configuration with performance insights
@@ -267,14 +269,15 @@ export class RecommendationInsightsService {
         winningVariant,
       };
     } catch (error) {
-      const insightsError = error instanceof RecommendationInsightsError
-        ? error
-        : new RecommendationInsightsError(
-            'Failed to generate performance report', 
-            RecommendationInsightsErrorType.REPORT_GENERATION_ERROR,
-            error as Error
-          );
-      
+      const insightsError =
+        error instanceof RecommendationInsightsError
+          ? error
+          : new RecommendationInsightsError(
+              'Failed to generate performance report',
+              RecommendationInsightsErrorType.REPORT_GENERATION_ERROR,
+              error as Error
+            );
+
       toast.error(insightsError.message);
       throw insightsError;
     }
@@ -337,7 +340,4 @@ export class RecommendationInsightsService {
   }
 }
 
-export { 
-  RecommendationInsightsErrorType, 
-  RecommendationInsightsError 
-};
+export { RecommendationInsightsErrorType, RecommendationInsightsError };

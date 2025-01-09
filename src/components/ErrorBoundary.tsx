@@ -24,21 +24,21 @@ interface ErrorBoundaryState {
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
-    this.state = { 
+    this.state = {
       hasError: false,
-      error: undefined 
+      error: undefined,
     };
   }
 
   // Static method to derive state from caught error
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { 
+    return {
       hasError: true,
       error: {
         message: error.message,
         stack: error.stack,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     };
   }
 
@@ -48,13 +48,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       message: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     // Track error for monitoring
     trackEvent('error_boundary_catch', {
       message: errorMetadata.message,
-      severity: 'critical'
+      severity: 'critical',
     });
 
     // Optional custom error handler
@@ -65,22 +65,19 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
   // Method to reset error state
   resetErrorBoundary = () => {
-    this.setState({ 
-      hasError: false, 
-      error: undefined 
+    this.setState({
+      hasError: false,
+      error: undefined,
     });
-  }
+  };
 
   render() {
     if (this.state.hasError) {
       // Use custom fallback or default ErrorFallback
-      const FallbackComponent = this.props.fallback 
+      const FallbackComponent = this.props.fallback
         ? () => this.props.fallback as JSX.Element
         : () => (
-            <ErrorFallback 
-              error={this.state.error} 
-              resetErrorBoundary={this.resetErrorBoundary} 
-            />
+            <ErrorFallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary} />
           );
 
       return <FallbackComponent />;

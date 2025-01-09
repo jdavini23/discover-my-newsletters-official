@@ -1,31 +1,59 @@
 {
   "name": "discover-my-newsletters",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "type": "module",
+  "description": "Intelligent newsletter recommendation and discovery platform",
+  "keywords": [
+    "newsletter",
+    "recommendation",
+    "machine-learning",
+    "personalization",
+    "content-discovery"
+  ],
+  "homepage": "https://discovermynewsletters.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/discover-my-newsletters.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/discover-my-newsletters/issues",
+    "email": "support@discovermynewsletters.com"
+  },
+  "author": {
+    "name": "Your Name",
+    "email": "contact@discovermynewsletters.com",
+    "url": "https://discovermynewsletters.com"
+  },
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,tsx --fix",
-    "prepare": "husky",
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:integration": "cypress run",
+    "prepare": "husky install",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
     "deps:check": "npm-check-updates",
     "deps:update": "npm-check-updates -u && npm install",
-    "preview": "vite preview",
-    "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "deploy": "npm run build && firebase deploy --only hosting",
+    "deploy:staging": "firebase use staging && npm run build && firebase deploy --only hosting:staging",
+    "deploy:production": "firebase use production && npm run build && firebase deploy --only hosting:main"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@tanstack/react-query": "^5.17.5",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
     "axios": "^1.6.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -48,12 +76,17 @@
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/eslint": "^8.56.2",
     "@types/node": "^22.10.5",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@vitejs/plugin-react-swc": "^3.7.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
     "autoprefixer": "^10.4.17",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
@@ -62,6 +95,7 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "husky": "^9.0.6",
+    "jsdom": "^26.0.0",
     "lint-staged": "^15.2.0",
     "npm-check-updates": "^16.14.12",
     "postcss": "^8.4.33",
@@ -69,10 +103,18 @@
     "prettier-plugin-tailwindcss": "^0.5.11",
     "recharts": "^2.15.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3",
+    "typescript": "^5.7.3",
     "typescript-eslint": "^0.0.1-alpha.0",
     "uuid": "^11.0.4",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "vitest": "^2.1.8"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx,json,md}": [

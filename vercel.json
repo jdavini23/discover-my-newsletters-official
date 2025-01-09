@@ -1,24 +1,25 @@
 {
   "version": 2,
+  "name": "discover-my-newsletters",
   "builds": [
     {
-      "src": "newsletter-frontend/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": { "distDir": "dist" }
-    },
-    {
-      "src": "newsletter-backend/src/index.ts",
-      "use": "@vercel/node"
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "newsletter-backend/src/index.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "newsletter-frontend/index.html"
-    }
-  ]
+    { "src": "/(.*)", "dest": "/index.html" }
+  ],
+  "env": {
+    "VITE_APP_TITLE": "Discover My Newsletters",
+    "VITE_ENVIRONMENT": "production"
+  },
+  "domains": [
+    "discovermynewsletters.com",
+    "www.discovermynewsletters.com"
+  ],
+  "github": {
+    "silent": true
+  }
 }

@@ -16,17 +16,10 @@ import {
 import { AdminInviteService } from '@/services/adminInviteService';
 import { createUserProfile } from '@/services/firestore';
 import { User } from '@/types/user';
-import { 
-  isDefined, 
-  isNonEmptyString, 
-  safeParse 
-} from '@/utils/typeUtils';
+import { isDefined, isNonEmptyString, safeParse } from '@/utils/typeUtils';
 
 // Improved type definitions
-type AuthErrorType = 
-  | 'INVALID_CREDENTIALS' 
-  | 'NETWORK_ERROR' 
-  | 'UNKNOWN_ERROR';
+type AuthErrorType = 'INVALID_CREDENTIALS' | 'NETWORK_ERROR' | 'UNKNOWN_ERROR';
 
 interface AuthState {
   user: User | null;
@@ -40,11 +33,7 @@ interface AuthState {
 
 interface AuthActions {
   login: (email: string, password: string) => Promise<User>;
-  signup: (
-    email: string, 
-    password: string, 
-    additionalData: Partial<User>
-  ) => Promise<User>;
+  signup: (email: string, password: string, additionalData: Partial<User>) => Promise<User>;
   logout: () => Promise<void>;
   initializeAuth: () => Promise<() => void>;
   promoteToAdmin: (inviteCode: string) => Promise<boolean>;
@@ -72,9 +61,9 @@ const useAuthStore = create<AuthStore>(
         throw new Error('Invalid email or password');
       }
 
-      set(state => { 
-        state.isLoading = true; 
-        state.error = null; 
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
       });
 
       try {
@@ -85,7 +74,7 @@ const useAuthStore = create<AuthStore>(
           throw new Error('No user returned from login');
         }
 
-        set(state => {
+        set((state) => {
           state.user = user;
           state.isAuthenticated = true;
           state.isLoading = false;
@@ -93,10 +82,10 @@ const useAuthStore = create<AuthStore>(
 
         return user;
       } catch (error) {
-        set(state => {
+        set((state) => {
           state.error = {
             message: error instanceof Error ? error.message : 'Login failed',
-            type: mapErrorToType(error)
+            type: mapErrorToType(error),
           };
           state.isLoading = false;
           state.isAuthenticated = false;
@@ -106,17 +95,17 @@ const useAuthStore = create<AuthStore>(
     },
 
     signup: async (
-      email: string, 
-      password: string, 
+      email: string,
+      password: string,
       additionalData: Partial<User>
     ): Promise<User> => {
       if (!isNonEmptyString(email) || !isNonEmptyString(password)) {
         throw new Error('Invalid email or password');
       }
 
-      set(state => { 
-        state.isLoading = true; 
-        state.error = null; 
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
       });
 
       try {
@@ -133,7 +122,7 @@ const useAuthStore = create<AuthStore>(
           ...additionalData,
         });
 
-        set(state => {
+        set((state) => {
           state.user = userProfile;
           state.isAuthenticated = true;
           state.isLoading = false;
@@ -141,10 +130,10 @@ const useAuthStore = create<AuthStore>(
 
         return userProfile;
       } catch (error) {
-        set(state => {
+        set((state) => {
           state.error = {
             message: error instanceof Error ? error.message : 'Signup failed',
-            type: mapErrorToType(error)
+            type: mapErrorToType(error),
           };
           state.isLoading = false;
           state.isAuthenticated = false;
@@ -156,26 +145,26 @@ const useAuthStore = create<AuthStore>(
     logout: async () => {
       try {
         await logOut();
-        set(state => {
+        set((state) => {
           state.user = null;
           state.isAuthenticated = false;
           state.isLoading = false;
           state.error = null;
         });
       } catch (error) {
-        set(state => {
+        set((state) => {
           state.error = {
             message: error instanceof Error ? error.message : 'Logout failed',
-            type: mapErrorToType(error)
+            type: mapErrorToType(error),
           };
         });
       }
     },
 
     initializeAuth: async () => {
-      set(state => { 
-        state.isLoading = true; 
-        state.error = null; 
+      set((state) => {
+        state.isLoading = true;
+        state.error = null;
       });
 
       return onAuthChange(async (user) => {
@@ -184,23 +173,23 @@ const useAuthStore = create<AuthStore>(
             const userDoc = await getDoc(doc(firestore, 'users', user.uid));
             const userData = userDoc.data() as User | undefined;
 
-            set(state => {
+            set((state) => {
               state.user = userData ?? null;
               state.isAuthenticated = !!userData;
               state.isLoading = false;
             });
           } catch (error) {
-            set(state => {
+            set((state) => {
               state.error = {
                 message: 'Failed to fetch user data',
-                type: mapErrorToType(error)
+                type: mapErrorToType(error),
               };
               state.isLoading = false;
               state.isAuthenticated = false;
             });
           }
         } else {
-          set(state => {
+          set((state) => {
             state.user = null;
             state.isAuthenticated = false;
             state.isLoading = false;
@@ -221,16 +210,16 @@ const useAuthStore = create<AuthStore>(
 
       try {
         const isValidInvite = await AdminInviteService.validateInvite(inviteCode);
-        
+
         if (!isValidInvite) {
           throw new Error('Invalid invite code');
         }
 
         await updateDoc(doc(firestore, 'users', currentUser.uid), {
-          role: 'admin'
+          role: 'admin',
         });
 
-        set(state => {
+        set((state) => {
           if (state.user) {
             state.user.role = 'admin';
           }
@@ -238,10 +227,10 @@ const useAuthStore = create<AuthStore>(
 
         return true;
       } catch (error) {
-        set(state => {
+        set((state) => {
           state.error = {
             message: error instanceof Error ? error.message : 'Failed to promote user',
-            type: mapErrorToType(error)
+            type: mapErrorToType(error),
           };
         });
         return false;

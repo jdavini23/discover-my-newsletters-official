@@ -9,7 +9,7 @@
  */
 export const isDefined = <T>(value: T | null | undefined): value is T => {
   return value !== null && value !== undefined;
-}
+};
 
 /**
  * Check if a value is a non-empty string
@@ -18,7 +18,7 @@ export const isDefined = <T>(value: T | null | undefined): value is T => {
  */
 export const isNonEmptyString = (value: unknown): value is string => {
   return typeof value === 'string' && value.trim().length > 0;
-}
+};
 
 /**
  * Safely parse a value using a provided parser function
@@ -27,31 +27,25 @@ export const isNonEmptyString = (value: unknown): value is string => {
  * @param defaultValue - Default value if parsing fails
  * @returns Parsed value or default value
  */
-export const safeParse = <T>(
-  parser: (input: unknown) => T, 
-  input: unknown, 
-  defaultValue: T
-): T => {
+export const safeParse = <T>(parser: (input: unknown) => T, input: unknown, defaultValue: T): T => {
   try {
     return parser(input);
   } catch {
     return defaultValue;
   }
-}
+};
 
 /**
  * Create a type guard for a specific object shape
  * @param keys - Required keys for the object
  * @returns Type guard function
  */
-export const createObjectGuard = <T extends Record<string, unknown>>(
-  keys: (keyof T)[]
-) => {
+export const createObjectGuard = <T extends Record<string, unknown>>(keys: (keyof T)[]) => {
   return (obj: unknown): obj is T => {
     if (typeof obj !== 'object' || obj === null) return false;
-    return keys.every(key => key in obj);
-  }
-}
+    return keys.every((key) => key in obj);
+  };
+};
 
 /**
  * Safely get a nested property from an object
@@ -61,8 +55,8 @@ export const createObjectGuard = <T extends Record<string, unknown>>(
  * @returns Property value or default value
  */
 export const safeGet = <T = unknown>(
-  obj: unknown, 
-  path: string, 
+  obj: unknown,
+  path: string,
   defaultValue?: T
 ): T | undefined => {
   if (obj == null) return defaultValue;
@@ -75,8 +69,8 @@ export const safeGet = <T = unknown>(
     result = (result as Record<string, unknown>)[key];
   }
 
-  return result as T ?? defaultValue;
-}
+  return (result as T) ?? defaultValue;
+};
 
 /**
  * Filter out null and undefined values from an array
@@ -85,7 +79,7 @@ export const safeGet = <T = unknown>(
  */
 export const compactArray = <T>(arr: (T | null | undefined)[]): T[] => {
   return arr.filter(isDefined);
-}
+};
 
 /**
  * Validate an email address
@@ -95,7 +89,7 @@ export const compactArray = <T>(arr: (T | null | undefined)[]): T[] => {
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return isNonEmptyString(email) && emailRegex.test(email);
-}
+};
 
 /**
  * Validate a password
@@ -105,7 +99,7 @@ export const validateEmail = (email: string): boolean => {
  */
 export const validatePassword = (password: string, minLength: number = 8): boolean => {
   return isNonEmptyString(password) && password.length >= minLength;
-}
+};
 
 /**
  * Validate a non-empty string with optional length constraints
@@ -116,9 +110,9 @@ export const validatePassword = (password: string, minLength: number = 8): boole
  * @throws Error if validation fails
  */
 export const validateNonEmptyString = (
-  value: unknown, 
-  fieldName: string, 
-  minLength?: number, 
+  value: unknown,
+  fieldName: string,
+  minLength?: number,
   maxLength?: number
 ): asserts value is string => {
   if (!isNonEmptyString(value)) {
@@ -132,4 +126,4 @@ export const validateNonEmptyString = (
   if (maxLength !== undefined && value.length > maxLength) {
     throw new Error(`${fieldName} must be no more than ${maxLength} characters long`);
   }
-}
+};

@@ -59,7 +59,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
 
     setIsLoading(true);
     try {
-      await AuthService.resetPassword(email, resetCode, newPassword);
+      await AuthService.resetPassword(resetCode, newPassword);
       toast.success('Password reset successfully');
       onClose();
     } catch (error) {

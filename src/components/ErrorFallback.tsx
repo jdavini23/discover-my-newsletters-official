@@ -24,14 +24,11 @@ const categorizeError = (error?: ErrorMetadata): string => {
   if (lowercaseMessage.includes('network')) return 'Network Error';
   if (lowercaseMessage.includes('unauthorized')) return 'Authentication Error';
   if (lowercaseMessage.includes('not found')) return 'Resource Not Found';
-  
+
   return 'Application Error';
 };
 
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({ 
-  error, 
-  resetErrorBoundary 
-}) => {
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetErrorBoundary }) => {
   // Track error occurrence with enhanced metadata
   React.useEffect(() => {
     if (error) {
@@ -39,15 +36,15 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
         message: error.message,
         category: categorizeError(error),
         severity: 'error',
-        timestamp: error.timestamp || Date.now()
+        timestamp: error.timestamp || Date.now(),
       });
     }
   }, [error]);
 
   // Determine error display details
   const errorCategory = categorizeError(error);
-  const errorMessage = isNonEmptyString(error?.message) 
-    ? error?.message 
+  const errorMessage = isNonEmptyString(error?.message)
+    ? error?.message
     : 'An unexpected error occurred';
 
   return (
@@ -56,12 +53,8 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
       role='alert'
     >
       <div className='max-w-md text-center'>
-        <h2 className='text-3xl font-bold text-red-600 mb-4'>
-          {errorCategory}
-        </h2>
-        <p className='text-gray-700 mb-6'>
-          {errorMessage}
-        </p>
+        <h2 className='text-3xl font-bold text-red-600 mb-4'>{errorCategory}</h2>
+        <p className='text-gray-700 mb-6'>{errorMessage}</p>
 
         {error?.stack && (
           <details
@@ -69,9 +62,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({
             open
           >
             <summary className='cursor-pointer'>Error Details</summary>
-            <pre className='whitespace-pre-wrap break-words'>
-              {error.stack}
-            </pre>
+            <pre className='whitespace-pre-wrap break-words'>{error.stack}</pre>
           </details>
         )}
 

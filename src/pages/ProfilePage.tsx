@@ -14,11 +14,7 @@ import ProfileInfoSection from '@/components/profile/ProfileInfoSection';
 import { AdminInviteService } from '@/services/adminInviteService';
 import { useAuthStore } from '@/stores/authStore';
 import useUserProfileStore from '@/stores/userProfileStore';
-import { 
-  isDefined, 
-  isNonEmptyString, 
-  safeGet 
-} from '@/utils/typeUtils';
+import { isDefined, isNonEmptyString, safeGet } from '@/utils/typeUtils';
 
 type ProfileSectionName = 
   | 'info' 
@@ -73,12 +69,7 @@ const PROFILE_SECTIONS: ProfileSection[] = [
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
-  const { 
-    profile, 
-    fetchProfile, 
-    isLoading, 
-    error 
-  } = useUserProfileStore();
+  const { profile, fetchProfile, isLoading, error } = useUserProfileStore();
 
   const [activeSection, setActiveSection] = useState<ProfileSectionName>('info');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -101,10 +92,7 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      const result = await AdminInviteService.validateAdminInviteCode(
-        userId,
-        adminInviteCode
-      );
+      const result = await AdminInviteService.validateAdminInviteCode(userId, adminInviteCode);
 
       if (result) {
         toast.success('Successfully promoted to admin!', {
@@ -119,10 +107,8 @@ const ProfilePage: React.FC = () => {
         });
       }
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to promote to admin';
-      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to promote to admin';
+
       toast.error(errorMessage, {
         icon: '',
         duration: 3000,
@@ -161,10 +147,9 @@ const ProfilePage: React.FC = () => {
         duration: 5000,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Could not generate invite code';
-      
+      const errorMessage =
+        error instanceof Error ? error.message : 'Could not generate invite code';
+
       toast.error(errorMessage);
     }
   };
@@ -180,10 +165,8 @@ const ProfilePage: React.FC = () => {
     const userId = safeGet(user, 'uid');
     if (userId) {
       fetchProfile(userId).catch((err) => {
-        const errorMessage = err instanceof Error 
-          ? err.message 
-          : 'Profile fetch failed';
-        
+        const errorMessage = err instanceof Error ? err.message : 'Profile fetch failed';
+
         toast.error(errorMessage);
         navigate('/auth');
       });
@@ -241,16 +224,15 @@ const ProfilePage: React.FC = () => {
   }, [isLoading, error, user, fetchProfile]);
 
   // Render available sections based on user role
-  const availableSections = useMemo(() => 
-    PROFILE_SECTIONS.filter(section => 
-      !section.adminOnly || safeGet(user, 'role') === 'admin'
-    ), 
+  const availableSections = useMemo(
+    () =>
+      PROFILE_SECTIONS.filter((section) => !section.adminOnly || safeGet(user, 'role') === 'admin'),
     [user]
   );
 
   // Render active section
   const ActiveSectionComponent = useMemo(() => {
-    const section = availableSections.find(s => s.name === activeSection);
+    const section = availableSections.find((s) => s.name === activeSection);
     return section ? section.component : ProfileInfoSection;
   }, [activeSection, availableSections]);
 
@@ -262,10 +244,12 @@ const ProfilePage: React.FC = () => {
   return (
     <div className='flex min-h-screen bg-gray-50'>
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         w-64 bg-white shadow-md 
         ${isMobileSidebarOpen ? 'block' : 'hidden md:block'}
-      `}>
+      `}
+      >
         <nav className='p-4'>
           {availableSections.map((section) => (
             <button
@@ -273,9 +257,9 @@ const ProfilePage: React.FC = () => {
               onClick={() => setActiveSection(section.name)}
               className={`
                 flex items-center w-full p-2 mb-2 rounded 
-                ${activeSection === section.name 
-                  ? 'bg-primary-500 text-white' 
-                  : 'hover:bg-gray-100'}
+                ${
+                  activeSection === section.name ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'
+                }
               `}
             >
               <section.icon className='mr-2' size={20} />
@@ -286,30 +270,28 @@ const ProfilePage: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className='flex-1 p-6'>
-        {renderLoadingState || <ActiveSectionComponent />}
-      </div>
+      <div className='flex-1 p-6'>{renderLoadingState || <ActiveSectionComponent />}</div>
 
       {/* Admin Promotion Modal */}
       {isAdminPromotionModalOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
           <div className='bg-white p-6 rounded-lg'>
             <h2 className='text-xl font-bold mb-4'>Promote to Admin</h2>
-            <input 
-              type='text' 
+            <input
+              type='text'
               value={adminInviteCode}
               onChange={(e) => setAdminInviteCode(e.target.value)}
               placeholder='Enter Admin Invite Code'
               className='w-full p-2 border rounded mb-4'
             />
             <div className='flex justify-between'>
-              <button 
+              <button
                 onClick={() => setIsAdminPromotionModalOpen(false)}
                 className='bg-gray-200 text-gray-800 px-4 py-2 rounded'
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleAdminPromotion}
                 className='bg-primary-500 text-white px-4 py-2 rounded'
               >

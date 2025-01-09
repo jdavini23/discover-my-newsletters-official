@@ -1,0 +1,97 @@
+# Windsurf Project Ruleset
+
+## 1. Development Workflow Rules
+
+### 1.1 Branch Management
+- Main branch is always production-ready
+- Use feature branches for all new work
+- Delete branches after merging
+
+### 1.2 Commit Guidelines
+- Atomic commits: One logical change per commit
+- Descriptive commit messages required
+- No commits directly to main/master branch
+
+## 2. Code Quality Enforcement
+
+### 2.1 Static Analysis
+- ESLint must pass with zero warnings
+- TypeScript strict mode enabled
+- No `any` type allowed
+- 100% test coverage for critical paths
+
+### 2.2 Performance Constraints
+- Max bundle size: 500KB
+- Max component render time: 16ms
+- Lighthouse performance score minimum: 90
+
+## 3. Security Protocols
+
+### 3.1 Authentication
+- No hardcoded credentials
+- Token rotation every 24 hours
+- HTTPS everywhere
+- CSRF protection mandatory
+
+### 3.2 Data Handling
+- No sensitive data in client-side logs
+- Encrypt all personally identifiable information
+- Implement proper input sanitization
+
+## 4. Dependency Management
+
+### 4.1 Dependency Rules
+- No deprecated packages
+- Weekly dependency audits
+- Auto-update minor versions
+- Manual review for major version changes
+
+## 5. Environment Rules
+
+### 5.1 Development Environment
+- Node.js 18+ required
+- npm 9+ required
+- VSCode recommended
+- Windsurf IDE extensions mandatory
+
+### 5.2 CI/CD Requirements
+- All PRs must pass automated checks
+- Mandatory code review for all changes
+- Automated security scanning
+
+## 6. Documentation Standards
+
+### 6.1 Code Documentation
+- JSDoc for all public APIs
+- Inline comments for complex logic
+- README updates with significant changes
+
+## 7. Accessibility Compliance
+
+### 7.1 Web Accessibility
+- WCAG 2.1 AA compliance
+- Keyboard navigation support
+- Screen reader compatibility
+- Color contrast ratio minimum 4.5:1
+
+## 8. Monitoring and Logging
+
+### 8.1 Error Tracking
+- Centralized error reporting
+- No silent failures
+- Contextual error logging
+- Performance metrics collection
+
+## 9. Experimental Features
+
+### 9.1 Feature Flags
+- All experimental features behind flags
+- Clear deprecation path for experimental features
+- Opt-in mechanisms for beta functionality
+
+## 10. Continuous Improvement
+
+### 10.1 Technical Debt
+- Quarterly refactoring sprints
+- Regular architecture reviews
+- Proactive performance optimization

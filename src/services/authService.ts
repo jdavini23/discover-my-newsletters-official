@@ -15,12 +15,7 @@ import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
 import analytics from '@/utils/analytics';
-import { 
-  isNonEmptyString, 
-  safeGet, 
-  validateEmail, 
-  validatePassword 
-} from '@/utils/typeUtils';
+import { isNonEmptyString, safeGet, validateEmail, validatePassword } from '@/utils/typeUtils';
 
 // Comprehensive error handling for authentication
 enum AuthErrorType {
@@ -30,7 +25,7 @@ enum AuthErrorType {
   EMAIL_ALREADY_IN_USE = 'Email Already in Use',
   WEAK_PASSWORD = 'Weak Password',
   UNAUTHORIZED = 'Unauthorized',
-  UNKNOWN_ERROR = 'Unknown Error'
+  UNKNOWN_ERROR = 'Unknown Error',
 }
 
 // Enhanced error class for authentication
@@ -53,20 +48,36 @@ class AuthServiceError extends Error {
       'auth/invalid-credential',
       'auth/user-not-found',
       'auth/email-already-in-use',
-      'auth/weak-password'
+      'auth/weak-password',
     ];
 
     if (authErrorCodes.includes(error.code)) {
       switch (error.code) {
         case 'auth/network-request-failed':
-          return new AuthServiceError('Network error. Please check your connection.', AuthErrorType.NETWORK_ERROR, error);
+          return new AuthServiceError(
+            'Network error. Please check your connection.',
+            AuthErrorType.NETWORK_ERROR,
+            error
+          );
         case 'auth/wrong-password':
         case 'auth/invalid-credential':
-          return new AuthServiceError('Invalid email or password.', AuthErrorType.INVALID_CREDENTIALS, error);
+          return new AuthServiceError(
+            'Invalid email or password.',
+            AuthErrorType.INVALID_CREDENTIALS,
+            error
+          );
         case 'auth/user-not-found':
-          return new AuthServiceError('No user found with this email.', AuthErrorType.USER_NOT_FOUND, error);
+          return new AuthServiceError(
+            'No user found with this email.',
+            AuthErrorType.USER_NOT_FOUND,
+            error
+          );
         case 'auth/email-already-in-use':
-          return new AuthServiceError('Email is already registered.', AuthErrorType.EMAIL_ALREADY_IN_USE, error);
+          return new AuthServiceError(
+            'Email is already registered.',
+            AuthErrorType.EMAIL_ALREADY_IN_USE,
+            error
+          );
         case 'auth/weak-password':
           return new AuthServiceError('Password is too weak.', AuthErrorType.WEAK_PASSWORD, error);
       }
@@ -74,8 +85,8 @@ class AuthServiceError extends Error {
 
     // Fallback for non-auth errors or unknown error codes
     return new AuthServiceError(
-      error.message || 'An unknown authentication error occurred', 
-      AuthErrorType.UNKNOWN_ERROR, 
+      error.message || 'An unknown authentication error occurred',
+      AuthErrorType.UNKNOWN_ERROR,
       error
     );
   }
@@ -110,8 +121,8 @@ const AUTH_CONFIG = {
   BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   SOCIAL_PROVIDERS: {
     GOOGLE: 'google',
-    GITHUB: 'github'
-  }
+    GITHUB: 'github',
+  },
 };
 
 export class AuthService {
@@ -130,10 +141,15 @@ export class AuthService {
     try {
       return await currentUser.getIdToken(true);
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Failed to get user token', AuthErrorType.UNAUTHORIZED, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError(
+              'Failed to get user token',
+              AuthErrorType.UNAUTHORIZED,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -146,7 +162,10 @@ export class AuthService {
     }
 
     if (!validatePassword(password)) {
-      throw new AuthServiceError('Password must be at least 8 characters', AuthErrorType.WEAK_PASSWORD);
+      throw new AuthServiceError(
+        'Password must be at least 8 characters',
+        AuthErrorType.WEAK_PASSWORD
+      );
     }
   }
 
@@ -160,10 +179,15 @@ export class AuthService {
 
       return this.formatUserProfile(user);
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Google sign-in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError(
+              'Google sign-in failed',
+              AuthErrorType.UNKNOWN_ERROR,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -178,10 +202,15 @@ export class AuthService {
 
       return this.formatUserProfile(user);
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('GitHub sign-in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError(
+              'GitHub sign-in failed',
+              AuthErrorType.UNKNOWN_ERROR,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -204,10 +233,11 @@ export class AuthService {
 
       return this.formatUserProfile(user);
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Sign up failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError('Sign up failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+
       toast.error(authError.message);
       throw authError;
     }
@@ -223,10 +253,11 @@ export class AuthService {
 
       return this.formatUserProfile(userCredential.user);
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Sign in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError('Sign in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
+
       toast.error(authError.message);
       throw authError;
     }
@@ -244,10 +275,15 @@ export class AuthService {
       analytics.trackEvent('password_reset_request', { email });
       toast.success('Password reset email sent');
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Failed to send reset code', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError(
+              'Failed to send reset code',
+              AuthErrorType.UNKNOWN_ERROR,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -255,7 +291,10 @@ export class AuthService {
 
   static async resetPassword(code: string, newPassword: string): Promise<void> {
     if (!validatePassword(newPassword)) {
-      throw new AuthServiceError('Password must be at least 8 characters', AuthErrorType.WEAK_PASSWORD);
+      throw new AuthServiceError(
+        'Password must be at least 8 characters',
+        AuthErrorType.WEAK_PASSWORD
+      );
     }
 
     try {
@@ -264,10 +303,15 @@ export class AuthService {
       analytics.trackEvent('password_reset_success');
       toast.success('Password reset successfully');
     } catch (error) {
-      const authError = error instanceof FirebaseError 
-        ? AuthServiceError.fromFirebaseError(error)
-        : new AuthServiceError('Password reset failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof FirebaseError
+          ? AuthServiceError.fromFirebaseError(error)
+          : new AuthServiceError(
+              'Password reset failed',
+              AuthErrorType.UNKNOWN_ERROR,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -296,14 +340,19 @@ export class AuthService {
 
       return this.formatUserProfile(currentUser);
     } catch (error) {
-      const authError = error instanceof AxiosError 
-        ? new AuthServiceError(
-            error.response?.data?.message || 'Profile update failed', 
-            AuthErrorType.UNAUTHORIZED, 
-            error
-          )
-        : new AuthServiceError('Profile update failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-      
+      const authError =
+        error instanceof AxiosError
+          ? new AuthServiceError(
+              error.response?.data?.message || 'Profile update failed',
+              AuthErrorType.UNAUTHORIZED,
+              error
+            )
+          : new AuthServiceError(
+              'Profile update failed',
+              AuthErrorType.UNKNOWN_ERROR,
+              error as Error
+            );
+
       toast.error(authError.message);
       throw authError;
     }
@@ -316,7 +365,7 @@ export class AuthService {
       email: user.email || '',
       displayName: user.displayName || '',
       photoURL: user.photoURL || '',
-      emailVerified: user.emailVerified
+      emailVerified: user.emailVerified,
     };
   }
 }

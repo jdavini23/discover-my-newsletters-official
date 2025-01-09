@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "discover-my-newsletters"
+  },
+  "targets": {
+    "discover-my-newsletters": {
+      "hosting": {
+        "main": [
+          "discover-my-newsletters"
+        ]
+      }
+    }
+  }
+}

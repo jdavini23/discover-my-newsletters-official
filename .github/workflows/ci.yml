@@ -1,22 +1,31 @@
-name: Discover My Newsletters CI
+name: Discover My Newsletters CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
   schedule:
-    - cron: '0 0 * * 1'  # Weekly dependency check
+    - cron: '0 0 * * 1'  # Weekly dependency and security check
   workflow_dispatch:
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
-  quick-checks:
+  code-quality:
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
     
-    - name: Use Node.js
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '18.x'
@@ -33,39 +42,118 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-node-
     
-    - name: Verify npm cache
-      run: |
-        npm config get cache
-        ls -la ~/.npm
-    
     - name: Install Dependencies
-      run: |
-        npm ci --cache ~/.npm
+      run: npm ci
     
-    - name: Lint Code
+    - name: Run ESLint
       run: npm run lint
     
-    - name: Run Tests
-      run: npm test
+    - name: Run Type Checks
+      run: npm run type-check
+    
+  testing:
+    needs: code-quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    - name: Run Unit Tests
+      run: npm run test:unit
+    
+    - name: Run Integration Tests
+      run: npm run test:integration
+    
+    - name: Upload Test Coverage
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
+  
+  security-scan:
+    needs: testing
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    - name: Run Dependency Audit
+      run: npm audit --audit-level=high
+    
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: javascript-typescript
+    
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+    
+    - name: Scan for Secrets
+      uses: trufflesecurity/trufflehog@main
+      with:
+        path: ./
+        base: ${{ github.event.repository.default_branch }}
+        head: HEAD
+  
+  build-and-deploy:
+    needs: [code-quality, testing, security-scan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18.x'
+    
+    - name: Install Dependencies
+      run: npm ci
     
     - name: Build Project
       run: npm run build
     
-    - name: Performance Check
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        working-directory: ./
+
+# Optional: Performance Budgeting
+  performance-check:
+    needs: build-and-deploy
+    runs-on: ubuntu-24.04
+    
+    steps:
+    - name: Lighthouse CI
       uses: treosh/lighthouse-ci-action@v10
       with:
         urls: |
-          https://discover-my-newsletters.com
-        budgetPath: ./budget.json
+          https://discover-my-newsletters.vercel.app
         uploadArtifacts: true
-
-  dependency-updates:
-    runs-on: ubuntu-24.04
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Check for Dependency Updates
-      run: npx npm-check-updates
-    
-    - name: List Outdated Packages
-      run: npm outdated || true  # Continue even if there are outdated packages
+        temporaryPublicStorage: true
