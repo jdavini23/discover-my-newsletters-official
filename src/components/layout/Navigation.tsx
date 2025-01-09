@@ -7,6 +7,7 @@ import {
 
 import { useAuthStore } from '@/stores/authStore';
 import { UserProfileDropdown } from '@/components/navigation/UserProfileDropdown';
+import { NotificationDropdown } from '@/components/navigation/NotificationDropdown';
 
 const Navigation: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -41,7 +42,10 @@ const Navigation: React.FC = () => {
           Login
         </button>
       ) : (
-        <UserProfileDropdown user={user} />
+        <>
+          <NotificationDropdown />
+          <UserProfileDropdown user={user} />
+        </>
       )}
     </div>
   );
