@@ -16,39 +16,39 @@ interface RouteConfig {
 }
 
 export const routes: RouteConfig[] = [
-  { 
-    path: '/', 
+  {
+    path: '/',
     element: <HomePage />,
-    protected: false 
+    protected: false,
   },
-  { 
-    path: '/auth', 
+  {
+    path: '/auth',
     element: <AuthPage />,
-    protected: false 
+    protected: false,
   },
-  { 
-    path: '/dashboard', 
+  {
+    path: '/dashboard',
     element: <DashboardPage />,
-    protected: true 
+    protected: true,
   },
-  { 
-    path: '/profile', 
+  {
+    path: '/profile',
     element: <ProfilePage />,
-    protected: true 
+    protected: true,
   },
-  { 
-    path: '/newsletters', 
+  {
+    path: '/newsletters',
     element: <NewsletterDiscoveryPage />,
-    protected: true 
+    protected: true,
   },
-  { 
-    path: '/settings', 
+  {
+    path: '/settings',
     element: <SettingsPage />,
-    protected: true 
+    protected: true,
   },
-  { 
-    path: '*', 
+  {
+    path: '*',
     element: <Navigate to='/' replace />,
-    protected: false 
-  }
+    protected: false,
+  },
 ];
