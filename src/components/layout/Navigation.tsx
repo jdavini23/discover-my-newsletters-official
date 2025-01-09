@@ -6,12 +6,12 @@ import { useAuthStore } from '@/stores/authStore';
 
 // Icons
 import {
-  HomeIcon,
+  Home as HomeIcon,
   Search as SearchIcon,
-  UserCircleIcon,
-  ArrowRightOnRectangleIcon as LoginIcon,
-  ArrowLeftOnRectangleIcon as LogoutIcon,
-  Bars3Icon as MenuIcon,
+  UserCircle as UserCircleIcon,
+  LogIn as LoginIcon,
+  LogOut as LogoutIcon,
+  Menu as MenuIcon,
   X as XIcon,
 } from 'lucide-react';
 
