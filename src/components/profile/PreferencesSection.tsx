@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../../types/profile';
+
 import { useUserProfileStore } from '@/stores/userProfileStore';
+
+import { UserProfile } from '../../types/profile';
 
 const NEWSLETTER_TOPICS = [
   'Technology',

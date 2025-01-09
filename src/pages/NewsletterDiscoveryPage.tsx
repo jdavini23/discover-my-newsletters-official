@@ -1,17 +1,18 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, Settings } from 'lucide-react';
-import { Newsletter } from '@/types/Newsletter';
-import { NewsletterService, NewsletterFilters } from '@/services/newsletterService';
-import { useNewsletterStore } from '@/stores/newsletterStore';
-import { useAuthStore } from '@/stores/authStore';
-import { trackEvent } from '@/utils/analytics';
-import NewsletterCard from '@/components/newsletter/NewsletterCard';
-import { toast } from 'react-hot-toast';
-import OnboardingModal from '@/components/modals/OnboardingModal';
-import NewsletterPreviewModal from '@/components/modals/NewsletterPreviewModal';
 import { X } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+
+import NewsletterPreviewModal from '@/components/modals/NewsletterPreviewModal';
+import OnboardingModal from '@/components/modals/OnboardingModal';
+import NewsletterCard from '@/components/newsletter/NewsletterCard';
+import { NewsletterFilters, NewsletterService } from '@/services/newsletterService';
+import { useAuthStore } from '@/stores/authStore';
+import { useNewsletterStore } from '@/stores/newsletterStore';
+import { Newsletter } from '@/types/Newsletter';
+import { trackEvent } from '@/utils/analytics';
 
 const CATEGORIES = [
   'Technology',

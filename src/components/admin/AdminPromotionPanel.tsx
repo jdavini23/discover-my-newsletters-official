@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useAuthStore } from '@/stores/authStore';
-import { AdminInviteService } from '@/services/adminInviteService';
 import { Clipboard, ShieldCheck } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+
+import { AdminInviteService } from '@/services/adminInviteService';
+import { useAuthStore } from '@/stores/authStore';
 
 export const AdminPromotionPanel: React.FC = () => {
   const { user, promoteToAdmin } = useAuthStore();

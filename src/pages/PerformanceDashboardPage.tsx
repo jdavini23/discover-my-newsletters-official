@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Flame, LightningZap, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-import { performanceTracker } from '@/utils/analytics';
 import { recommendationService } from '@/services/recommendationService';
 import { useAuthStore } from '@/stores/authStore';
+import { performanceTracker } from '@/utils/analytics';
 
 // Mock data generation for demonstration
 const generateMockPerformanceData = () => {

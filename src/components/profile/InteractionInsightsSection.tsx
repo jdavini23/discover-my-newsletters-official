@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { UserProfile } from '../../types/profile';
 
 const DEFAULT_AVATAR = '/src/assets/images/default-avatar.svg';
@@ -42,7 +43,9 @@ const InteractionInsightsSection: React.FC<InteractionInsightsSectionProps> = ({
         </div>
       </div>
 
-      <h3 className='text-base sm:text-xl font-semibold mb-4 sm:mb-6 text-neutralText-700'>Interaction Insights</h3>
+      <h3 className='text-base sm:text-xl font-semibold mb-4 sm:mb-6 text-neutralText-700'>
+        Interaction Insights
+      </h3>
 
       <div className='grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 mb-4 sm:mb-6'>
         {Object.entries(activityCounts || {}).map(([type, count]) => (
@@ -59,7 +62,9 @@ const InteractionInsightsSection: React.FC<InteractionInsightsSectionProps> = ({
       </div>
 
       <div>
-        <h4 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-neutralText-700'>Recent Activity</h4>
+        <h4 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-neutralText-700'>
+          Recent Activity
+        </h4>
         {sortedActivities.length === 0 ? (
           <p className='text-xs sm:text-sm text-neutralText-500'>No recent activities</p>
         ) : (

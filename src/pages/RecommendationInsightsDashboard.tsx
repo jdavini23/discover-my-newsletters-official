@@ -1,25 +1,24 @@
-import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart, Zap, Star, TrendingUp } from 'lucide-react';
-
+import { BarChart, Star, TrendingUp, Zap } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 // Conditionally import recharts
 import {
-  LineChart,
+  CartesianGrid,
+  Cell,
   Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from 'recharts';
 
+import { ABTestingService, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
 import { recommendationService } from '@/services/recommendationService';
-import { recommendationTracker } from '@/utils/analytics';
 import { useAuthStore } from '@/stores/authStore';
-import { RecommendationAlgorithmVariant, ABTestingService } from '@/ml/abTestingFramework';
+import { recommendationTracker } from '@/utils/analytics';
 
 // Color palette for visualizations
 const COLOR_PALETTE = [

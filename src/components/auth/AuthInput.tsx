@@ -1,5 +1,5 @@
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import React from 'react';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 interface AuthInputProps {
   type: 'text' | 'email' | 'password';

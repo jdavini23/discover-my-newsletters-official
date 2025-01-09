@@ -1,7 +1,8 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { DarkModeToggle } from '../ui/DarkModeToggle';
+import React from 'react';
+
 import { useResponsive } from '../../hooks/useResponsive';
+import { DarkModeToggle } from '../ui/DarkModeToggle';
 
 interface ResponsiveContainerProps {
   children: React.ReactNode;

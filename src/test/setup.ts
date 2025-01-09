@@ -1,10 +1,11 @@
-import { afterEach, beforeAll, afterAll } from 'vitest';
-import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
+
+import { cleanup } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, afterEach, beforeAll } from 'vitest';
 import { vi } from 'vitest';
 import { mockIDBFactory } from 'vitest-mock-extended';
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
 
 // Establish API mocking before all tests
 const server = setupServer();

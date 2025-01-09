@@ -1,25 +1,26 @@
 import {
-  getFirestore,
+  addDoc,
   collection,
+  deleteDoc,
   doc,
-  setDoc,
   getDoc,
+  getDocs,
+  getFirestore,
+  increment,
+  limit,
+  orderBy,
+  Query,
+  query,
+  setDoc,
+  startAfter,
+  Timestamp,
   updateDoc,
   where,
-  query,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  Timestamp,
-  orderBy,
-  limit,
-  increment,
-  Query,
-  startAfter,
 } from 'firebase/firestore';
+
 import { auth } from '@/config/firebase';
-import { User, Newsletter, NewsletterFilter } from '@/types/firestore';
-import { UserProfile, UpdateProfileParams, UserActivity } from '@/types/profile';
+import { Newsletter, NewsletterFilter, User } from '@/types/firestore';
+import { UpdateProfileParams, UserActivity, UserProfile } from '@/types/profile';
 
 const db = getFirestore();
 

@@ -125,7 +125,7 @@ async function runSecurityTests() {
   // Test Security Headers
   console.log(chalk.yellow('Testing Security Headers...'));
   const headerResults = await testSecurityHeaders();
-  headerResults.forEach(result => {
+  headerResults.forEach((result) => {
     if (result.success) {
       console.log(chalk.green(`✓ ${result.name}: ${result.message}`));
     } else {

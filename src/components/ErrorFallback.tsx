@@ -1,21 +1,54 @@
 import React from 'react';
-import { trackEvent } from '../utils/analytics';
-import { React } from 'react';
+import { trackEvent } from '@/utils/analytics';
+import { isNonEmptyString } from '@/utils/typeUtils';
+
+// Enhanced error metadata interface
+interface ErrorMetadata {
+  message: string;
+  stack?: string;
+  componentStack?: string;
+  timestamp?: number;
+}
 
 interface ErrorFallbackProps {
-  error?: Error;
+  error?: ErrorMetadata;
   resetErrorBoundary?: () => void;
 }
 
-const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetErrorBoundary }) => {
+// Error categorization utility
+const categorizeError = (error?: ErrorMetadata): string => {
+  if (!error) return 'Unknown Error';
+
+  const lowercaseMessage = error.message.toLowerCase();
+
+  if (lowercaseMessage.includes('network')) return 'Network Error';
+  if (lowercaseMessage.includes('unauthorized')) return 'Authentication Error';
+  if (lowercaseMessage.includes('not found')) return 'Resource Not Found';
+  
+  return 'Application Error';
+};
+
+const ErrorFallback: React.FC<ErrorFallbackProps> = ({ 
+  error, 
+  resetErrorBoundary 
+}) => {
+  // Track error occurrence with enhanced metadata
   React.useEffect(() => {
-    // Track error occurrence
-    trackEvent('error_occurred', {
-      message: error?.message || 'Unknown error',
-      stack: error?.stack,
-      severity: 'error',
-    });
+    if (error) {
+      trackEvent('error_fallback_render', {
+        message: error.message,
+        category: categorizeError(error),
+        severity: 'error',
+        timestamp: error.timestamp || Date.now()
+      });
+    }
   }, [error]);
+
+  // Determine error display details
+  const errorCategory = categorizeError(error);
+  const errorMessage = isNonEmptyString(error?.message) 
+    ? error?.message 
+    : 'An unexpected error occurred';
 
   return (
     <div
@@ -23,18 +56,22 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetErrorBoundary
       role='alert'
     >
       <div className='max-w-md text-center'>
-        <h2 className='text-3xl font-bold text-red-600 mb-4'>Oops! Something went wrong</h2>
+        <h2 className='text-3xl font-bold text-red-600 mb-4'>
+          {errorCategory}
+        </h2>
         <p className='text-gray-700 mb-6'>
-          We're sorry, but an unexpected error occurred. Please try again later.
+          {errorMessage}
         </p>
 
-        {error && (
+        {error?.stack && (
           <details
             className='text-sm text-gray-500 bg-white p-4 rounded-lg mb-6 max-h-40 overflow-auto'
             open
           >
             <summary className='cursor-pointer'>Error Details</summary>
-            <pre className='whitespace-pre-wrap break-words'>{error.message}</pre>
+            <pre className='whitespace-pre-wrap break-words'>
+              {error.stack}
+            </pre>
           </details>
         )}
 

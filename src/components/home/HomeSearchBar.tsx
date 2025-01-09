@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Search, Sparkles } from 'lucide-react';
+import React, { useCallback, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const HomeSearchBar: React.FC = () => {
   const navigate = useNavigate();

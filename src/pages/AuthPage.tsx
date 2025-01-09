@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { toast } from '@/lib/react-hot-toast';
-import { AuthService } from '@/services/authService';
-import { PasswordResetModal } from '@/components/auth/PasswordResetModal';
 
 // New Component Imports
 import { AuthFormHeader } from '@/components/auth/AuthFormHeader';
-import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
 import { AuthFormToggle } from '@/components/auth/AuthFormToggle';
 import { AuthInput } from '@/components/auth/AuthInput';
+import { PasswordResetModal } from '@/components/auth/PasswordResetModal';
+import { SocialLoginButtons } from '@/components/auth/SocialLoginButtons';
+import { toast } from '@/lib/react-hot-toast';
+import { AuthService } from '@/services/authService';
 
 const AuthPage = () => {
   const navigate = useNavigate();

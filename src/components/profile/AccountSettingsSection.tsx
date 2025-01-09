@@ -1,10 +1,12 @@
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { UserProfile } from '../../types/profile';
-import { auth } from '../../config/firebase';
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+
 import AdminPromotionPanel from '@/components/admin/AdminPromotionPanel';
+import { useAuthStore } from '@/stores/authStore';
+
+import { auth } from '../../config/firebase';
+import { UserProfile } from '../../types/profile';
 
 interface AccountSettingsSectionProps {
   profile: UserProfile;
@@ -86,7 +88,10 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
           <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4'>Change Password</h3>
           <div className='space-y-3 sm:space-y-4'>
             <div>
-              <label htmlFor='currentPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='currentPassword'
+                className='block text-xs sm:text-sm font-medium text-gray-700'
+              >
                 Current Password
               </label>
               <input
@@ -98,7 +103,10 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
               />
             </div>
             <div>
-              <label htmlFor='newPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='newPassword'
+                className='block text-xs sm:text-sm font-medium text-gray-700'
+              >
                 New Password
               </label>
               <input
@@ -110,7 +118,10 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
               />
             </div>
             <div>
-              <label htmlFor='confirmPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='confirmPassword'
+                className='block text-xs sm:text-sm font-medium text-gray-700'
+              >
                 Confirm New Password
               </label>
               <input
@@ -141,7 +152,9 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
         </div>
 
         <div className='border-t pt-4 sm:pt-6'>
-          <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-red-600'>Danger Zone</h3>
+          <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-red-600'>
+            Danger Zone
+          </h3>
           <button
             onClick={handleDeleteAccount}
             className='bg-red-500 text-white py-1 sm:py-2 px-2 sm:px-4 rounded-md hover:bg-red-600 text-xs sm:text-base'

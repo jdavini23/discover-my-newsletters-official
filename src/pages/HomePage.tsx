@@ -1,13 +1,14 @@
-import React from 'react';
 import { motion } from 'framer-motion';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Footer from '../components/common/Footer';
 
+import { HomeCTA } from '@/components/home/HomeCTA';
+import { HomeFeatures } from '@/components/home/HomeFeatures';
 // New Component Imports
 import { HomeSearchBar } from '@/components/home/HomeSearchBar';
-import { HomeFeatures } from '@/components/home/HomeFeatures';
-import { HomeCTA } from '@/components/home/HomeCTA';
 import { useAuthStore } from '@/stores/authStore';
+
+import Footer from '../components/common/Footer';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div 
+    <div
       className='w-full min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-100 overflow-hidden font-sans'
       role='main'
       aria-label='Newsletter Discovery Homepage'
@@ -37,7 +38,7 @@ const HomePage: React.FC = () => {
             transition={{ duration: 0.6 }}
             className='text-center lg:text-left space-y-6'
           >
-            <h1 
+            <h1
               className='text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight'
               aria-level={1}
             >
@@ -46,7 +47,7 @@ const HomePage: React.FC = () => {
                 Newsletter Companion
               </span>
             </h1>
-            <p 
+            <p
               className='text-lg md:text-xl text-gray-600 mb-6'
               aria-description='Platform description'
             >

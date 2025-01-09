@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { 
-  Home as HomeIcon, 
-  Inbox as InboxIcon, 
-  Settings as SettingsIcon, 
-  Users as UsersIcon, 
-  Briefcase as BriefcaseIcon 
+import {
+  Briefcase as BriefcaseIcon,
+  Home as HomeIcon,
+  Inbox as InboxIcon,
+  Settings as SettingsIcon,
+  Users as UsersIcon,
 } from 'lucide-react';
+import React, { createContext, ReactNode, useContext, useState } from 'react';
 
 // Define navigation item type
 export interface NavigationItem {
@@ -24,21 +24,21 @@ export const DEFAULT_NAV_ITEMS: NavigationItem[] = [
     path: '/dashboard',
     icon: HomeIcon,
     roles: ['user', 'admin'],
-    section: 'main'
+    section: 'main',
   },
   {
     name: 'Newsletters',
     path: '/newsletters',
     icon: InboxIcon,
     roles: ['user', 'admin'],
-    section: 'main'
+    section: 'main',
   },
   {
     name: 'Recommendations',
     path: '/recommendations',
     icon: BriefcaseIcon,
     roles: ['user', 'admin'],
-    section: 'main'
+    section: 'main',
   },
   {
     name: 'User Management',
@@ -46,15 +46,15 @@ export const DEFAULT_NAV_ITEMS: NavigationItem[] = [
     icon: UsersIcon,
     roles: ['admin'],
     section: 'admin',
-    requiredPermissions: ['user_management']
+    requiredPermissions: ['user_management'],
   },
   {
     name: 'Settings',
     path: '/settings',
     icon: SettingsIcon,
     roles: ['user', 'admin'],
-    section: 'secondary'
-  }
+    section: 'secondary',
+  },
 ];
 
 // Navigation context interface
@@ -62,7 +62,10 @@ interface NavigationContextType {
   navItems: NavigationItem[];
   setNavItems: React.Dispatch<React.SetStateAction<NavigationItem[]>>;
   filterNavItemsByRole: (userRole: string) => NavigationItem[];
-  getCurrentSectionItems: (userRole: string, section: 'main' | 'secondary' | 'admin') => NavigationItem[];
+  getCurrentSectionItems: (
+    userRole: string,
+    section: 'main' | 'secondary' | 'admin'
+  ) => NavigationItem[];
 }
 
 // Create context
@@ -74,33 +77,22 @@ export const NavigationProvider: React.FC<{ children: ReactNode }> = ({ children
 
   // Filter navigation items by user role
   const filterNavItemsByRole = (userRole: string) => {
-    return navItems.filter(item => 
-      item.roles.includes(userRole)
-    );
+    return navItems.filter((item) => item.roles.includes(userRole));
   };
 
   // Get navigation items for a specific section and role
-  const getCurrentSectionItems = (
-    userRole: string, 
-    section: 'main' | 'secondary' | 'admin'
-  ) => {
-    return navItems.filter(item => 
-      item.section === section && item.roles.includes(userRole)
-    );
+  const getCurrentSectionItems = (userRole: string, section: 'main' | 'secondary' | 'admin') => {
+    return navItems.filter((item) => item.section === section && item.roles.includes(userRole));
   };
 
   const contextValue = {
     navItems,
     setNavItems,
     filterNavItemsByRole,
-    getCurrentSectionItems
+    getCurrentSectionItems,
   };
 
-  return (
-    <NavigationContext.Provider value={contextValue}>
-      {children}
-    </NavigationContext.Provider>
-  );
+  return <NavigationContext.Provider value={contextValue}>{children}</NavigationContext.Provider>;
 };
 
 // Custom hook to use navigation context

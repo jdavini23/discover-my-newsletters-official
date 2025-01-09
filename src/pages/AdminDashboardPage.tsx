@@ -1,9 +1,9 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Users, Key, Activity } from 'lucide-react';
+import { Activity, Key, Shield, Users } from 'lucide-react';
+import React from 'react';
 
-import { useAuthStore } from '@/stores/authStore';
 import { AdminInviteManager } from '@/components/admin/AdminInviteManager';
+import { useAuthStore } from '@/stores/authStore';
 
 const AdminDashboardPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -12,7 +12,7 @@ const AdminDashboardPage: React.FC = () => {
   if (user?.role !== 'admin') {
     return (
       <div className='flex items-center justify-center min-h-screen bg-red-50'>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className='text-center p-8 bg-white rounded-2xl shadow-lg'
@@ -27,11 +27,7 @@ const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className='mb-8'
-      >
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='mb-8'>
         <h1 className='text-3xl font-bold flex items-center'>
           <Shield className='mr-3 text-blue-600' /> Admin Dashboard
         </h1>

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ThumbsUp, ThumbsDown, X } from 'lucide-react';
+import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
+import React, { useState } from 'react';
 
-import { Newsletter } from '@/types/Newsletter';
 import { recommendationService } from '@/services/recommendationService';
+import { Newsletter } from '@/types/Newsletter';
 import { trackEvent } from '@/utils/analytics';
 
 interface RecommendationFeedbackProps {

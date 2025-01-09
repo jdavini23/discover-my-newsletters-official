@@ -1,23 +1,18 @@
+import { Home as HomeIcon, LogIn as LoginIcon } from 'lucide-react';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { 
-  Home as HomeIcon, 
-  LogIn as LoginIcon 
-} from 'lucide-react';
 
-import { useAuthStore } from '@/stores/authStore';
-import { UserProfileDropdown } from '@/components/navigation/UserProfileDropdown';
-import { NotificationDropdown } from '@/components/navigation/NotificationDropdown';
 import { GlobalSearch } from '@/components/navigation/GlobalSearch';
+import { NotificationDropdown } from '@/components/navigation/NotificationDropdown';
+import { UserProfileDropdown } from '@/components/navigation/UserProfileDropdown';
+import { useAuthStore } from '@/stores/authStore';
 
 const Navigation: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
   const navigate = useNavigate();
 
   // Public navigation links
-  const publicLinks = [
-    { name: 'Home', path: '/', icon: HomeIcon },
-  ];
+  const publicLinks = [{ name: 'Home', path: '/', icon: HomeIcon }];
 
   // Render logo
   const Logo = () => (
@@ -56,7 +51,7 @@ const Navigation: React.FC = () => {
     <nav className='fixed top-0 left-0 w-full bg-white shadow-sm z-50'>
       <div className='container mx-auto px-4 py-3 flex justify-between items-center'>
         <Logo />
-        
+
         <div className='flex items-center space-x-4'>
           {publicLinks.map((link) => (
             <Link
@@ -68,7 +63,7 @@ const Navigation: React.FC = () => {
               {link.name}
             </Link>
           ))}
-          
+
           <AuthActions />
         </div>
       </div>
