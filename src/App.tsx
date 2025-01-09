@@ -18,6 +18,7 @@ const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage')
 const RecommendationsPage = React.lazy(() => import('@/pages/RecommendationsPage'));
 const InsightsPage = React.lazy(() => import('@/pages/InsightsPage'));
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'));
+const HomePage = React.lazy(() => import('@/pages/HomePage'));
 
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
@@ -114,7 +115,8 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path='*' element={<Navigate to='/newsletters' replace />} />
+              <Route path='/' element={<HomePage />} />
+              <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
           </Suspense>
         </main>
