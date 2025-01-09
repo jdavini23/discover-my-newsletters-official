@@ -1,11 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useAuthStore } from '@/stores/authStore';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+
+import { useAuthStore } from '@/stores/authStore';
 
 // Validation schema
 const registerSchema = z
@@ -90,6 +90,7 @@ export const RegisterForm: React.FC = () => {
         <input
           id='password'
           type='password'
+          autoComplete='new-password'
           {...register('password')}
           className={`mt-1 block w-full rounded-md border ${
             errors.password ? 'border-red-500' : 'border-gray-300'
@@ -106,6 +107,7 @@ export const RegisterForm: React.FC = () => {
         <input
           id='confirmPassword'
           type='password'
+          autoComplete='new-password'
           {...register('confirmPassword')}
           className={`mt-1 block w-full rounded-md border ${
             errors.confirmPassword ? 'border-red-500' : 'border-gray-300'

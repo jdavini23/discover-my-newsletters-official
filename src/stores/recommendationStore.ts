@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+
 import { Newsletter } from '@/types';
 
 export interface RecommendationState {

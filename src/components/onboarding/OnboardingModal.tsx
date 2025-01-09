@@ -1,12 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Search, Heart, UserGroupIcon, CheckIcon } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckIcon, Heart, Search, Sparkles, UserGroupIcon } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
 
-import { ReadingFrequency, ContentDepth } from '@/types/profile';
-
+import { recommendationService } from '@/services/recommendationService';
 import { useAuthStore } from '@/stores/authStore';
 import { useUserProfileStore } from '@/stores/userProfileStore';
-import { recommendationService } from '@/services/recommendationService';
+import { ContentDepth, ReadingFrequency } from '@/types/profile';
 
 const NEWSLETTER_CATEGORIES = [
   'Technology',
@@ -65,7 +64,7 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
       setCurrentStep((prev) => prev + 1);
     } else {
       // Final submission
-      if (user && selectedCategories.length && readingFrequency && contentDepth) {
+      if (user && selectedCategories.length && readingFrequency != null && contentDepth != null) {
         updateUserProfile({
           onboarding: {
             isOnboardingComplete: true,
@@ -225,15 +224,15 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             onClick={handleNext}
             disabled={
               (currentStep === 1 && selectedCategories.length === 0) ||
-              (currentStep === 2 && !readingFrequency) ||
-              (currentStep === 3 && !contentDepth)
+              (currentStep === 2 && readingFrequency == null) ||
+              (currentStep === 3 && contentDepth == null)
             }
             className={`
               px-4 py-2 rounded-lg transition-all
               ${
                 (currentStep === 1 && selectedCategories.length === 0) ||
-                (currentStep === 2 && !readingFrequency) ||
-                (currentStep === 3 && !contentDepth)
+                (currentStep === 2 && readingFrequency == null) ||
+                (currentStep === 3 && contentDepth == null)
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-primary-500 text-white hover:bg-primary-600'
               }

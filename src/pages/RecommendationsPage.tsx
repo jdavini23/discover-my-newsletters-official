@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Bookmark, Share, RefreshCw } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Bookmark, RefreshCw, Share, Star } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
-import { useAuthStore } from '@/stores/authStore';
-import { recommendationService } from '@/services/recommendationService';
-import { Newsletter } from '@/types/Newsletter';
-import { trackEvent } from '@/utils/analytics';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { RecommendationFeedback } from '@/components/recommendations/RecommendationFeedback';
+import { recommendationService } from '@/services/recommendationService';
+import { useAuthStore } from '@/stores/authStore';
+import { Newsletter } from '@/types/Newsletter';
+import { trackEvent } from '@/utils/analytics';
 
 const RecommendationCard: React.FC<{
   newsletter: Newsletter;

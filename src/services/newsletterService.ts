@@ -1,18 +1,19 @@
-import { Newsletter } from '@/stores/newsletterStore';
-import { auth } from '@/config/firebase';
 import {
-  getFirestore,
-  collection,
-  doc,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
+  doc,
   getDocs,
-  query,
-  where,
-  orderBy,
+  getFirestore,
   increment,
+  orderBy,
+  query,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
+
+import { auth } from '@/config/firebase';
+import { Newsletter } from '@/stores/newsletterStore';
 
 // Expanded mock newsletter data with more diverse and realistic content
 const MOCK_NEWSLETTERS: Newsletter[] = [

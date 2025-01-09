@@ -1,10 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { LogOut as LogOutIcon, Settings as SettingsIcon, User as UserIcon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  User as UserIcon, 
-  Settings as SettingsIcon, 
-  LogOut as LogOutIcon 
-} from 'lucide-react';
 
 import { useAuthStore } from '@/stores/authStore';
 import { User } from '@/types/user';
@@ -36,18 +32,16 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ user }
 
   return (
     <div className='relative' ref={dropdownRef}>
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className='flex items-center space-x-2 hover:bg-gray-100 p-2 rounded-full'
       >
-        <img 
-          src={user.photoURL || '/default-avatar.png'} 
-          alt={`${user.displayName}'s profile`} 
+        <img
+          src={user.photoURL || '/default-avatar.png'}
+          alt={`${user.displayName}'s profile`}
           className='w-8 h-8 rounded-full'
         />
-        <span className='text-sm font-medium hidden md:inline'>
-          {user.displayName || 'User'}
-        </span>
+        <span className='text-sm font-medium hidden md:inline'>{user.displayName || 'User'}</span>
       </button>
 
       {isOpen && (
@@ -56,7 +50,7 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ user }
             <p className='text-sm font-medium text-gray-900'>{user.displayName}</p>
             <p className='text-xs text-gray-500 truncate'>{user.email}</p>
           </div>
-          
+
           <div className='py-1'>
             <Link
               to='/profile'
@@ -66,7 +60,7 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ user }
               <UserIcon className='w-4 h-4 mr-3' />
               Profile
             </Link>
-            
+
             <Link
               to='/settings'
               className='flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100'
@@ -75,7 +69,7 @@ export const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({ user }
               <SettingsIcon className='w-4 h-4 mr-3' />
               Settings
             </Link>
-            
+
             <button
               onClick={() => {
                 logout();

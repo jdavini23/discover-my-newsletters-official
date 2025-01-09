@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { toast } from '@/lib/react-hot-toast';
-import { Bookmark, Share, Flame } from 'lucide-react';
+import { Bookmark, Flame, Share } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { Newsletter } from '@/types';
-import { useAuthStore } from '@/stores/authStore';
+import { toast } from '@/lib/react-hot-toast';
 import { NewsletterService } from '@/services/newsletterService';
+import { useAuthStore } from '@/stores/authStore';
+import { Newsletter } from '@/types';
 import { trackEvent } from '@/utils/analytics';
 
 const NewsletterDetailPage: React.FC = () => {

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { UserProfile } from '../../types/profile';
+
 import { useUserProfileStore } from '@/stores/userProfileStore';
+
+import { UserProfile } from '../../types/profile';
 
 const DEFAULT_AVATAR = '/src/assets/images/default-avatar.svg';
 
@@ -30,7 +32,9 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profile }) => {
 
   return (
     <div className='bg-neutralBackground-100 shadow-soft rounded-xl p-4 sm:p-6'>
-      <h2 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-neutralText-500'>Profile Information</h2>
+      <h2 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6 text-neutralText-500'>
+        Profile Information
+      </h2>
 
       <div className='flex flex-col sm:flex-row items-center mb-4 sm:mb-6'>
         <img
@@ -45,7 +49,10 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profile }) => {
 
       <div className='space-y-3 sm:space-y-4'>
         <div>
-          <label htmlFor='displayName' className='block text-xs sm:text-sm font-medium text-neutralText-700'>
+          <label
+            htmlFor='displayName'
+            className='block text-xs sm:text-sm font-medium text-neutralText-700'
+          >
             Display Name
           </label>
           <input
@@ -58,7 +65,10 @@ const ProfileInfoSection: React.FC<ProfileInfoSectionProps> = ({ profile }) => {
         </div>
 
         <div>
-          <label htmlFor='bio' className='block text-xs sm:text-sm font-medium text-neutralText-700'>
+          <label
+            htmlFor='bio'
+            className='block text-xs sm:text-sm font-medium text-neutralText-700'
+          >
             Bio
           </label>
           <textarea

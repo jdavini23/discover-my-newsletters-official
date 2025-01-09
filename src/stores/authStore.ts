@@ -1,216 +1,254 @@
 import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
 
 import {
-  signIn,
-  signUp,
+  auth as firebaseAuth,
+  doc,
+  firestore,
+  getDoc,
   logOut,
   onAuthChange,
-  auth as firebaseAuth,
-  firestore,
-  User as FirebaseUser,
-  doc,
-  getDoc,
-  updateDoc,
   setDoc,
+  signIn,
+  signUp,
+  updateDoc,
 } from '@/config/firebase';
-import { createUserProfile } from '@/services/firestore';
 import { AdminInviteService } from '@/services/adminInviteService';
+import { createUserProfile } from '@/services/firestore';
 import { User } from '@/types/user';
+import { 
+  isDefined, 
+  isNonEmptyString, 
+  safeParse 
+} from '@/utils/typeUtils';
+
+// Improved type definitions
+type AuthErrorType = 
+  | 'INVALID_CREDENTIALS' 
+  | 'NETWORK_ERROR' 
+  | 'UNKNOWN_ERROR';
 
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  error: string | null;
+  error: {
+    message: string;
+    type: AuthErrorType;
+  } | null;
 }
 
 interface AuthActions {
-  login: (email: string, password: string) => Promise<any>;
-  signup: (email: string, password: string, additionalData: any) => Promise<any>;
+  login: (email: string, password: string) => Promise<User>;
+  signup: (
+    email: string, 
+    password: string, 
+    additionalData: Partial<User>
+  ) => Promise<User>;
   logout: () => Promise<void>;
   initializeAuth: () => Promise<() => void>;
   promoteToAdmin: (inviteCode: string) => Promise<boolean>;
 }
 
-interface AuthStore extends AuthState, AuthActions {}
+type AuthStore = AuthState & AuthActions;
 
-const useAuthStore = create<AuthStore>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-  error: null,
+const mapErrorToType = (error: unknown): AuthErrorType => {
+  if (error instanceof Error) {
+    if (error.message.includes('invalid-credential')) return 'INVALID_CREDENTIALS';
+    if (error.message.includes('network')) return 'NETWORK_ERROR';
+  }
+  return 'UNKNOWN_ERROR';
+};
 
-  login: async (email, password) => {
-    set({ isLoading: true, error: null });
-    try {
-      const userCredential = await signIn(email, password);
-      // Additional login logic if needed
-      return userCredential;
-    } catch (error) {
-      console.error('Login error:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Login failed',
-        isLoading: false,
+const useAuthStore = create<AuthStore>(
+  immer((set, get) => ({
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+
+    login: async (email: string, password: string): Promise<User> => {
+      if (!isNonEmptyString(email) || !isNonEmptyString(password)) {
+        throw new Error('Invalid email or password');
+      }
+
+      set(state => { 
+        state.isLoading = true; 
+        state.error = null; 
       });
-      throw error;
-    }
-  },
 
-  signup: async (email, password, additionalData) => {
-    set({ isLoading: true, error: null });
-    try {
-      const userCredential = await signUp(email, password);
+      try {
+        const userCredential = await signIn(email, password);
+        const user = userCredential.user;
 
-      // Create user profile in Firestore
-      if (userCredential.user) {
-        await createUserProfile(userCredential.user.uid, {
+        if (!user) {
+          throw new Error('No user returned from login');
+        }
+
+        set(state => {
+          state.user = user;
+          state.isAuthenticated = true;
+          state.isLoading = false;
+        });
+
+        return user;
+      } catch (error) {
+        set(state => {
+          state.error = {
+            message: error instanceof Error ? error.message : 'Login failed',
+            type: mapErrorToType(error)
+          };
+          state.isLoading = false;
+          state.isAuthenticated = false;
+        });
+        throw error;
+      }
+    },
+
+    signup: async (
+      email: string, 
+      password: string, 
+      additionalData: Partial<User>
+    ): Promise<User> => {
+      if (!isNonEmptyString(email) || !isNonEmptyString(password)) {
+        throw new Error('Invalid email or password');
+      }
+
+      set(state => { 
+        state.isLoading = true; 
+        state.error = null; 
+      });
+
+      try {
+        const userCredential = await signUp(email, password);
+        const firebaseUser = userCredential.user;
+
+        if (!firebaseUser) {
+          throw new Error('No user returned from signup');
+        }
+
+        // Create user profile in Firestore
+        const userProfile = await createUserProfile(firebaseUser.uid, {
           email,
           ...additionalData,
         });
+
+        set(state => {
+          state.user = userProfile;
+          state.isAuthenticated = true;
+          state.isLoading = false;
+        });
+
+        return userProfile;
+      } catch (error) {
+        set(state => {
+          state.error = {
+            message: error instanceof Error ? error.message : 'Signup failed',
+            type: mapErrorToType(error)
+          };
+          state.isLoading = false;
+          state.isAuthenticated = false;
+        });
+        throw error;
       }
+    },
 
-      return userCredential;
-    } catch (error) {
-      console.error('Signup error:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Signup failed',
-        isLoading: false,
+    logout: async () => {
+      try {
+        await logOut();
+        set(state => {
+          state.user = null;
+          state.isAuthenticated = false;
+          state.isLoading = false;
+          state.error = null;
+        });
+      } catch (error) {
+        set(state => {
+          state.error = {
+            message: error instanceof Error ? error.message : 'Logout failed',
+            type: mapErrorToType(error)
+          };
+        });
+      }
+    },
+
+    initializeAuth: async () => {
+      set(state => { 
+        state.isLoading = true; 
+        state.error = null; 
       });
-      throw error;
-    }
-  },
 
-  logout: async () => {
-    try {
-      await logOut();
-      set({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Logout failed',
-      });
-    }
-  },
-
-  initializeAuth: async () => {
-    console.log('Initializing Authentication...');
-    set({ isLoading: true });
-
-    try {
-      // Return a cleanup function for the auth listener
-      return onAuthChange(async (firebaseUser) => {
-        if (firebaseUser) {
+      return onAuthChange(async (user) => {
+        if (user) {
           try {
-            // Fetch user profile from Firestore
-            const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-            const userDoc = await getDoc(userDocRef);
+            const userDoc = await getDoc(doc(firestore, 'users', user.uid));
+            const userData = userDoc.data() as User | undefined;
 
-            if (userDoc.exists()) {
-              const userData = userDoc.data() as User;
-              console.log('User Data Retrieved:', userData);
-
-              set({
-                user: {
-                  ...userData,
-                  uid: firebaseUser.uid,
-                  email: firebaseUser.email || userData.email,
-                },
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-              });
-            } else {
-              // If no user doc, create a basic profile
-              const newUserData: User = {
-                uid: firebaseUser.uid,
-                email: firebaseUser.email || '',
-                displayName: firebaseUser.displayName || '',
-                role: 'user',
-                createdAt: new Date(),
-                interests: [],
-              };
-
-              // Save to Firestore
-              await setDoc(userDocRef, newUserData);
-
-              set({
-                user: newUserData,
-                isAuthenticated: true,
-                isLoading: false,
-                error: null,
-              });
-            }
+            set(state => {
+              state.user = userData ?? null;
+              state.isAuthenticated = !!userData;
+              state.isLoading = false;
+            });
           } catch (error) {
-            console.error('Error retrieving user data:', error);
-            set({
-              user: null,
-              isAuthenticated: false,
-              isLoading: false,
-              error: 'Failed to retrieve user data',
+            set(state => {
+              state.error = {
+                message: 'Failed to fetch user data',
+                type: mapErrorToType(error)
+              };
+              state.isLoading = false;
+              state.isAuthenticated = false;
             });
           }
         } else {
-          // No user is signed in
-          set({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error: null,
+          set(state => {
+            state.user = null;
+            state.isAuthenticated = false;
+            state.isLoading = false;
           });
         }
       });
-    } catch (error) {
-      console.error('Authentication initialization error:', error);
-      set({
-        user: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: 'Authentication initialization failed',
-      });
-      throw error;
-    }
-  },
+    },
 
-  promoteToAdmin: async (inviteCode: string) => {
-    set({ isLoading: true, error: null });
-    try {
-      const adminService = new AdminInviteService();
-      const success = await adminService.validateAdminInviteCode(
-        firebaseAuth.currentUser!.uid,
-        inviteCode
-      );
-
-      if (success) {
-        // Permanently update user role in Firestore
-        const userRef = doc(firestore, 'users', firebaseAuth.currentUser!.uid);
-        await updateDoc(userRef, { role: 'admin', adminPromotedAt: new Date() });
-
-        // Update local user state
-        set((state) => ({
-          user: state.user ? { ...state.user, role: 'admin' } : null,
-          isLoading: false,
-        }));
-
-        return true;
+    promoteToAdmin: async (inviteCode: string): Promise<boolean> => {
+      if (!isNonEmptyString(inviteCode)) {
+        throw new Error('Invalid invite code');
       }
 
-      set({ isLoading: false });
-      return false;
-    } catch (error) {
-      console.error('Admin Promotion Error:', error);
-      set({
-        error: error instanceof Error ? error.message : 'Admin promotion failed',
-        isLoading: false,
-      });
-      return false;
-    }
-  },
-}));
+      const currentUser = get().user;
+      if (!currentUser) {
+        throw new Error('No authenticated user');
+      }
 
-// Export both default and named exports
+      try {
+        const isValidInvite = await AdminInviteService.validateInvite(inviteCode);
+        
+        if (!isValidInvite) {
+          throw new Error('Invalid invite code');
+        }
+
+        await updateDoc(doc(firestore, 'users', currentUser.uid), {
+          role: 'admin'
+        });
+
+        set(state => {
+          if (state.user) {
+            state.user.role = 'admin';
+          }
+        });
+
+        return true;
+      } catch (error) {
+        set(state => {
+          state.error = {
+            message: error instanceof Error ? error.message : 'Failed to promote user',
+            type: mapErrorToType(error)
+          };
+        });
+        return false;
+      }
+    },
+  }))
+);
+
 export { useAuthStore };
 export default useAuthStore;

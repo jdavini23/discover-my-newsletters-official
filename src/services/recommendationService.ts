@@ -1,224 +1,336 @@
 import {
-  getFirestore,
+  addDoc,
   collection,
   doc,
-  updateDoc,
-  addDoc,
-  query,
-  where,
   getDocs,
-  Timestamp,
-  orderBy,
+  getFirestore,
   limit,
-  increment,
+  query,
+  setDoc,
+  Timestamp,
+  where,
 } from 'firebase/firestore';
+import { 
+  getAuth, 
+  User as FirebaseUser 
+} from 'firebase/auth';
+
+import { toast } from 'react-hot-toast';
+
 import { auth } from '@/config/firebase';
-import { User, Newsletter, UserNewsletterInteraction, NewsletterFilter } from '@/types/firestore';
+import { 
+  Newsletter, 
+  NewsletterFilter, 
+  User, 
+  UserNewsletterInteraction 
+} from '@/types/firestore';
+import { 
+  isDefined, 
+  isNonEmptyString, 
+  safeGet,
+  validateNonEmptyString 
+} from '@/utils/typeUtils';
+import { trackEvent } from '@/utils/analytics';
+
+// Enhanced error handling for recommendation service
+enum RecommendationErrorType {
+  UNAUTHORIZED = 'Unauthorized',
+  INVALID_INPUT = 'Invalid Input',
+  NETWORK_ERROR = 'Network Error',
+  RECOMMENDATION_FAILED = 'Recommendation Generation Failed',
+  UNKNOWN_ERROR = 'Unknown Error'
+}
+
+class RecommendationError extends Error {
+  type: RecommendationErrorType;
+  originalError?: Error;
+
+  constructor(message: string, type: RecommendationErrorType, originalError?: Error) {
+    super(message);
+    this.name = 'RecommendationError';
+    this.type = type;
+    this.originalError = originalError;
+  }
+
+  static fromError(error: Error): RecommendationError {
+    // Add more specific error type detection if needed
+    return new RecommendationError(
+      error.message, 
+      RecommendationErrorType.UNKNOWN_ERROR, 
+      error
+    );
+  }
+}
 
 const db = getFirestore();
 
-// Record user interaction with a newsletter
+// Improved type definitions
+type InteractionType = 
+  | 'view' 
+  | 'subscribe' 
+  | 'read' 
+  | 'dismiss';
+
+type TopicWeights = Record<string, number>;
+
+interface RecommendationMetadata {
+  topicWeights: TopicWeights;
+  contentQualityScore: number;
+}
+
+// Enhanced interaction recording with comprehensive validation
 export const recordNewsletterInteraction = async (
   newsletterId: string,
-  interactionType: UserNewsletterInteraction['interactionType'],
+  interactionType: InteractionType,
   duration?: number
-) => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+): Promise<string> => {
+  try {
+    // Validate inputs
+    validateNonEmptyString(newsletterId, 'Newsletter ID');
+    
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new RecommendationError(
+        'No authenticated user', 
+        RecommendationErrorType.UNAUTHORIZED
+      );
+    }
 
-  const interactionRef = collection(db, 'userNewsletterInteractions');
+    const interactionRef = collection(db, 'userNewsletterInteractions');
 
-  const interaction: UserNewsletterInteraction = {
-    id: '', // Firestore will generate this
-    userId: auth.currentUser.uid,
-    newsletterId,
-    interactionType,
-    timestamp: Timestamp.now(),
-    duration,
-  };
+    const interaction: Omit<UserNewsletterInteraction, 'id'> = {
+      userId: currentUser.uid,
+      newsletterId,
+      interactionType,
+      timestamp: Timestamp.now(),
+      duration,
+    };
 
-  // Add interaction record
-  const docRef = await addDoc(interactionRef, interaction);
+    // Add interaction record
+    const docRef = await addDoc(interactionRef, interaction);
 
-  // Update user's recommendation profile
-  const userRef = doc(db, 'users', auth.currentUser.uid);
-  await updateDoc(userRef, {
-    'recommendationProfile.viewedNewsletters':
-      interactionType === 'view' ? { $addToSet: newsletterId } : undefined,
-    'recommendationProfile.subscribedNewsletters':
-      interactionType === 'subscribe' ? { $addToSet: newsletterId } : undefined,
-    [`recommendationProfile.interactionScores.${newsletterId}`]:
-      interactionType === 'view'
-        ? { $inc: 1 }
-        : interactionType === 'subscribe'
-          ? { $inc: 5 }
-          : interactionType === 'read'
-            ? { $inc: 3 }
-            : undefined,
-  });
+    // Track interaction event
+    trackEvent('newsletter_interaction', {
+      type: interactionType,
+      newsletterId,
+      duration
+    });
 
-  return docRef.id;
+    // Update user's recommendation profile
+    const userRef = doc(db, 'users', currentUser.uid);
+    const updateData: Record<string, any> = {};
+
+    const updateInteractionScores = (score: number) => {
+      updateData['recommendationProfile.interactionScores'] = {
+        [`${newsletterId}`]: { $inc: score }
+      };
+    };
+
+    switch (interactionType) {
+      case 'view':
+        updateData['recommendationProfile.viewedNewsletters'] = { 
+          $addToSet: newsletterId 
+        };
+        updateInteractionScores(1);
+        break;
+      case 'subscribe':
+        updateData['recommendationProfile.subscribedNewsletters'] = { 
+          $addToSet: newsletterId 
+        };
+        updateInteractionScores(5);
+        break;
+      case 'read':
+        updateInteractionScores(3);
+        break;
+    }
+
+    await updateDoc(userRef, updateData);
+
+    return docRef.id;
+  } catch (error) {
+    const recommendationError = error instanceof RecommendationError
+      ? error
+      : RecommendationError.fromError(error as Error);
+    
+    toast.error(recommendationError.message);
+    throw recommendationError;
+  }
 };
 
-// Generate personalized recommendations
+// Generate personalized recommendations with enhanced error handling
 export const generatePersonalizedRecommendations = async (
   user: User,
   filters: NewsletterFilter = {}
-) => {
-  const {
-    topics = user.newsletterPreferences.interestedTopics,
-    pageSize = 12,
-    sortBy = 'recommended',
-  } = filters;
+): Promise<Newsletter[]> => {
+  try {
+    const {
+      topics = safeGet(user, 'newsletterPreferences.interestedTopics', []),
+      pageSize = 12,
+      sortBy = 'recommended',
+    } = filters;
 
-  // Ensure we have a non-empty array for 'not-in' filter
-  const excludedNewsletters =
-    (user.recommendationProfile.subscribedNewsletters || []).length > 0
-      ? user.recommendationProfile.subscribedNewsletters
-      : ['__no_match__']; // Use a placeholder that won't match any real ID
+    // Ensure we have a non-empty array for 'not-in' filter
+    const excludedNewsletters = 
+      safeGet(user, 'recommendationProfile.subscribedNewsletters', []).length > 0
+        ? safeGet(user, 'recommendationProfile.subscribedNewsletters', [])
+        : ['__no_match__'];
 
-  // Base recommendation query
-  let recommendationQuery = query(
-    collection(db, 'newsletters'),
-    // Exclude already subscribed newsletters
-    where('id', 'not-in', excludedNewsletters)
-  );
-
-  // Filter by user's interested topics
-  if (topics && topics.length > 0) {
-    recommendationQuery = query(
-      recommendationQuery,
-      where('topics', 'array-contains-any', topics),
-      orderBy('averageRating', 'desc')
+    // Base recommendation query
+    let recommendationQuery = query(
+      collection(db, 'newsletters'),
+      where('id', 'not-in', excludedNewsletters)
     );
-  }
 
-  // Sort based on selected option
-  switch (sortBy) {
-    case 'popularity':
-      recommendationQuery = query(recommendationQuery, orderBy('subscriberCount', 'desc'));
-      break;
-    case 'rating':
-      recommendationQuery = query(recommendationQuery, orderBy('averageRating', 'desc'));
-      break;
-    case 'recent':
-      recommendationQuery = query(recommendationQuery, orderBy('createdAt', 'desc'));
-      break;
-    case 'recommended':
-    default:
-      // Use a simpler sorting for recommended to avoid complex indexing
-      recommendationQuery = query(recommendationQuery, orderBy('averageRating', 'desc'));
-  }
+    // Filter by user's interested topics
+    if (isDefined(topics) && topics.length > 0) {
+      recommendationQuery = query(
+        recommendationQuery,
+        where('topics', 'array-contains-any', topics),
+        orderBy('averageRating', 'desc')
+      );
+    }
 
-  // Add limit to all queries
-  recommendationQuery = query(recommendationQuery, limit(pageSize));
+    // Sort based on selected option
+    switch (sortBy) {
+      case 'popularity':
+        recommendationQuery = query(recommendationQuery, orderBy('subscriberCount', 'desc'));
+        break;
+      case 'rating':
+        recommendationQuery = query(recommendationQuery, orderBy('averageRating', 'desc'));
+        break;
+      case 'recent':
+        recommendationQuery = query(recommendationQuery, orderBy('createdAt', 'desc'));
+        break;
+      case 'recommended':
+      default:
+        recommendationQuery = query(recommendationQuery, orderBy('averageRating', 'desc'));
+    }
 
-  const recommendationSnapshot = await getDocs(recommendationQuery);
+    // Add limit to all queries
+    recommendationQuery = query(recommendationQuery, limit(pageSize));
 
-  return recommendationSnapshot.docs.map(
-    (doc) =>
-      ({
-        id: doc.id,
-        ...doc.data(),
-      }) as Newsletter
-  );
-};
+    const recommendationSnapshot = await getDocs(recommendationQuery);
 
-// Update newsletter recommendation metadata
-export const updateNewsletterRecommendationMetadata = async (newsletterId: string) => {
-  const newsletterRef = doc(db, 'newsletters', newsletterId);
+    const recommendations = recommendationSnapshot.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as Newsletter
+    );
 
-  // Fetch interaction data
-  const interactionsQuery = query(
-    collection(db, 'userNewsletterInteractions'),
-    where('newsletterId', '==', newsletterId)
-  );
-  const interactionsSnapshot = await getDocs(interactionsQuery);
-
-  // Calculate recommendation metadata
-  const interactions = interactionsSnapshot.docs.map(
-    (doc) => doc.data() as UserNewsletterInteraction
-  );
-
-  const topicWeights: Record<string, number> = {};
-  let totalInteractions = 0;
-  let contentQualityScore = 0;
-
-  interactions.forEach((interaction) => {
-    totalInteractions++;
-
-    // Weight interactions differently
-    const interactionWeight =
-      interaction.interactionType === 'subscribe'
-        ? 5
-        : interaction.interactionType === 'read'
-          ? 3
-          : interaction.interactionType === 'view'
-            ? 1
-            : 0;
-
-    // Accumulate topic weights
-    // In a real scenario, you'd fetch the newsletter's topics
-    // For this example, we'll simulate it
-    const newsletterTopics = ['Technology', 'Business']; // Placeholder
-    newsletterTopics.forEach((topic) => {
-      topicWeights[topic] = (topicWeights[topic] || 0) + interactionWeight;
+    // Track recommendation generation event
+    trackEvent('personalized_recommendations_generated', {
+      userId: user.id,
+      topicCount: topics.length,
+      recommendationCount: recommendations.length
     });
 
-    // Calculate content quality based on interaction duration
-    if (interaction.duration) {
-      contentQualityScore += interaction.duration;
-    }
-  });
-
-  // Normalize scores
-  Object.keys(topicWeights).forEach((topic) => {
-    topicWeights[topic] /= totalInteractions;
-  });
-  contentQualityScore /= totalInteractions;
-
-  // Update newsletter metadata
-  await updateDoc(newsletterRef, {
-    'recommendationMetadata.topicWeights': topicWeights,
-    'recommendationMetadata.contentQualityScore': contentQualityScore,
-  });
+    return recommendations;
+  } catch (error) {
+    const recommendationError = error instanceof RecommendationError
+      ? error
+      : new RecommendationError(
+          'Failed to generate personalized recommendations', 
+          RecommendationErrorType.RECOMMENDATION_FAILED,
+          error as Error
+        );
+    
+    toast.error(recommendationError.message);
+    throw recommendationError;
+  }
 };
 
-// Find similar newsletters
-export const findSimilarNewsletters = async (newsletterId: string) => {
-  const newsletterRef = doc(db, 'newsletters', newsletterId);
+// Update newsletter recommendation metadata with improved error handling
+export const updateNewsletterRecommendationMetadata = async (
+  newsletterId: string
+): Promise<RecommendationMetadata> => {
+  try {
+    validateNonEmptyString(newsletterId, 'Newsletter ID');
 
-  // In a real-world scenario, this would use more sophisticated
-  // similarity algorithms like collaborative filtering or
-  // content-based filtering
-  const similarNewslettersQuery = query(
-    collection(db, 'newsletters'),
-    where('topics', 'array-contains-any', ['Technology', 'Business']), // Placeholder
-    limit(5)
-  );
+    const newsletterRef = doc(db, 'newsletters', newsletterId);
 
-  const similarNewslettersSnapshot = await getDocs(similarNewslettersQuery);
+    // Fetch interaction data
+    const interactionsQuery = query(
+      collection(db, 'userNewsletterInteractions'),
+      where('newsletterId', '==', newsletterId)
+    );
+    const interactionsSnapshot = await getDocs(interactionsQuery);
 
-  const similarNewsletters = similarNewslettersSnapshot.docs
-    .filter((doc) => doc.id !== newsletterId)
-    .map((doc) => doc.id);
+    // Calculate recommendation metadata
+    const interactions = interactionsSnapshot.docs.map(
+      (doc) => doc.data() as UserNewsletterInteraction
+    );
 
-  // Update newsletter with similar newsletters
-  await updateDoc(newsletterRef, {
-    'recommendationMetadata.similarNewsletters': similarNewsletters,
-  });
+    const topicWeights: TopicWeights = {};
+    let totalInteractions = 0;
+    let contentQualityScore = 0;
 
-  return similarNewsletters;
+    interactions.forEach((interaction) => {
+      totalInteractions++;
+
+      // Weight interactions differently
+      const interactionWeight =
+        interaction.interactionType === 'subscribe'
+          ? 5
+          : interaction.interactionType === 'read'
+            ? 3
+            : interaction.interactionType === 'view'
+              ? 1
+              : 0;
+
+      contentQualityScore += interactionWeight;
+    });
+
+    // Normalize content quality score
+    contentQualityScore = totalInteractions > 0 
+      ? contentQualityScore / totalInteractions 
+      : 0;
+
+    const metadata: RecommendationMetadata = {
+      topicWeights,
+      contentQualityScore
+    };
+
+    // Optional: Update newsletter document with metadata
+    await updateDoc(newsletterRef, { 
+      recommendationMetadata: metadata 
+    });
+
+    // Track metadata update event
+    trackEvent('newsletter_recommendation_metadata_updated', {
+      newsletterId,
+      interactionCount: totalInteractions,
+      contentQualityScore
+    });
+
+    return metadata;
+  } catch (error) {
+    const recommendationError = error instanceof RecommendationError
+      ? error
+      : new RecommendationError(
+          'Failed to update newsletter recommendation metadata', 
+          RecommendationErrorType.RECOMMENDATION_FAILED,
+          error as Error
+        );
+    
+    toast.error(recommendationError.message);
+    throw recommendationError;
+  }
 };
 
-import { User, UserNewsletterInteraction, NewsletterFilter } from '../types/firestore';
+export { 
+  RecommendationErrorType, 
+  RecommendationError 
+};
 
-import { RecommendationEngine } from '../types/recommendation';
-
+import { ABTestingService, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
 import { RecommendationScorer } from '@/ml/recommendationScorer';
-import { RecommendationLearningService } from './recommendationLearningService';
 import { recommendationTracker } from '@/utils/analytics';
 
-import { RecommendationAlgorithmVariant, ABTestingService } from '@/ml/abTestingFramework';
+import { NewsletterFilter, User, UserNewsletterInteraction } from '../types/firestore';
+import { RecommendationEngine } from '../types/recommendation';
+import { RecommendationLearningService } from './recommendationLearningService';
 
 class RecommendationService implements RecommendationEngine {
   private calculateContentBasedScore(
@@ -253,16 +365,43 @@ class RecommendationService implements RecommendationEngine {
   }
 
   private async fetchUserInteractionHistory(userId: string): Promise<UserNewsletterInteraction[]> {
-    const interactionsRef = collection(db, 'userNewsletterInteractions');
-    const q = query(
-      interactionsRef,
-      where('userId', '==', userId),
-      orderBy('timestamp', 'desc'),
-      limit(50)
-    );
+    try {
+      // Fetch interaction data for the specific user
+      const interactionsRef = collection(db, 'userNewsletterInteractions');
+      const q = query(
+        interactionsRef, 
+        where('userId', '==', userId),
+        limit(50) // Limit to most recent interactions
+      );
+      const snapshot = await getDocs(q);
 
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((doc) => doc.data() as UserNewsletterInteraction);
+      // Map and filter interactions
+      const interactions = snapshot.docs
+        .map((doc) => doc.data() as UserNewsletterInteraction)
+        .filter(interaction => 
+          interaction.userId === userId && 
+          interaction.interactionType && 
+          interaction.newsletterId
+        );
+
+      // Sort interactions by timestamp in descending order (most recent first)
+      const sortedInteractions = interactions.sort((a, b) => {
+        const timestampA = a.timestamp ? a.timestamp.seconds : 0;
+        const timestampB = b.timestamp ? b.timestamp.seconds : 0;
+        return timestampB - timestampA;
+      });
+
+      console.log('RECOMMENDATION_SERVICE: User Interaction History', {
+        userId,
+        totalInteractions: interactions.length,
+        interactionTypes: interactions.map(i => i.interactionType)
+      });
+
+      return sortedInteractions;
+    } catch (error) {
+      console.error('Failed to fetch user interaction history:', error);
+      return []; // Return empty array on error
+    }
   }
 
   private async calculateCollaborativeScore(
@@ -383,12 +522,23 @@ class RecommendationService implements RecommendationEngine {
     return 0.05; // Older newsletters
   }
 
-  private getFallbackRecommendations(context: RecommendationContext): RecommendationScore[] {
-    const fallbackNewsletters: Newsletter[] = [
+  private getFallbackRecommendations(options: { 
+    userId?: string, 
+    limit?: number,
+    reason?: string 
+  } = {}): RecommendationScore[] {
+    console.warn('RECOMMENDATION_SERVICE: Generating Fallback Recommendations', {
+      userId: options.userId,
+      limit: options.limit || 10,
+      reason: options.reason || 'Default fallback',
+      timestamp: new Date().toISOString(),
+    });
+
+    const fallbackNewsletters = [
       {
         id: 'fallback1',
         title: 'Tech Innovators Weekly',
-        description: 'Cutting-edge insights into the latest technology trends and innovations',
+        description: 'Cutting-edge insights into technological advancements',
         categories: ['Technology'],
         tags: ['AI', 'Startups', 'Innovation'],
         frequency: 'weekly',
@@ -421,21 +571,58 @@ class RecommendationService implements RecommendationEngine {
       newsletter,
       newsletterId: newsletter.id,
       score: 0.7, // High default score for fallback
-      reasons: ['Recommended based on trending topics'],
-    }));
+      reasons: ['Recommended based on trending topics', options.reason || 'Default fallback'],
+    })).slice(0, options.limit || 10);
   }
 
   async generateRecommendations(context: RecommendationContext): Promise<RecommendationScore[]> {
+    // Comprehensive logging for debugging
+    console.log('RECOMMENDATION_SERVICE: Generating recommendations - Full Debug', {
+      contextReceived: JSON.stringify(context, null, 2),
+      stackTrace: new Error().stack,
+      timestamp: new Date().toISOString(),
+    });
+
     try {
-      // Validate input context
-      if (!context || !context.userId) {
-        console.error('RECOMMENDATION_SERVICE: Invalid recommendation context:', context);
-        return this.getFallbackRecommendations(context);
+      // Enhanced input validation with more lenient fallback
+      if (!context) {
+        console.warn('RECOMMENDATION_SERVICE: No context provided, using default fallback');
+        return this.getFallbackRecommendations({ userId: undefined, limit: 10 });
       }
 
+      // More flexible userId validation with multiple retrieval methods
+      const userId = await this.resolveUserId(context);
+
+      if (!userId) {
+        console.error('RECOMMENDATION_SERVICE: Unable to resolve user ID', {
+          context: JSON.stringify(context, null, 2),
+          resolvedMethods: {
+            contextUserId: context.userId,
+            currentUser: await this.getCurrentUserId(),
+            authStoreUser: this.getAuthStoreUser(),
+          },
+          stackTrace: new Error().stack
+        });
+        
+        // Return fallback recommendations with detailed logging
+        return this.getFallbackRecommendations({ 
+          userId: undefined, 
+          limit: context.limit || 10,
+          reason: 'No user ID could be resolved'
+        });
+      }
+
+      console.log('RECOMMENDATION_SERVICE: Resolved User ID', {
+        userId,
+        sourceContext: !!context.userId,
+        sourceCurrentUser: !!(await this.getCurrentUserId()),
+        sourceAuthStore: !!this.getAuthStoreUser(),
+      });
+
+      // Rest of the method remains the same as in previous implementation
       console.log('RECOMMENDATION_SERVICE: Generating recommendations...', {
-        userId: context.userId,
-        preferences: JSON.stringify(context.preferences),
+        userId,
+        preferences: JSON.stringify(context.preferences || {}),
         currentInterests: context.currentInterests,
       });
 
@@ -447,9 +634,9 @@ class RecommendationService implements RecommendationEngine {
       };
 
       // Fetch user's interaction history
-      const interactions = await this.fetchUserInteractionHistory(context.userId);
+      const interactions = await this.fetchUserInteractionHistory(userId);
       console.log('RECOMMENDATION_SERVICE: User Interactions', {
-        userId: context.userId,
+        userId,
         interactionsCount: interactions.length,
       });
 
@@ -470,8 +657,8 @@ class RecommendationService implements RecommendationEngine {
 
             // Collaborative and content-based scoring
             const [collaborativeScore, contentScore] = await Promise.all([
-              this.calculateCollaborativeScore(data, context.userId),
-              this.calculateContentBasedScoreEnhanced(data, context),
+              this.calculateCollaborativeScore(data, userId),
+              this.calculateContentBasedScoreEnhanced(data, { ...context, userId }),
             ]);
 
             return {
@@ -490,51 +677,65 @@ class RecommendationService implements RecommendationEngine {
       // If no newsletters found, return fallback recommendations
       if (newsletters.length === 0) {
         console.warn('RECOMMENDATION_SERVICE: No newsletters found, using fallback');
-        return this.getFallbackRecommendations(context);
+        return this.getFallbackRecommendations({ userId, limit: context.limit || 10 });
       }
 
-      // Advanced sorting with diversity
-      const recommendations = newsletters
-        .filter((rec) => !context.preferences.excludedNewsletters?.includes(rec.newsletterId))
+      // Sort newsletters by score in descending order
+      const sortedNewsletters = newsletters
         .sort((a, b) => b.score - a.score)
-        .slice(0, 15) // Increased to 15 for more variety
-        .sort(() => 0.5 - Math.random()) // Add some randomness
-        .slice(0, 10); // Take top 10 with some randomness
+        .slice(0, context.limit || 10); // Limit recommendations
 
-      // If no recommendations after filtering, use fallback
-      if (recommendations.length === 0) {
-        console.warn('RECOMMENDATION_SERVICE: No recommendations after filtering, using fallback');
-        return this.getFallbackRecommendations(context);
-      }
-
-      console.log('RECOMMENDATION_SERVICE: Generated Recommendations', {
-        count: recommendations.length,
-        recommendationDetails: recommendations.map((rec) => ({
-          title: rec.newsletter.title,
-          score: rec.score,
-        })),
-      });
-
-      // Update recommendation generation tracking to include user context
-      recommendationTracker.trackEvent(
-        'recommendation_generated',
-        {
-          userId: context.userId,
-          count: recommendations.length,
-          preferences: context.preferences,
-          algorithmVariant: 'baseline',
-        },
-        {
-          userId: context.userId,
-          userSegment: context.userSegment || 'user',
-        }
-      );
-
-      return recommendations;
+      return sortedNewsletters;
     } catch (error) {
-      console.error('RECOMMENDATION_SERVICE: Advanced Error', error);
-      // Provide fallback recommendations on any error
-      return this.getFallbackRecommendations(context);
+      // Comprehensive error handling
+      console.error('Unexpected error in recommendation generation:', error);
+      return this.getFallbackRecommendations({ 
+        userId: context?.userId, 
+        limit: context?.limit || 10,
+        reason: 'Unexpected error in recommendation generation'
+      });
+    }
+  }
+
+  // Enhanced method to resolve user ID from multiple sources
+  private async resolveUserId(context: RecommendationContext): Promise<string | undefined> {
+    // Try context user ID first
+    if (context.userId) return context.userId;
+
+    // Try getting current user from Firebase Auth
+    const currentUserId = await this.getCurrentUserId();
+    if (currentUserId) return currentUserId;
+
+    // Try getting user from AuthStore (if available)
+    const authStoreUser = this.getAuthStoreUser();
+    if (authStoreUser) return authStoreUser;
+
+    // If all methods fail, return undefined
+    return undefined;
+  }
+
+  // Method to get current user from Firebase Auth
+  private async getCurrentUserId(): Promise<string | undefined> {
+    try {
+      // Use the imported auth from firebase config
+      const currentUser = auth.currentUser;
+      return currentUser?.uid;
+    } catch (error) {
+      console.warn('Failed to get current user ID from Firebase Auth:', error);
+      return undefined;
+    }
+  }
+
+  // Method to get user from AuthStore (if it exists)
+  private getAuthStoreUser(): string | undefined {
+    try {
+      // This is a placeholder. Replace with actual method to get user from AuthStore
+      // You might need to import or access your global state management store
+      const authStore = (window as any).authStore; // Example of a global store access
+      return authStore?.user?.uid;
+    } catch (error) {
+      console.warn('Failed to get user from AuthStore:', error);
+      return undefined;
     }
   }
 
@@ -585,12 +786,19 @@ class RecommendationService implements RecommendationEngine {
 
       // Fetch interaction data
       const interactionsRef = collection(db, 'userNewsletterInteractions');
-      const q = query(interactionsRef, where('newsletterId', '==', newsletterId));
 
-      const snapshot = await getDocs(q);
-      const interactions = snapshot.docs.map((doc) => doc.data() as UserNewsletterInteraction);
+      // Fetch interaction data
+      const interactionsQuery = query(
+        interactionsRef,
+        where('newsletterId', '==', newsletterId)
+      );
+      const interactionsSnapshot = await getDocs(interactionsQuery);
 
       // Calculate engagement metrics
+      const interactions = interactionsSnapshot.docs.map(
+        (doc) => doc.data() as UserNewsletterInteraction
+      );
+
       const viewCount = interactions.filter((i) => i.interactionType === 'view').length;
       const subscribeCount = interactions.filter((i) => i.interactionType === 'subscribe').length;
 
@@ -835,8 +1043,14 @@ class RecommendationService implements RecommendationEngine {
 
       return recommendations;
     } catch (error) {
-      console.error('Failed to generate personalized recommendations:', error);
-      throw error;
+      // Comprehensive error handling
+      if (error instanceof RecommendationError) {
+        console.error('Recommendation Service Error:', error.message);
+        return this.getFallbackRecommendations({ userId: userProfile.id, limit: 10 });
+      }
+
+      console.error('Unexpected error in recommendation generation:', error);
+      return this.getFallbackRecommendations({ userId: userProfile.id, limit: 10 });
     }
   }
 
@@ -995,3 +1209,16 @@ class RecommendationService implements RecommendationEngine {
 }
 
 export const recommendationService = new RecommendationService();
+
+// Enhanced type definitions for recommendation context
+export interface RecommendationContext {
+  userId?: string;
+  preferences?: {
+    categories?: string[];
+    readingFrequency?: ReadingFrequency;
+    excludedNewsletters?: string[];
+  };
+  currentInterests?: string[];
+  userSegment?: string;
+  limit?: number;
+}

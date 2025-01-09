@@ -1,16 +1,17 @@
-import { firestore } from '@/config/firebase';
 import {
   collection,
   doc,
-  setDoc,
   getDoc,
-  updateDoc,
-  query,
-  where,
   getDocs,
+  query,
+  setDoc,
   Timestamp,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
+
+import { firestore } from '@/config/firebase';
 
 // Enum for A/B Test Status
 export enum ABTestStatus {

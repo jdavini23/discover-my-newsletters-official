@@ -1,30 +1,74 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '@/stores/authStore';
+import { useCallback, useEffect, useState } from 'react';
+
 import {
   ABTestingService,
-  RecommendationAlgorithmVariant,
   ABTestStatus,
+  RecommendationAlgorithmVariant,
 } from '@/ml/abTestingFramework';
+import { useAuthStore } from '@/stores/authStore';
+import { 
+  isDefined, 
+  isNonEmptyString, 
+  safeGet 
+} from '@/utils/typeUtils';
+
+// Improved type definitions
+interface ABTestInteractionMetrics {
+  clickThroughRate?: number;
+  conversionRate?: number;
+  engagementTime?: number;
+}
+
+interface ABTestResult<T> {
+  data: T | null;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+// Validate A/B test configuration
+const validateABTestConfig = (config: Parameters<typeof ABTestingService.createABTest>[0]): void => {
+  if (!isNonEmptyString(config.name)) {
+    throw new Error('A/B test name must be a non-empty string');
+  }
+
+  if (!config.variants || Object.keys(config.variants).length === 0) {
+    throw new Error('A/B test must have at least one variant');
+  }
+
+  const totalWeight = Object.values(config.variants).reduce(
+    (sum, variant) => sum + (variant.weight || 0), 
+    0
+  );
+
+  if (Math.abs(totalWeight - 1) > 0.001) {
+    throw new Error('Variant weights must sum to 1');
+  }
+};
 
 // Custom hook for A/B testing integration
-export const useABTesting = (testId: string) => {
+export const useABTesting = (testId: string): ABTestResult<RecommendationAlgorithmVariant> => {
   const { user } = useAuthStore();
-  const [assignedVariant, setAssignedVariant] = useState<RecommendationAlgorithmVariant | null>(
-    null
-  );
+  const [assignedVariant, setAssignedVariant] = useState<RecommendationAlgorithmVariant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const assignUserToTest = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsLoading(false);
+        return;
+      }
 
       try {
         setIsLoading(true);
         const variant = await ABTestingService.assignUserToTest(user.uid, testId);
         setAssignedVariant(variant);
       } catch (err) {
-        setError(err instanceof Error ? err : new Error('Unknown error'));
+        const errorMessage = err instanceof Error 
+          ? err.message 
+          : 'Unknown A/B test assignment error';
+        
+        setError(new Error(errorMessage));
       } finally {
         setIsLoading(false);
       }
@@ -33,23 +77,24 @@ export const useABTesting = (testId: string) => {
     assignUserToTest();
   }, [user, testId]);
 
-  // Record interaction metrics
-  const recordInteraction = async (metrics: {
-    clickThroughRate?: number;
-    conversionRate?: number;
-    engagementTime?: number;
-  }) => {
+  // Memoized interaction recording with error handling
+  const recordInteraction = useCallback(async (metrics: ABTestInteractionMetrics) => {
     if (!user) return;
 
     try {
       await ABTestingService.recordTestInteraction(user.uid, testId, metrics);
     } catch (err) {
-      console.error('Failed to record A/B test interaction:', err);
+      const errorMessage = err instanceof Error 
+        ? `A/B test interaction recording failed: ${err.message}`
+        : 'Failed to record A/B test interaction';
+      
+      // Optional: Add more sophisticated error handling or logging
+      setError(new Error(errorMessage));
     }
-  };
+  }, [user, testId]);
 
   return {
-    assignedVariant,
+    data: assignedVariant,
     isLoading,
     error,
     recordInteraction,
@@ -57,29 +102,39 @@ export const useABTesting = (testId: string) => {
 };
 
 // Utility hook for creating A/B tests
-export const useCreateABTest = () => {
+export const useCreateABTest = (): ABTestResult<string> & { 
+  createTest: (config: Parameters<typeof ABTestingService.createABTest>[0]) => Promise<string> 
+} => {
   const [testId, setTestId] = useState<string | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const createTest = async (config: Parameters<typeof ABTestingService.createABTest>[0]) => {
+  const createTest = useCallback(async (config: Parameters<typeof ABTestingService.createABTest>[0]) => {
     try {
-      setIsCreating(true);
+      // Validate configuration before creating test
+      validateABTestConfig(config);
+
+      setIsLoading(true);
       const newTestId = await ABTestingService.createABTest(config);
       setTestId(newTestId);
       return newTestId;
     } catch (err) {
-      setError(err instanceof Error ? err : new Error('Unknown error'));
-      throw err;
+      const errorMessage = err instanceof Error 
+        ? `A/B test creation failed: ${err.message}`
+        : 'Unknown error creating A/B test';
+      
+      const processedError = new Error(errorMessage);
+      setError(processedError);
+      throw processedError;
     } finally {
-      setIsCreating(false);
+      setIsLoading(false);
     }
-  };
+  }, []);
 
   return {
     createTest,
-    testId,
-    isCreating,
+    data: testId,
+    isLoading,
     error,
   };
 };

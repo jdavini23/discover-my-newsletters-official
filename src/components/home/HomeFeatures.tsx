@@ -1,5 +1,5 @@
+import { Lightbulb, LucideIcon, Rocket, Sparkles } from 'lucide-react';
 import React from 'react';
-import { Sparkles, Lightbulb, Rocket, LucideIcon } from 'lucide-react';
 
 // Extend the LucideIcon type to include className
 interface ExtendedLucideIcon extends LucideIcon {

@@ -1,6 +1,7 @@
 import { create, StateCreator } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { NewsletterService, NewsletterFilters as ApiFilters } from '@/services/newsletterService';
+import { createJSONStorage, persist } from 'zustand/middleware';
+
+import { NewsletterFilters as ApiFilters, NewsletterService } from '@/services/newsletterService';
 
 // Types remain the same
 export interface Newsletter {

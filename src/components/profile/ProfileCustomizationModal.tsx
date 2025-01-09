@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useAuthStore } from '../../stores/authStore';
-import AuthService from '../../services/authService';
 
-import { User, Mail as EnvelopeIcon, Camera, Star, Sun, Moon, Settings } from 'lucide-react';
+import AuthService from '../../services/authService';
+import { useAuthStore } from '../../stores/authStore';
 
 const NEWSLETTER_CATEGORIES = [
   'Technology',

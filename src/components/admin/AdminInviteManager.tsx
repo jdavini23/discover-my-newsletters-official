@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Clock, Copy, Trash2 } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Copy, Trash2, Clock } from 'lucide-react';
 
-import { AdminInviteService, ADMIN_INVITE_CONFIG } from '@/services/adminInviteService';
+import { ADMIN_INVITE_CONFIG, AdminInviteService } from '@/services/adminInviteService';
 import { useAuthStore } from '@/stores/authStore';
 
 // Type for displaying invite codes
@@ -42,7 +42,7 @@ export const AdminInviteManager: React.FC = () => {
       });
 
       // Transform Firestore timestamps to Date objects
-      const displayCodes = codes.map(code => ({
+      const displayCodes = codes.map((code) => ({
         ...code,
         createdAt: code.createdAt.toDate(),
         expiresAt: code.expiresAt.toDate(),
@@ -65,23 +65,20 @@ export const AdminInviteManager: React.FC = () => {
     }
 
     try {
-      const newCode = await AdminInviteService.generateAdminInviteCode(
-        user.uid, 
-        {
-          maxUses: newInviteOptions.maxUses,
-          expiryDays: newInviteOptions.expiryDays,
-          ...(newInviteOptions.assignedTo && { 
-            assignedTo: newInviteOptions.assignedTo 
-          }),
-          ...(newInviteOptions.notes && { 
-            notes: newInviteOptions.notes 
-          })
-        }
-      );
+      const newCode = await AdminInviteService.generateAdminInviteCode(user.uid, {
+        maxUses: newInviteOptions.maxUses,
+        expiryDays: newInviteOptions.expiryDays,
+        ...(newInviteOptions.assignedTo && {
+          assignedTo: newInviteOptions.assignedTo,
+        }),
+        ...(newInviteOptions.notes && {
+          notes: newInviteOptions.notes,
+        }),
+      });
 
       // Copy to clipboard
       navigator.clipboard.writeText(newCode);
-      
+
       toast.success(`Invite Code Generated: ${newCode}`, {
         icon: '🔑',
         duration: 5000,
@@ -100,7 +97,7 @@ export const AdminInviteManager: React.FC = () => {
     try {
       await AdminInviteService.revokeInviteCode(code);
       toast.success(`Invite code ${code} revoked`);
-      
+
       // Refresh the list of invite codes
       await fetchInviteCodes();
     } catch (error) {
@@ -136,13 +133,15 @@ export const AdminInviteManager: React.FC = () => {
           <div>
             <label className='block text-sm font-medium text-gray-700'>
               Max Uses
-              <input 
+              <input
                 type='number'
                 value={newInviteOptions.maxUses}
-                onChange={(e) => setNewInviteOptions(prev => ({
-                  ...prev, 
-                  maxUses: parseInt(e.target.value)
-                }))}
+                onChange={(e) =>
+                  setNewInviteOptions((prev) => ({
+                    ...prev,
+                    maxUses: parseInt(e.target.value),
+                  }))
+                }
                 className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
                 min='1'
                 max='10'
@@ -152,13 +151,15 @@ export const AdminInviteManager: React.FC = () => {
           <div>
             <label className='block text-sm font-medium text-gray-700'>
               Expiry Days
-              <input 
+              <input
                 type='number'
                 value={newInviteOptions.expiryDays}
-                onChange={(e) => setNewInviteOptions(prev => ({
-                  ...prev, 
-                  expiryDays: parseInt(e.target.value)
-                }))}
+                onChange={(e) =>
+                  setNewInviteOptions((prev) => ({
+                    ...prev,
+                    expiryDays: parseInt(e.target.value),
+                  }))
+                }
                 className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
                 min='1'
                 max='90'
@@ -168,13 +169,15 @@ export const AdminInviteManager: React.FC = () => {
           <div className='col-span-2'>
             <label className='block text-sm font-medium text-gray-700'>
               Assigned To (Optional)
-              <input 
+              <input
                 type='text'
                 value={newInviteOptions.assignedTo}
-                onChange={(e) => setNewInviteOptions(prev => ({
-                  ...prev, 
-                  assignedTo: e.target.value
-                }))}
+                onChange={(e) =>
+                  setNewInviteOptions((prev) => ({
+                    ...prev,
+                    assignedTo: e.target.value,
+                  }))
+                }
                 placeholder='User ID or Email'
                 className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
               />
@@ -183,20 +186,22 @@ export const AdminInviteManager: React.FC = () => {
           <div className='col-span-2'>
             <label className='block text-sm font-medium text-gray-700'>
               Notes (Optional)
-              <input 
+              <input
                 type='text'
                 value={newInviteOptions.notes}
-                onChange={(e) => setNewInviteOptions(prev => ({
-                  ...prev, 
-                  notes: e.target.value
-                }))}
+                onChange={(e) =>
+                  setNewInviteOptions((prev) => ({
+                    ...prev,
+                    notes: e.target.value,
+                  }))
+                }
                 placeholder='Additional information'
                 className='mt-1 block w-full rounded-md border-gray-300 shadow-sm'
               />
             </label>
           </div>
         </div>
-        <button 
+        <button
           onClick={generateInviteCode}
           className='mt-4 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600'
         >
@@ -214,14 +219,14 @@ export const AdminInviteManager: React.FC = () => {
         ) : (
           <div className='space-y-4'>
             {inviteCodes.map((invite) => (
-              <div 
-                key={invite.code} 
+              <div
+                key={invite.code}
                 className='bg-gray-100 p-4 rounded-lg flex items-center justify-between'
               >
                 <div>
                   <div className='flex items-center'>
                     <span className='font-mono font-bold mr-2'>{invite.code}</span>
-                    <button 
+                    <button
                       onClick={() => copyInviteCode(invite.code)}
                       className='text-gray-500 hover:text-blue-500'
                       title='Copy Code'
@@ -232,14 +237,14 @@ export const AdminInviteManager: React.FC = () => {
                   <div className='text-xs text-gray-600 mt-1'>
                     <p>Created: {invite.createdAt.toLocaleString()}</p>
                     <p>Expires: {invite.expiresAt.toLocaleString()}</p>
-                    <p>Uses: {invite.usedCount}/{invite.maxUses}</p>
-                    {invite.notes && (
-                      <p className='italic'>Notes: {invite.notes}</p>
-                    )}
+                    <p>
+                      Uses: {invite.usedCount}/{invite.maxUses}
+                    </p>
+                    {invite.notes && <p className='italic'>Notes: {invite.notes}</p>}
                   </div>
                 </div>
                 <div className='flex items-center space-x-2'>
-                  <button 
+                  <button
                     onClick={() => revokeInviteCode(invite.code)}
                     className='text-red-500 hover:text-red-700'
                     title='Revoke Invite'

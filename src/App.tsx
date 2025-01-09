@@ -1,13 +1,12 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-
-// Context Providers
-import { NavigationProvider } from '@/contexts/NavigationContext';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 // Layout Components
 import Navigation from '@/components/layout/Navigation';
 import { Sidebar } from '@/components/navigation/Sidebar';
+// Context Providers
+import { NavigationProvider } from '@/contexts/NavigationContext';
 
 // Lazy-loaded Pages
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -21,7 +20,6 @@ const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage')
 
 // Loading Fallback Component
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-
 // Authentication and Protected Routes
 import { useAuthStore } from '@/stores/authStore';
 
@@ -60,11 +58,11 @@ const App: React.FC = () => {
         <div className='flex'>
           {/* Add Navigation at the top */}
           <Navigation />
-          
+
           {/* Conditionally render Sidebar only when authenticated */}
           {isAuthenticated && <Sidebar />}
-          
-          <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> 
+
+          <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}>
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 <Route path='/auth' element={<AuthPage />} />
@@ -132,8 +130,8 @@ const App: React.FC = () => {
         </div>
 
         {/* Global Toast Notifications */}
-        <Toaster 
-          position="top-right"
+        <Toaster
+          position='top-right'
           toastOptions={{
             success: { duration: 3000 },
             error: { duration: 4000 },

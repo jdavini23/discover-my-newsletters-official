@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart, TrendingUp, Users, Globe } from 'lucide-react';
+import { BarChart, Globe, TrendingUp, Users } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
-import { useAuthStore } from '@/stores/authStore';
 import { RecommendationInsightsService } from '@/services/recommendationInsightsService';
+import { useAuthStore } from '@/stores/authStore';
 
 const InsightsPage: React.FC = () => {
   const { user } = useAuthStore();

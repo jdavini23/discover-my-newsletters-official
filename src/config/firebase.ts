@@ -1,14 +1,14 @@
 import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
+  AuthError,
+  browserLocalPersistence,
   createUserWithEmailAndPassword,
+  getAuth,
+  onAuthStateChanged,
+  setPersistence,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged,
   User,
-  AuthError,
-  setPersistence,
-  browserLocalPersistence,
 } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -108,7 +108,7 @@ const onAuthChange = (callback: (user: User | null) => void) => {
 initializeFirebase();
 
 // Firebase Authentication and Firestore exports
-export { auth, firestore, signUp, signIn, logOut, onAuthChange };
+export { auth, firestore, logOut, onAuthChange, signIn, signUp };
 
 // Direct Firebase Auth exports
 export * from 'firebase/auth';

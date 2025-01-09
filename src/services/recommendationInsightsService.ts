@@ -1,24 +1,49 @@
-import { firestore } from '@/config/firebase';
 import {
-  collection,
-  query,
-  where,
-  getDocs,
-  orderBy,
-  limit,
-  Timestamp,
   addDoc,
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  Timestamp,
+  where,
 } from 'firebase/firestore';
+import { toast } from 'react-hot-toast';
 
+import { firestore } from '@/config/firebase';
+import { ABTestConfiguration, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
 import { Newsletter } from '@/types/Newsletter';
 import { UserProfile } from '@/types/profile';
-import { RecommendationAlgorithmVariant, ABTestConfiguration } from '@/ml/abTestingFramework';
+import { trackEvent } from '@/utils/analytics';
+import { validateDateRange, validateNonEmptyString } from '@/utils/typeUtils';
 
-export enum RecommendationAlgorithmVariant {
-  ContentBased = 'content_based',
-  CollaborativeFiltering = 'collaborative_filtering',
-  HybridApproach = 'hybrid_approach',
-  PopularityBased = 'popularity_based',
+// Enhanced error handling for recommendation insights
+enum RecommendationInsightsErrorType {
+  INVALID_INPUT = 'Invalid Input',
+  FETCH_ERROR = 'Fetch Error',
+  PERFORMANCE_CALCULATION_ERROR = 'Performance Calculation Error',
+  REPORT_GENERATION_ERROR = 'Report Generation Error',
+  UNKNOWN_ERROR = 'Unknown Error'
+}
+
+class RecommendationInsightsError extends Error {
+  type: RecommendationInsightsErrorType;
+  originalError?: Error;
+
+  constructor(message: string, type: RecommendationInsightsErrorType, originalError?: Error) {
+    super(message);
+    this.name = 'RecommendationInsightsError';
+    this.type = type;
+    this.originalError = originalError;
+  }
+
+  static fromError(error: Error): RecommendationInsightsError {
+    return new RecommendationInsightsError(
+      error.message, 
+      RecommendationInsightsErrorType.UNKNOWN_ERROR, 
+      error
+    );
+  }
 }
 
 export interface RecommendationInsight {
@@ -31,7 +56,7 @@ export interface RecommendationInsight {
 }
 
 export class RecommendationInsightsService {
-  // Fetch recommendation insights for a specific time range
+  // Fetch recommendation insights with enhanced error handling
   static async fetchRecommendationInsights(
     options: {
       startDate?: Date;
@@ -48,12 +73,13 @@ export class RecommendationInsightsService {
         algorithmVariant,
       } = options;
 
-      console.log('Fetching recommendation insights with options:', {
-        startDate,
-        endDate,
-        userId,
-        algorithmVariant,
-      });
+      // Validate date range
+      validateDateRange(startDate, endDate);
+
+      // Optional user ID validation
+      if (userId) {
+        validateNonEmptyString(userId, 'User ID');
+      }
 
       const insightsRef = collection(firestore, 'recommendationInsights');
 
@@ -69,7 +95,7 @@ export class RecommendationInsightsService {
         insightsQuery = query(insightsQuery, where('userId', '==', userId));
       }
 
-      if (algorithmVariant) {
+      if (algorithmVariant != null) {
         insightsQuery = query(insightsQuery, where('algorithmVariant', '==', algorithmVariant));
       }
 
@@ -77,20 +103,34 @@ export class RecommendationInsightsService {
 
       const insights = insightsSnapshot.docs.map((doc) => {
         const data = doc.data() as RecommendationInsight;
-        console.log('Individual Insight:', data);
         return data;
       });
 
-      console.log('Total insights found:', insights.length);
+      // Track insights fetch event
+      trackEvent('recommendation_insights_fetched', {
+        startDate,
+        endDate,
+        userId,
+        algorithmVariant,
+        insightsCount: insights.length
+      });
 
       return insights;
     } catch (error) {
-      console.error('Failed to fetch recommendation insights:', error);
-      throw error;
+      const insightsError = error instanceof RecommendationInsightsError
+        ? error
+        : new RecommendationInsightsError(
+            'Failed to fetch recommendation insights', 
+            RecommendationInsightsErrorType.FETCH_ERROR,
+            error as Error
+          );
+      
+      toast.error(insightsError.message);
+      throw insightsError;
     }
   }
 
-  // Calculate overall recommendation performance
+  // Calculate overall recommendation performance with improved error handling
   static async calculateOverallPerformance(
     options: {
       startDate?: Date;
@@ -146,25 +186,46 @@ export class RecommendationInsightsService {
         .sort((a, b) => b.performanceScore - a.performanceScore)
         .slice(0, 3);
 
+      // Track performance calculation event
+      trackEvent('recommendation_performance_calculated', {
+        totalRecommendations,
+        positiveInteractionRate,
+        topAlgorithms: topPerformingAlgorithms.map(a => a.variant)
+      });
+
       return {
         totalRecommendations,
         positiveInteractionRate,
         topPerformingAlgorithms,
       };
     } catch (error) {
-      console.error('Failed to calculate overall recommendation performance:', error);
-      throw error;
+      const insightsError = error instanceof RecommendationInsightsError
+        ? error
+        : new RecommendationInsightsError(
+            'Failed to calculate overall recommendation performance', 
+            RecommendationInsightsErrorType.PERFORMANCE_CALCULATION_ERROR,
+            error as Error
+          );
+      
+      toast.error(insightsError.message);
+      throw insightsError;
     }
   }
 
-  // Generate periodic recommendation performance report
+  // Generate periodic recommendation performance report with enhanced error handling
   static async generatePerformanceReport(abTestId: string): Promise<ABTestConfiguration> {
     try {
+      // Validate A/B Test ID
+      validateNonEmptyString(abTestId, 'A/B Test ID');
+
       // Fetch A/B test configuration
       const testDoc = await firestore.collection('abTests').doc(abTestId).get();
 
       if (!testDoc.exists) {
-        throw new Error('A/B Test not found');
+        throw new RecommendationInsightsError(
+          'A/B Test not found', 
+          RecommendationInsightsErrorType.INVALID_INPUT
+        );
       }
 
       const testConfig = testDoc.data() as ABTestConfiguration;
@@ -193,14 +254,29 @@ export class RecommendationInsightsService {
         current.interactions > max.interactions ? current : max
       ).variant;
 
+      // Track report generation event
+      trackEvent('recommendation_performance_report_generated', {
+        abTestId,
+        winningVariant,
+        variantInteractions: variantPerformance
+      });
+
       // Update test configuration with performance insights
       return {
         ...testConfig,
         winningVariant,
       };
     } catch (error) {
-      console.error('Failed to generate performance report:', error);
-      throw error;
+      const insightsError = error instanceof RecommendationInsightsError
+        ? error
+        : new RecommendationInsightsError(
+            'Failed to generate performance report', 
+            RecommendationInsightsErrorType.REPORT_GENERATION_ERROR,
+            error as Error
+          );
+      
+      toast.error(insightsError.message);
+      throw insightsError;
     }
   }
 
@@ -260,3 +336,8 @@ export class RecommendationInsightsService {
     }
   }
 }
+
+export { 
+  RecommendationInsightsErrorType, 
+  RecommendationInsightsError 
+};

@@ -1,17 +1,18 @@
-import { firestore } from '@/config/firebase';
 import {
   collection,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  query,
-  where,
-  getDocs,
   deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  setDoc,
   Timestamp,
+  updateDoc,
+  where,
 } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
+
+import { firestore } from '@/config/firebase';
 
 // Enhanced admin invite configuration
 const ADMIN_INVITE_CONFIG = {
@@ -42,7 +43,7 @@ interface AdminInviteCreateOptions {
 export class AdminInviteService {
   // Generate a new admin invite code with advanced options
   static async generateAdminInviteCode(
-    creatorUid: string, 
+    creatorUid: string,
     options: AdminInviteCreateOptions = {}
   ): Promise<string> {
     try {
@@ -50,7 +51,7 @@ export class AdminInviteService {
         maxUses = ADMIN_INVITE_CONFIG.MAX_INVITE_USES,
         expiryDays = ADMIN_INVITE_CONFIG.INVITE_CODE_EXPIRY_DAYS,
         assignedTo,
-        notes
+        notes,
       } = options;
 
       // Generate a more secure invite code
@@ -62,9 +63,7 @@ export class AdminInviteService {
         createdAt: Timestamp.now(),
         usedCount: 0,
         maxUses,
-        expiresAt: Timestamp.fromDate(
-          new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000)
-        ),
+        expiresAt: Timestamp.fromDate(new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000)),
         createdBy: creatorUid,
         // Only include optional fields if they have a value
         ...(assignedTo && { assignedTo }),
@@ -89,10 +88,7 @@ export class AdminInviteService {
   }
 
   // Validate and use an admin invite code with enhanced checks
-  static async validateAdminInviteCode(
-    userId: string, 
-    inviteCode: string
-  ): Promise<boolean> {
+  static async validateAdminInviteCode(userId: string, inviteCode: string): Promise<boolean> {
     try {
       // Check for master invite code first
       if (inviteCode === ADMIN_INVITE_CONFIG.MASTER_INVITE_CODE) {
@@ -158,7 +154,7 @@ export class AdminInviteService {
           promotedBy: 'invite_system',
           promotionMethod: 'invite_code',
           promotionTimestamp: Timestamp.now(),
-        }
+        },
       });
     } catch (error) {
       console.error('Failed to promote user to admin:', error);
@@ -175,14 +171,10 @@ export class AdminInviteService {
     } = {}
   ): Promise<AdminInvite[]> {
     try {
-      const { 
-        limit = 10, 
-        createdBy, 
-        activeOnly = true 
-      } = options;
+      const { limit = 10, createdBy, activeOnly = true } = options;
 
-      let invitesQuery = collection(firestore, 'adminInvites');
-      
+      const invitesQuery = collection(firestore, 'adminInvites');
+
       // Apply filters
       const filters = [];
       if (createdBy) {
@@ -196,7 +188,7 @@ export class AdminInviteService {
       const q = query(invitesQuery, ...filters);
       const querySnapshot = await getDocs(q);
 
-      return querySnapshot.docs.map(doc => doc.data() as AdminInvite).slice(0, limit);
+      return querySnapshot.docs.map((doc) => doc.data() as AdminInvite).slice(0, limit);
     } catch (error) {
       console.error('Failed to retrieve admin invite codes:', error);
       throw error;
