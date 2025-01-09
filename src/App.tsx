@@ -1,35 +1,44 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from '@/lib/react-hot-toast';
-import { useAuthStore } from '@/stores/authStore';
-
-// Lazy load pages
-const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
-const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
-const NewsletterDetailPage = React.lazy(() => import('@/pages/NewsletterDetailPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
-const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage'));
-const RecommendationInsightsDashboard = React.lazy(() => import('@/pages/RecommendationInsightsDashboard'));
 
 // Import Sidebar
 import Sidebar from '@/components/navigation/Sidebar';
+
+// Import LoadingSpinner
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 
-// Protected Route Component
-const ProtectedRoute: React.FC<{ 
+// Authentication and Protected Routes
+import { useAuthStore } from '@/stores/authStore';
+
+// Lazy-loaded pages
+const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
+const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
+const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
+const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage'));
+const RecommendationsPage = React.lazy(() => import('@/pages/RecommendationsPage'));
+const InsightsPage = React.lazy(() => import('@/pages/InsightsPage'));
+const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'));
+
+const ProtectedRoute: React.FC<{
   children: React.ReactNode;
   requiredRole?: 'user' | 'admin' | 'any';
 }> = ({ children, requiredRole = 'user' }) => {
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isLoading } = useAuthStore();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/auth" replace />;
+  // Show loading spinner while authentication is being initialized
+  if (isLoading) {
+    return <LoadingSpinner />;
   }
 
+  // Check authentication status
+  if (!isAuthenticated) {
+    return <Navigate to='/auth' replace />;
+  }
+
+  // Check role-based access
   if (requiredRole !== 'any') {
     if (requiredRole === 'admin' && user?.role !== 'admin') {
-      return <Navigate to="/admin-promotion" replace />;
+      return <Navigate to='/admin-promotion' replace />;
     }
   }
 
@@ -41,28 +50,17 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex">
+      <div className='flex'>
         {isAuthenticated && <Sidebar />}
         <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''}`}>
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
-              <Route
-                path='/auth'
-                element={!isAuthenticated ? <AuthPage /> : <Navigate to='/newsletters' replace />}
-              />
+              <Route path='/auth' element={<AuthPage />} />
               <Route
                 path='/newsletters'
                 element={
                   <ProtectedRoute>
                     <NewsletterDiscoveryPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path='/newsletters/:newsletterId'
-                element={
-                  <ProtectedRoute>
-                    <NewsletterDetailPage />
                   </ProtectedRoute>
                 }
               />
@@ -75,30 +73,48 @@ function App() {
                 }
               />
               <Route
-                path='/admin-promotion'
+                path='/settings'
                 element={
                   <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/recommendations'
+                element={
+                  <ProtectedRoute>
+                    <RecommendationsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/admin-promotion'
+                element={
+                  <ProtectedRoute requiredRole='user'>
                     <AdminPromotionPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path='/admin'
+                element={
+                  <ProtectedRoute requiredRole='admin'>
+                    <AdminDashboardPage />
                   </ProtectedRoute>
                 }
               />
               <Route
                 path='/insights'
                 element={
-                  <ProtectedRoute requiredRole="admin">
-                    <RecommendationInsightsDashboard />
+                  <ProtectedRoute requiredRole='admin'>
+                    <InsightsPage />
                   </ProtectedRoute>
                 }
               />
-              <Route path='/' element={<HomePage />} />
-              {/* Catch-all route to handle undefined routes */}
-              <Route
-                path='*'
-                element={<Navigate to={isAuthenticated ? '/newsletters' : '/auth'} replace />}
-              />
+              <Route path='*' element={<Navigate to='/newsletters' replace />} />
             </Routes>
           </Suspense>
-          <Toaster position='top-right' />
         </main>
       </div>
     </BrowserRouter>
