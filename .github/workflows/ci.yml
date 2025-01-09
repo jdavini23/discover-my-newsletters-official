@@ -5,11 +5,13 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly dependency check
   workflow_dispatch:
 
 jobs:
   quick-checks:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     
     steps:
     - uses: actions/checkout@v4
@@ -40,3 +42,14 @@ jobs:
           https://discover-my-newsletters.com
         budgetPath: ./budget.json
         uploadArtifacts: true
+
+  dependency-updates:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check for Dependency Updates
+      run: npx npm-check-updates
+    
+    - name: List Outdated Packages
+      run: npm outdated || true  # Continue even if there are outdated packages
