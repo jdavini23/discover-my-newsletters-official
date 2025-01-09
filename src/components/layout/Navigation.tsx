@@ -8,6 +8,7 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { UserProfileDropdown } from '@/components/navigation/UserProfileDropdown';
 import { NotificationDropdown } from '@/components/navigation/NotificationDropdown';
+import { GlobalSearch } from '@/components/navigation/GlobalSearch';
 
 const Navigation: React.FC = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -43,6 +44,7 @@ const Navigation: React.FC = () => {
         </button>
       ) : (
         <>
+          <GlobalSearch />
           <NotificationDropdown />
           <UserProfileDropdown user={user} />
         </>
