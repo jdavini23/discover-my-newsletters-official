@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
 import { MailIcon } from 'lucide-react';
 import { LockIcon } from 'lucide-react';
-import { AuthService } from '@/services/authService';
-import { toast } from '@/lib/react-hot-toast';
+import React, { useState } from 'react';
+
 import { motion } from '@/lib/framer-motion';
+import { toast } from '@/lib/react-hot-toast';
+import { AuthService } from '@/services/authService';
 
 interface PasswordResetModalProps {
   isOpen: boolean;
@@ -160,6 +161,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
               <input
                 type='password'
                 id='newPassword'
+                autoComplete='new-password'
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
@@ -178,6 +180,7 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({ isOpen, 
               <input
                 type='password'
                 id='confirmPassword'
+                autoComplete='new-password'
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
