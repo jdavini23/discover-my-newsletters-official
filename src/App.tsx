@@ -1,25 +1,16 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
-// Import Sidebar
-import { Sidebar } from '@/components/navigation/Sidebar';
-
-// Import Navigation
-import Navigation from '@/components/layout/Navigation';
-
-// Import LoadingSpinner
-import LoadingSpinner from '@/components/common/LoadingSpinner';
-
-// Import Toaster
 import { Toaster } from 'react-hot-toast';
 
 // Context Providers
 import { NavigationProvider } from '@/contexts/NavigationContext';
 
-// Authentication and Protected Routes
-import { useAuthStore } from '@/stores/authStore';
+// Layout Components
+import Navigation from '@/components/layout/Navigation';
+import { Sidebar } from '@/components/navigation/Sidebar';
 
-// Lazy-loaded pages
+// Lazy-loaded Pages
+const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
 const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
@@ -27,7 +18,12 @@ const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage')
 const RecommendationsPage = React.lazy(() => import('@/pages/RecommendationsPage'));
 const InsightsPage = React.lazy(() => import('@/pages/InsightsPage'));
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'));
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
+
+// Loading Fallback Component
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+
+// Authentication and Protected Routes
+import { useAuthStore } from '@/stores/authStore';
 
 const ProtectedRoute: React.FC<{
   children: React.ReactNode;
@@ -55,7 +51,7 @@ const ProtectedRoute: React.FC<{
   return <>{children}</>;
 };
 
-function App() {
+const App: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
 
   return (
@@ -68,7 +64,7 @@ function App() {
           {/* Conditionally render Sidebar only when authenticated */}
           {isAuthenticated && <Sidebar />}
           
-          <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> {/* Add top margin for Navigation */}
+          <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}> 
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
                 <Route path='/auth' element={<AuthPage />} />
@@ -146,6 +142,6 @@ function App() {
       </BrowserRouter>
     </NavigationProvider>
   );
-}
+};
 
 export default App;
