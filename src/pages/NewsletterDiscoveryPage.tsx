@@ -1,16 +1,11 @@
-import { motion } from 'framer-motion';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Search, Settings } from 'lucide-react';
-import { X } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
-import NewsletterPreviewModal from '@/components/modals/NewsletterPreviewModal';
-import OnboardingModal from '@/components/modals/OnboardingModal';
 import NewsletterCard from '@/components/newsletter/NewsletterCard';
 import { NewsletterFilters, NewsletterService } from '@/services/newsletterService';
 import { useAuthStore } from '@/stores/authStore';
-import { useNewsletterStore } from '@/stores/newsletterStore';
 import { Newsletter } from '@/types/Newsletter';
 import { trackEvent } from '@/utils/analytics';
 
@@ -58,18 +53,8 @@ const NewsletterDiscoveryPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'rating' | 'popularity' | 'newest'>('newest');
   const [totalNewsletters, setTotalNewsletters] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [selectedNewsletter, setSelectedNewsletter] = useState<Newsletter | null>(null);
   const pageSize = 12;
-
-  useEffect(() => {
-    // Show onboarding for new users
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true);
-      localStorage.setItem('hasSeenOnboarding', 'true');
-    }
-  }, []);
 
   const searchNewsletters = useCallback(async () => {
     setLoading(true);
@@ -77,10 +62,6 @@ const NewsletterDiscoveryPage: React.FC = () => {
       const filters: NewsletterFilters = {
         pageSize: 12,
         page: 1,
-        categories: selectedCategories.length > 0 ? selectedCategories : undefined,
-        searchQuery: searchQuery || undefined,
-        pageSize,
-        page: currentPage,
         categories: selectedCategories.length > 0 ? selectedCategories : undefined,
         searchQuery: searchQuery || undefined,
         minSubscribers,
@@ -93,18 +74,13 @@ const NewsletterDiscoveryPage: React.FC = () => {
       trackEvent('newsletter_search', {
         categories: selectedCategories,
         query: searchQuery,
-      });
-      setTotalNewsletters(response.total);
-
-      trackEvent('newsletter_search', {
-        categories: selectedCategories,
-        query: searchQuery,
         sortBy,
         filters: {
           minSubscribers,
           minRating,
         },
       });
+      setTotalNewsletters(response.total);
     } catch (error) {
       console.error('Failed to fetch newsletters', error);
     } finally {
@@ -117,10 +93,8 @@ const NewsletterDiscoveryPage: React.FC = () => {
   }, [searchNewsletters]);
 
   const handleNewsletterClick = (newsletterId: string) => {
-    console.log('Newsletter clicked:', newsletterId);
     navigate(`/newsletters/${newsletterId}`);
     trackEvent('newsletter_detail_view', { newsletterId });
-    navigate(`/newsletters/${newsletterId}`);
   };
 
   const handleCategoryToggle = (category: string) => {
@@ -131,14 +105,6 @@ const NewsletterDiscoveryPage: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-  };
-
-  const handleFilterChange = (event: React.MouseEvent<HTMLButtonElement>, data: any) => {
-    const { category, newsletterId } = data;
-
-    if (category) {
-      setFilters((prev) => ({ ...prev, category }));
-    }
   };
 
   const resetFilters = () => {
@@ -167,13 +133,11 @@ const NewsletterDiscoveryPage: React.FC = () => {
       };
 
       await NewsletterService.subscribeToNewsletter(newsletterId, user.email, subscriptionDetails);
-
-      // Show success notification
-      alert('Successfully subscribed to newsletter!');
+      toast.success('Successfully subscribed to newsletter!');
       setSelectedNewsletter(null);
     } catch (error) {
       console.error('Subscription failed', error);
-      alert('Failed to subscribe. Please try again.');
+      toast.error('Failed to subscribe. Please try again.');
     }
   };
 
@@ -225,31 +189,19 @@ const NewsletterDiscoveryPage: React.FC = () => {
 
         {/* Newsletters Grid */}
         {loading ? (
-          <div className='flex justify-center items-center h-64'>
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 1 }}
-              className='w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full'
-            />
-          </div>
-        ) : newsletters.length > 0 ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6'
-          >
+          <div>Loading...</div>
+        ) : newsletters.length === 0 ? (
+          <div className='text-center text-gray-500'>No newsletters found</div>
+        ) : (
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'>
             {newsletters.map((newsletter) => (
               <NewsletterCard
                 key={newsletter.id}
                 newsletter={newsletter}
+                onSubscribe={() => handleSubscribeNewsletter(newsletter.id)}
                 onClick={() => handleNewsletterClick(newsletter.id)}
               />
             ))}
-          </motion.div>
-        ) : (
-          <div className='text-center text-gray-500'>
-            No newsletters found. Try adjusting your search or filters.
           </div>
         )}
       </div>

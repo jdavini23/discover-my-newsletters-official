@@ -159,7 +159,7 @@ npx typedoc --out docs src/
 import * as Sentry from '@sentry/react';
 
 export function logError(error: Error, context?: any) {
-  Sentry.withScope(scope => {
+  Sentry.withScope((scope) => {
     if (context) {
       scope.setExtras(context);
     }

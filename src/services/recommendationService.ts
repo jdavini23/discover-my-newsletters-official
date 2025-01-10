@@ -10,26 +10,13 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
-import { 
-  getAuth, 
-  User as FirebaseUser 
-} from 'firebase/auth';
+import { getAuth, User as FirebaseUser } from 'firebase/auth';
 
 import { toast } from 'react-hot-toast';
 
 import { auth } from '@/config/firebase';
-import { 
-  Newsletter, 
-  NewsletterFilter, 
-  User, 
-  UserNewsletterInteraction 
-} from '@/types/firestore';
-import { 
-  isDefined, 
-  isNonEmptyString, 
-  safeGet,
-  validateNonEmptyString 
-} from '@/utils/typeUtils';
+import { Newsletter, NewsletterFilter, User, UserNewsletterInteraction } from '@/types/firestore';
+import { isDefined, isNonEmptyString, safeGet, validateNonEmptyString } from '@/utils/typeUtils';
 import { trackEvent } from '@/utils/analytics';
 
 // Enhanced error handling for recommendation service
@@ -38,7 +25,7 @@ enum RecommendationErrorType {
   INVALID_INPUT = 'Invalid Input',
   NETWORK_ERROR = 'Network Error',
   RECOMMENDATION_FAILED = 'Recommendation Generation Failed',
-  UNKNOWN_ERROR = 'Unknown Error'
+  UNKNOWN_ERROR = 'Unknown Error',
 }
 
 class RecommendationError extends Error {
@@ -54,22 +41,14 @@ class RecommendationError extends Error {
 
   static fromError(error: Error): RecommendationError {
     // Add more specific error type detection if needed
-    return new RecommendationError(
-      error.message, 
-      RecommendationErrorType.UNKNOWN_ERROR, 
-      error
-    );
+    return new RecommendationError(error.message, RecommendationErrorType.UNKNOWN_ERROR, error);
   }
 }
 
 const db = getFirestore();
 
 // Improved type definitions
-type InteractionType = 
-  | 'view' 
-  | 'subscribe' 
-  | 'read' 
-  | 'dismiss';
+type InteractionType = 'view' | 'subscribe' | 'read' | 'dismiss';
 
 type TopicWeights = Record<string, number>;
 
@@ -87,13 +66,10 @@ export const recordNewsletterInteraction = async (
   try {
     // Validate inputs
     validateNonEmptyString(newsletterId, 'Newsletter ID');
-    
+
     const currentUser = auth.currentUser;
     if (!currentUser) {
-      throw new RecommendationError(
-        'No authenticated user', 
-        RecommendationErrorType.UNAUTHORIZED
-      );
+      throw new RecommendationError('No authenticated user', RecommendationErrorType.UNAUTHORIZED);
     }
 
     const interactionRef = collection(db, 'userNewsletterInteractions');
@@ -113,7 +89,7 @@ export const recordNewsletterInteraction = async (
     trackEvent('newsletter_interaction', {
       type: interactionType,
       newsletterId,
-      duration
+      duration,
     });
 
     // Update user's recommendation profile
@@ -122,20 +98,20 @@ export const recordNewsletterInteraction = async (
 
     const updateInteractionScores = (score: number) => {
       updateData['recommendationProfile.interactionScores'] = {
-        [`${newsletterId}`]: { $inc: score }
+        [`${newsletterId}`]: { $inc: score },
       };
     };
 
     switch (interactionType) {
       case 'view':
-        updateData['recommendationProfile.viewedNewsletters'] = { 
-          $addToSet: newsletterId 
+        updateData['recommendationProfile.viewedNewsletters'] = {
+          $addToSet: newsletterId,
         };
         updateInteractionScores(1);
         break;
       case 'subscribe':
-        updateData['recommendationProfile.subscribedNewsletters'] = { 
-          $addToSet: newsletterId 
+        updateData['recommendationProfile.subscribedNewsletters'] = {
+          $addToSet: newsletterId,
         };
         updateInteractionScores(5);
         break;
@@ -148,10 +124,9 @@ export const recordNewsletterInteraction = async (
 
     return docRef.id;
   } catch (error) {
-    const recommendationError = error instanceof RecommendationError
-      ? error
-      : RecommendationError.fromError(error as Error);
-    
+    const recommendationError =
+      error instanceof RecommendationError ? error : RecommendationError.fromError(error as Error);
+
     toast.error(recommendationError.message);
     throw recommendationError;
   }
@@ -170,7 +145,7 @@ export const generatePersonalizedRecommendations = async (
     } = filters;
 
     // Ensure we have a non-empty array for 'not-in' filter
-    const excludedNewsletters = 
+    const excludedNewsletters =
       safeGet(user, 'recommendationProfile.subscribedNewsletters', []).length > 0
         ? safeGet(user, 'recommendationProfile.subscribedNewsletters', [])
         : ['__no_match__'];
@@ -223,19 +198,20 @@ export const generatePersonalizedRecommendations = async (
     trackEvent('personalized_recommendations_generated', {
       userId: user.id,
       topicCount: topics.length,
-      recommendationCount: recommendations.length
+      recommendationCount: recommendations.length,
     });
 
     return recommendations;
   } catch (error) {
-    const recommendationError = error instanceof RecommendationError
-      ? error
-      : new RecommendationError(
-          'Failed to generate personalized recommendations', 
-          RecommendationErrorType.RECOMMENDATION_FAILED,
-          error as Error
-        );
-    
+    const recommendationError =
+      error instanceof RecommendationError
+        ? error
+        : new RecommendationError(
+            'Failed to generate personalized recommendations',
+            RecommendationErrorType.RECOMMENDATION_FAILED,
+            error as Error
+          );
+
     toast.error(recommendationError.message);
     throw recommendationError;
   }
@@ -283,46 +259,42 @@ export const updateNewsletterRecommendationMetadata = async (
     });
 
     // Normalize content quality score
-    contentQualityScore = totalInteractions > 0 
-      ? contentQualityScore / totalInteractions 
-      : 0;
+    contentQualityScore = totalInteractions > 0 ? contentQualityScore / totalInteractions : 0;
 
     const metadata: RecommendationMetadata = {
       topicWeights,
-      contentQualityScore
+      contentQualityScore,
     };
 
     // Optional: Update newsletter document with metadata
-    await updateDoc(newsletterRef, { 
-      recommendationMetadata: metadata 
+    await updateDoc(newsletterRef, {
+      recommendationMetadata: metadata,
     });
 
     // Track metadata update event
     trackEvent('newsletter_recommendation_metadata_updated', {
       newsletterId,
       interactionCount: totalInteractions,
-      contentQualityScore
+      contentQualityScore,
     });
 
     return metadata;
   } catch (error) {
-    const recommendationError = error instanceof RecommendationError
-      ? error
-      : new RecommendationError(
-          'Failed to update newsletter recommendation metadata', 
-          RecommendationErrorType.RECOMMENDATION_FAILED,
-          error as Error
-        );
-    
+    const recommendationError =
+      error instanceof RecommendationError
+        ? error
+        : new RecommendationError(
+            'Failed to update newsletter recommendation metadata',
+            RecommendationErrorType.RECOMMENDATION_FAILED,
+            error as Error
+          );
+
     toast.error(recommendationError.message);
     throw recommendationError;
   }
 };
 
-export { 
-  RecommendationErrorType, 
-  RecommendationError 
-};
+export { RecommendationErrorType, RecommendationError };
 
 import { ABTestingService, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
 import { RecommendationScorer } from '@/ml/recommendationScorer';
@@ -369,7 +341,7 @@ class RecommendationService implements RecommendationEngine {
       // Fetch interaction data for the specific user
       const interactionsRef = collection(db, 'userNewsletterInteractions');
       const q = query(
-        interactionsRef, 
+        interactionsRef,
         where('userId', '==', userId),
         limit(50) // Limit to most recent interactions
       );
@@ -378,10 +350,9 @@ class RecommendationService implements RecommendationEngine {
       // Map and filter interactions
       const interactions = snapshot.docs
         .map((doc) => doc.data() as UserNewsletterInteraction)
-        .filter(interaction => 
-          interaction.userId === userId && 
-          interaction.interactionType && 
-          interaction.newsletterId
+        .filter(
+          (interaction) =>
+            interaction.userId === userId && interaction.interactionType && interaction.newsletterId
         );
 
       // Sort interactions by timestamp in descending order (most recent first)
@@ -394,7 +365,7 @@ class RecommendationService implements RecommendationEngine {
       console.log('RECOMMENDATION_SERVICE: User Interaction History', {
         userId,
         totalInteractions: interactions.length,
-        interactionTypes: interactions.map(i => i.interactionType)
+        interactionTypes: interactions.map((i) => i.interactionType),
       });
 
       return sortedInteractions;
@@ -522,11 +493,13 @@ class RecommendationService implements RecommendationEngine {
     return 0.05; // Older newsletters
   }
 
-  private getFallbackRecommendations(options: { 
-    userId?: string, 
-    limit?: number,
-    reason?: string 
-  } = {}): RecommendationScore[] {
+  private getFallbackRecommendations(
+    options: {
+      userId?: string;
+      limit?: number;
+      reason?: string;
+    } = {}
+  ): RecommendationScore[] {
     console.warn('RECOMMENDATION_SERVICE: Generating Fallback Recommendations', {
       userId: options.userId,
       limit: options.limit || 10,
@@ -567,12 +540,14 @@ class RecommendationService implements RecommendationEngine {
       },
     ];
 
-    return fallbackNewsletters.map((newsletter) => ({
-      newsletter,
-      newsletterId: newsletter.id,
-      score: 0.7, // High default score for fallback
-      reasons: ['Recommended based on trending topics', options.reason || 'Default fallback'],
-    })).slice(0, options.limit || 10);
+    return fallbackNewsletters
+      .map((newsletter) => ({
+        newsletter,
+        newsletterId: newsletter.id,
+        score: 0.7, // High default score for fallback
+        reasons: ['Recommended based on trending topics', options.reason || 'Default fallback'],
+      }))
+      .slice(0, options.limit || 10);
   }
 
   async generateRecommendations(context: RecommendationContext): Promise<RecommendationScore[]> {
@@ -601,14 +576,14 @@ class RecommendationService implements RecommendationEngine {
             currentUser: await this.getCurrentUserId(),
             authStoreUser: this.getAuthStoreUser(),
           },
-          stackTrace: new Error().stack
+          stackTrace: new Error().stack,
         });
-        
+
         // Return fallback recommendations with detailed logging
-        return this.getFallbackRecommendations({ 
-          userId: undefined, 
+        return this.getFallbackRecommendations({
+          userId: undefined,
           limit: context.limit || 10,
-          reason: 'No user ID could be resolved'
+          reason: 'No user ID could be resolved',
         });
       }
 
@@ -689,10 +664,10 @@ class RecommendationService implements RecommendationEngine {
     } catch (error) {
       // Comprehensive error handling
       console.error('Unexpected error in recommendation generation:', error);
-      return this.getFallbackRecommendations({ 
-        userId: context?.userId, 
+      return this.getFallbackRecommendations({
+        userId: context?.userId,
         limit: context?.limit || 10,
-        reason: 'Unexpected error in recommendation generation'
+        reason: 'Unexpected error in recommendation generation',
       });
     }
   }
@@ -788,10 +763,7 @@ class RecommendationService implements RecommendationEngine {
       const interactionsRef = collection(db, 'userNewsletterInteractions');
 
       // Fetch interaction data
-      const interactionsQuery = query(
-        interactionsRef,
-        where('newsletterId', '==', newsletterId)
-      );
+      const interactionsQuery = query(interactionsRef, where('newsletterId', '==', newsletterId));
       const interactionsSnapshot = await getDocs(interactionsQuery);
 
       // Calculate engagement metrics

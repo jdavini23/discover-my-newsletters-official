@@ -7,7 +7,7 @@ function loadEnvFile(filePath) {
   const envLines = envContents.split('\n');
   const envConfig = {};
 
-  envLines.forEach(line => {
+  envLines.forEach((line) => {
     const [key, value] = line.split('=');
     if (key && value) {
       envConfig[key.trim()] = value.trim();
@@ -41,8 +41,8 @@ async function promptForFirebaseConfig() {
     output: process.stdout,
   });
 
-  const prompt = question =>
-    new Promise(resolve => {
+  const prompt = (question) =>
+    new Promise((resolve) => {
       rl.question(question, resolve);
     });
 

@@ -5,46 +5,46 @@
 /* Root Color Variables */
 :root {
   /* Color Palette */
-  --primary: #4A90E2;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F5A623;
-  --secondary-foreground: #FFFFFF;
-  --accent: #50E3C2;
+  --primary: #4a90e2;
+  --primary-foreground: #ffffff;
+  --secondary: #f5a623;
+  --secondary-foreground: #ffffff;
+  --accent: #50e3c2;
   --accent-foreground: #000000;
-  
+
   /* Background and Foreground */
-  --background: #F8F9FA;
+  --background: #f8f9fa;
   --foreground: #333333;
-  
+
   /* Text Colors */
   --text-primary: #333333;
   --text-secondary: #666666;
-  --text-primary-dark: #EDEDED;
-  --text-secondary-dark: #A1A1A1;
-  
+  --text-primary-dark: #ededed;
+  --text-secondary-dark: #a1a1a1;
+
   /* Neutral Colors */
-  --neutral-background-100: #F5F5F5;
-  --neutral-text-500: #6B7280;
+  --neutral-background-100: #f5f5f5;
+  --neutral-text-500: #6b7280;
   --neutral-text-700: #374151;
-  
+
   /* Semantic Colors */
-  --destructive: #FF4D4D;
-  --destructive-foreground: #FFFFFF;
-  
+  --destructive: #ff4d4d;
+  --destructive-foreground: #ffffff;
+
   /* Border and Input */
-  --border: #E5E7EB;
-  --input: #E5E7EB;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
   --ring: rgba(74, 144, 226, 0.5);
-  
+
   /* Card and Popover */
-  --card: #FFFFFF;
+  --card: #ffffff;
   --card-foreground: #333333;
-  --popover: #FFFFFF;
+  --popover: #ffffff;
   --popover-foreground: #333333;
-  
+
   /* Muted Colors */
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 
   /* Radius */
   --radius: 0.5rem;
@@ -53,23 +53,23 @@
 /* Dark Mode Overrides */
 .dark {
   --background: #121212;
-  --foreground: #EDEDED;
-  
-  --text-primary: #EDEDED;
-  --text-secondary: #A1A1A1;
-  
-  --card: #1E1E1E;
-  --card-foreground: #EDEDED;
-  --popover: #1E1E1E;
-  --popover-foreground: #EDEDED;
-  
-  --primary: #4A90E2;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F5A623;
+  --foreground: #ededed;
+
+  --text-primary: #ededed;
+  --text-secondary: #a1a1a1;
+
+  --card: #1e1e1e;
+  --card-foreground: #ededed;
+  --popover: #1e1e1e;
+  --popover-foreground: #ededed;
+
+  --primary: #4a90e2;
+  --primary-foreground: #ffffff;
+  --secondary: #f5a623;
   --secondary-foreground: #000000;
-  
-  --muted: #2C2C2C;
-  --muted-foreground: #9CA3AF;
+
+  --muted: #2c2c2c;
+  --muted-foreground: #9ca3af;
 }
 
 /* Scrollbar Styling */
@@ -134,7 +134,12 @@ body {
     @apply text-foreground;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply text-foreground;
   }
 
@@ -421,7 +426,7 @@ html {
 body {
   @apply text-base; /* Use Tailwind's base text size */
   min-width: 320px; /* Prevent ultra-narrow layouts */
-  max-width: 100vw; 
+  max-width: 100vw;
   overflow-x: hidden;
   line-height: 1.5; /* Consistent line height */
   font-weight: 400; /* Consistent font weight */
@@ -444,7 +449,10 @@ body {
 }
 
 /* Improve form element consistency */
-input, button, select, textarea {
+input,
+button,
+select,
+textarea {
   @apply text-base; /* Consistent base size */
   font-family: inherit; /* Inherit font from body */
 }

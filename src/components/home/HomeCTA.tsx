@@ -1,18 +1,30 @@
-import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const HomeCTA: React.FC = () => {
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Trigger fade-in animation after component mounts
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className='w-full bg-gradient-to-r from-primary-600 to-primary-500 px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-24'>
+    <div
+      className={`w-full bg-gradient-to-r from-primary-600 to-primary-500 px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-24 transition-all duration-1000 transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+      }`}
+    >
       <div className='w-full max-w-7xl mx-auto py-16 text-center'>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className='bg-white/10 backdrop-blur-sm rounded-xl p-8 md:p-12'
+        <div
+          className={`bg-white/10 backdrop-blur-sm rounded-xl p-8 md:p-12 transition-all duration-1000 transform ${
+            isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+          }`}
         >
           <h2 className='text-3xl md:text-4xl font-extrabold text-white mb-4'>
             Start Your Newsletter Journey Today
@@ -35,7 +47,7 @@ export const HomeCTA: React.FC = () => {
               Create Account
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

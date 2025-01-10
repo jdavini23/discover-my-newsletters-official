@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Bookmark, Flame, Share } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -55,14 +54,7 @@ const NewsletterDetailPage: React.FC = () => {
   if (loading) {
     return (
       <div className='flex justify-center items-center min-h-screen'>
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className='text-2xl text-gray-600'
-        >
-          Loading newsletter details...
-        </motion.div>
+        <div>Loading newsletter details...</div>
       </div>
     );
   }
@@ -88,12 +80,7 @@ const NewsletterDetailPage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className='max-w-4xl mx-auto px-4 py-8'
-    >
+    <div>
       <div className='bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden'>
         {/* Newsletter header */}
         <div className='p-6 border-b border-gray-200 dark:border-gray-700'>
@@ -142,7 +129,7 @@ const NewsletterDetailPage: React.FC = () => {
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

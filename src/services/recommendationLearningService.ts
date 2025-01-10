@@ -1,4 +1,13 @@
-import { addDoc, collection, Timestamp, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  Timestamp,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+} from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
 import { firestore } from '@/config/firebase';
@@ -15,7 +24,7 @@ enum RecommendationLearningErrorType {
   LOGGING_ERROR = 'Logging Error',
   MODEL_RETRAINING_ERROR = 'Model Retraining Error',
   FETCH_ERROR = 'Fetch Error',
-  UNKNOWN_ERROR = 'Unknown Error'
+  UNKNOWN_ERROR = 'Unknown Error',
 }
 
 class RecommendationLearningError extends Error {
@@ -31,8 +40,8 @@ class RecommendationLearningError extends Error {
 
   static fromError(error: Error): RecommendationLearningError {
     return new RecommendationLearningError(
-      error.message, 
-      RecommendationLearningErrorType.UNKNOWN_ERROR, 
+      error.message,
+      RecommendationLearningErrorType.UNKNOWN_ERROR,
       error
     );
   }
@@ -84,17 +93,18 @@ export class RecommendationLearningService {
         userId,
         newsletterId: newsletter.id,
         recommendationScore,
-        feedback
+        feedback,
       });
     } catch (error) {
-      const learningError = error instanceof RecommendationLearningError
-        ? error
-        : new RecommendationLearningError(
-            'Failed to log recommendation interaction', 
-            RecommendationLearningErrorType.LOGGING_ERROR,
-            error as Error
-          );
-      
+      const learningError =
+        error instanceof RecommendationLearningError
+          ? error
+          : new RecommendationLearningError(
+              'Failed to log recommendation interaction',
+              RecommendationLearningErrorType.LOGGING_ERROR,
+              error as Error
+            );
+
       toast.error(learningError.message);
       throw learningError;
     }
@@ -122,21 +132,22 @@ export class RecommendationLearningService {
       trackEvent('recommendation_model_retrained', {
         totalNewsletters: Object.keys(newsletterFeedback).length,
         positiveNewsletters: Object.values(newsletterFeedback).filter(
-          f => f.positiveCount > f.negativeCount
-        ).length
+          (f) => f.positiveCount > f.negativeCount
+        ).length,
       });
 
       // TODO: Persist or apply adapted weights to recommendation system
       console.log('Adapted Recommendation Weights:', adaptedWeights);
     } catch (error) {
-      const learningError = error instanceof RecommendationLearningError
-        ? error
-        : new RecommendationLearningError(
-            'Model retraining failed', 
-            RecommendationLearningErrorType.MODEL_RETRAINING_ERROR,
-            error as Error
-          );
-      
+      const learningError =
+        error instanceof RecommendationLearningError
+          ? error
+          : new RecommendationLearningError(
+              'Model retraining failed',
+              RecommendationLearningErrorType.MODEL_RETRAINING_ERROR,
+              error as Error
+            );
+
       toast.error(learningError.message);
       throw learningError;
     }
@@ -152,7 +163,7 @@ export class RecommendationLearningService {
         collection(firestore, 'recommendationLearningData'),
         where('timestamp', '>=', Timestamp.fromDate(thirtyDaysAgo)),
         orderBy('timestamp', 'desc'),
-        limit(1000)  // Limit to prevent excessive data retrieval
+        limit(1000) // Limit to prevent excessive data retrieval
       );
 
       const learningDataSnapshot = await getDocs(learningDataQuery);
@@ -163,14 +174,15 @@ export class RecommendationLearningService {
 
       return learningData;
     } catch (error) {
-      const learningError = error instanceof RecommendationLearningError
-        ? error
-        : new RecommendationLearningError(
-            'Failed to fetch recent learning data', 
-            RecommendationLearningErrorType.FETCH_ERROR,
-            error as Error
-          );
-      
+      const learningError =
+        error instanceof RecommendationLearningError
+          ? error
+          : new RecommendationLearningError(
+              'Failed to fetch recent learning data',
+              RecommendationLearningErrorType.FETCH_ERROR,
+              error as Error
+            );
+
       toast.error(learningError.message);
       throw learningError;
     }
@@ -202,7 +214,4 @@ export class RecommendationLearningService {
   }
 }
 
-export { 
-  RecommendationLearningErrorType, 
-  RecommendationLearningError 
-};
+export { RecommendationLearningErrorType, RecommendationLearningError };

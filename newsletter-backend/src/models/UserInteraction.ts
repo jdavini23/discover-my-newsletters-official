@@ -6,7 +6,7 @@ export class UserInteraction {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => User, user => user.interactions)
+  @ManyToOne(() => User, (user) => user.interactions)
   user!: User;
 
   @Column()

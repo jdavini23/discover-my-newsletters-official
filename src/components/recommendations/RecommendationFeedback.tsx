@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -47,17 +46,8 @@ export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'
-    >
-      <motion.div
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        className='bg-white rounded-xl p-8 w-full max-w-md shadow-2xl relative'
-      >
+    <div>
+      <div>
         <button
           onClick={onClose}
           className='absolute top-4 right-4 text-gray-500 hover:text-gray-700'
@@ -101,11 +91,7 @@ export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
         </div>
 
         {feedback && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className='mt-4'
-          >
+          <div>
             <textarea
               placeholder={`Tell us more about why this ${feedback === 'positive' ? 'recommendation worked' : "recommendation didn't work"}`}
               value={additionalFeedback}
@@ -120,9 +106,9 @@ export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
             >
               Submit Feedback
             </button>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };

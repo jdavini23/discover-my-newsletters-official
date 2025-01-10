@@ -10,11 +10,11 @@ function runCommand(command, args, options = {}) {
   return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, { stdio: 'inherit', ...options });
 
-    proc.on('error', error => {
+    proc.on('error', (error) => {
       reject(new Error(`Failed to start command: ${error.message}`));
     });
 
-    proc.on('close', code => {
+    proc.on('close', (code) => {
       // For npm audit, we don't want to fail if vulnerabilities are found
       if (args[0] === 'audit' && code === 1) {
         console.log('⚠️  Vulnerabilities found, but continuing...');

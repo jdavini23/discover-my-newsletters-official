@@ -9,8 +9,9 @@ interface AuthInputProps {
   placeholder: string;
   error?: string;
   icon?: 'user' | 'email' | 'password';
-  showPassword?: boolean;
-  onTogglePasswordVisibility?: () => void;
+  label?: string;
+  showPasswordToggle?: boolean;
+  onPasswordToggle?: () => void;
 }
 
 export const AuthInput: React.FC<AuthInputProps> = ({
@@ -21,8 +22,9 @@ export const AuthInput: React.FC<AuthInputProps> = ({
   placeholder,
   error,
   icon,
-  showPassword,
-  onTogglePasswordVisibility,
+  label,
+  showPasswordToggle,
+  onPasswordToggle,
 }) => {
   const renderIcon = () => {
     const iconProps = {
@@ -43,12 +45,13 @@ export const AuthInput: React.FC<AuthInputProps> = ({
 
   return (
     <div className='mb-4'>
+      {label && <label className='block text-sm font-medium text-gray-700'>{label}</label>}
       <div className='relative'>
         {renderIcon()}
         <input
           id={name}
           name={name}
-          type={type === 'password' ? (showPassword ? 'text' : 'password') : type}
+          type={type === 'password' ? (showPasswordToggle ? 'text' : 'password') : type}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
@@ -59,16 +62,16 @@ export const AuthInput: React.FC<AuthInputProps> = ({
             focus:outline-none focus:ring-0 focus:border-gray-300 
             sm:text-sm`}
         />
-        {type === 'password' && onTogglePasswordVisibility && (
+        {type === 'password' && onPasswordToggle && (
           <button
             type='button'
-            onClick={onTogglePasswordVisibility}
+            onClick={onPasswordToggle}
             className='absolute right-3 top-1/2 transform -translate-y-1/2 
             text-gray-400 hover:text-gray-600
             focus:outline-none focus:ring-0 rounded-full p-1'
-            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            aria-label={showPasswordToggle ? 'Hide password' : 'Show password'}
           >
-            {showPassword ? (
+            {showPasswordToggle ? (
               <EyeOff className='h-5 w-5 text-current' />
             ) : (
               <Eye className='h-5 w-5 text-current' />

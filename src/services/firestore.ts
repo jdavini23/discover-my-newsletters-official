@@ -17,26 +17,181 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
-import { auth } from '@/config/firebase';
 import { Newsletter, NewsletterFilter, User } from '@/types/firestore';
 import { UpdateProfileParams, UserActivity, UserProfile } from '@/types/profile';
 
+// Use direct Firebase initialization to ensure consistent configuration
 const db = getFirestore();
+const authInstance = getAuth();
+
+export const createUserProfile = async (
+  userId: string,
+  initialData: Partial<UserProfile> | Partial<User>
+): Promise<UserProfile> => {
+  console.log('Creating user profile:', { 
+    userId, 
+    initialData,
+    currentUser: authInstance.currentUser?.uid 
+  });
+
+  // Verify authentication
+  if (!authInstance.currentUser) {
+    console.error('No authenticated user');
+    throw new Error('No authenticated user');
+  }
+
+  // Verify user ID matches authenticated user
+  if (authInstance.currentUser.uid !== userId) {
+    console.error('User ID mismatch', { 
+      requestedUserId: userId, 
+      authenticatedUserId: authInstance.currentUser.uid 
+    });
+    throw new Error('Missing or insufficient permissions');
+  }
+
+  const userRef = doc(db, 'users', userId);
+
+  // Handle both User and UserProfile types
+  const defaultProfile: UserProfile = {
+    uid: userId,
+    email: initialData.email || authInstance.currentUser.email || '',
+    displayName: initialData.displayName || authInstance.currentUser.displayName || '',
+    photoURL: 'photoURL' in initialData ? initialData.photoURL : authInstance.currentUser.photoURL || '',
+    bio: '',
+    interests: [],
+    newsletterPreferences: {
+      frequency: 'weekly',
+      categories: [],
+    },
+    activityLog: [],
+    accountCreatedAt: Timestamp.now(),
+    lastLoginAt: Timestamp.now(),
+    ...initialData  // Spread initial data to override defaults
+  };
+
+  try {
+    console.log('Setting user document:', { 
+      userRef: userRef.path, 
+      defaultProfile 
+    });
+
+    // Use merge to avoid overwriting existing data
+    await setDoc(userRef, defaultProfile, { merge: true });
+    
+    const userSnap = await getDoc(userRef);
+    console.log('User document after creation:', {
+      exists: userSnap.exists(),
+      data: userSnap.exists() ? userSnap.data() : null,
+    });
+
+    if (!userSnap.exists()) {
+      throw new Error('Failed to create user profile');
+    }
+
+    return defaultProfile;
+  } catch (error) {
+    console.error('Error creating user profile:', {
+      error,
+      errorName: error instanceof Error ? error.name : 'Unknown Error',
+      errorMessage: error instanceof Error ? error.message : 'Unknown Error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+    });
+    throw error;
+  }
+};
 
 // Fetch user profile
 export const fetchUserProfile = async (userId: string): Promise<UserProfile> => {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
+  console.log('Fetching user profile:', {
+    userId,
+    currentUser: authInstance.currentUser?.uid,
+    currentUserEmail: authInstance.currentUser?.email,
+    currentUserToken: await authInstance.currentUser?.getIdToken(),
+  });
 
-  if (!userSnap.exists()) {
-    throw new Error('User profile not found');
+  // Verify authentication
+  if (!authInstance.currentUser) {
+    console.error('No authenticated user');
+    throw new Error('No authenticated user');
   }
 
-  return {
-    uid: userSnap.id,
-    ...userSnap.data(),
-  } as UserProfile;
+  // Verify user ID matches authenticated user
+  if (authInstance.currentUser.uid !== userId) {
+    console.error('User ID mismatch', {
+      requestedUserId: userId,
+      authenticatedUserId: authInstance.currentUser.uid,
+      authenticatedUserEmail: authInstance.currentUser.email,
+    });
+    throw new Error('Missing or insufficient permissions');
+  }
+
+  const userRef = doc(db, 'users', userId);
+
+  try {
+    // Detailed logging before getDoc
+    console.log('Attempting to fetch user document:', {
+      userRef: userRef.path,
+      currentUserUid: authInstance.currentUser.uid,
+    });
+
+    const userSnap = await getDoc(userRef);
+
+    // More detailed logging about the document
+    console.log('User document fetch result:', {
+      exists: userSnap.exists(),
+      data: userSnap.exists() ? userSnap.data() : null,
+    });
+
+    // If document doesn't exist, attempt to create it
+    if (!userSnap.exists()) {
+      console.warn('User profile document does not exist. Attempting to create.');
+      
+      // Attempt to create a default profile
+      const defaultProfile: UserProfile = {
+        uid: userId,
+        email: authInstance.currentUser.email || '',
+        displayName: authInstance.currentUser.displayName || '',
+        photoURL: authInstance.currentUser.photoURL || '',
+        bio: '',
+        interests: [],
+        newsletterPreferences: {
+          frequency: 'weekly',
+          categories: [],
+        },
+        activityLog: [],
+        accountCreatedAt: Timestamp.now(),
+        lastLoginAt: Timestamp.now(),
+      };
+
+      try {
+        // Use merge to avoid overwriting if document exists
+        await setDoc(userRef, defaultProfile, { merge: true });
+        console.log('Created default user profile successfully');
+        return defaultProfile;
+      } catch (createError) {
+        console.error('Failed to create user profile:', {
+          error: createError,
+          errorName: createError instanceof Error ? createError.name : 'Unknown Error',
+          errorMessage: createError instanceof Error ? createError.message : 'Unknown Error',
+        });
+        throw createError;
+      }
+    }
+
+    // Cast and return the user profile
+    const userProfile = userSnap.data() as UserProfile;
+    return userProfile;
+  } catch (error) {
+    console.error('Error fetching user profile:', {
+      error,
+      errorName: error instanceof Error ? error.name : 'Unknown Error',
+      errorMessage: error instanceof Error ? error.message : 'Unknown Error',
+      stack: error instanceof Error ? error.stack : 'No stack trace',
+    });
+    throw error;
+  }
 };
 
 // Update user newsletter preferences
@@ -64,12 +219,12 @@ export const fetchAvailableTopics = async () => {
 
 // Newsletter-related Firestore operations
 export const addNewsletter = async (newsletter: Omit<Newsletter, 'id'>) => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+  if (!authInstance.currentUser) throw new Error('No authenticated user');
 
   const newsletterRef = collection(db, 'newsletters');
   const docRef = await addDoc(newsletterRef, {
     ...newsletter,
-    userId: auth.currentUser.uid,
+    userId: authInstance.currentUser.uid,
     createdAt: Timestamp.now(),
   });
 
@@ -77,10 +232,10 @@ export const addNewsletter = async (newsletter: Omit<Newsletter, 'id'>) => {
 };
 
 export const getUserNewsletters = async () => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+  if (!authInstance.currentUser) throw new Error('No authenticated user');
 
   const newsletterRef = collection(db, 'newsletters');
-  const q = query(newsletterRef, where('userId', '==', auth.currentUser.uid));
+  const q = query(newsletterRef, where('userId', '==', authInstance.currentUser.uid));
 
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(
@@ -177,13 +332,13 @@ async function getLastVisible(query: Query, page: number, pageSize: number) {
 
 // Subscribe to a newsletter
 export const subscribeToNewsletter = async (newsletterId: string) => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+  if (!authInstance.currentUser) throw new Error('No authenticated user');
 
   const subscriptionRef = collection(db, 'subscriptions');
 
   // Create subscription
   const subscriptionDoc = await addDoc(subscriptionRef, {
-    userId: auth.currentUser.uid,
+    userId: authInstance.currentUser.uid,
     newsletterId,
     subscribedAt: Timestamp.now(),
   });
@@ -199,12 +354,12 @@ export const subscribeToNewsletter = async (newsletterId: string) => {
 
 // Unsubscribe from a newsletter
 export const unsubscribeFromNewsletter = async (newsletterId: string) => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+  if (!authInstance.currentUser) throw new Error('No authenticated user');
 
   // Find and delete the subscription
   const subscriptionsQuery = query(
     collection(db, 'subscriptions'),
-    where('userId', '==', auth.currentUser.uid),
+    where('userId', '==', authInstance.currentUser.uid),
     where('newsletterId', '==', newsletterId)
   );
 
@@ -224,11 +379,11 @@ export const unsubscribeFromNewsletter = async (newsletterId: string) => {
 
 // Get user's subscribed newsletters
 export const fetchUserSubscriptions = async () => {
-  if (!auth.currentUser) throw new Error('No authenticated user');
+  if (!authInstance.currentUser) throw new Error('No authenticated user');
 
   const subscriptionsQuery = query(
     collection(db, 'subscriptions'),
-    where('userId', '==', auth.currentUser.uid)
+    where('userId', '==', authInstance.currentUser.uid)
   );
 
   const subscriptionSnapshot = await getDocs(subscriptionsQuery);
@@ -269,33 +424,6 @@ export const updateUserProfile = async (
   await updateDoc(userRef, sanitizedUpdates);
 
   return fetchUserProfile(userId);
-};
-
-export const createUserProfile = async (
-  userId: string,
-  initialData: Partial<UserProfile> | Partial<User>
-): Promise<UserProfile> => {
-  const userRef = doc(db, 'users', userId);
-
-  // Handle both User and UserProfile types
-  const defaultProfile: UserProfile = {
-    uid: userId,
-    email: initialData.email || '',
-    displayName: initialData.displayName || '',
-    photoURL: 'photoURL' in initialData ? initialData.photoURL : undefined,
-    bio: '',
-    interests: [],
-    newsletterPreferences: {
-      frequency: 'weekly',
-      categories: [],
-    },
-    activityLog: [],
-    accountCreatedAt: Timestamp.now(),
-    lastLoginAt: Timestamp.now(),
-  };
-
-  await setDoc(userRef, defaultProfile, { merge: true });
-  return defaultProfile;
 };
 
 export const addUserActivityLog = async (

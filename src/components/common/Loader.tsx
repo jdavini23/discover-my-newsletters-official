@@ -1,32 +1,50 @@
-import { motion } from 'framer-motion';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Loader: React.FC = () => {
+  const [scale, setScale] = useState(0.8);
+  const [opacity, setOpacity] = useState(0);
+  const [rotation, setRotation] = useState(0);
+
+  useEffect(() => {
+    const scaleAnimation = setInterval(() => {
+      setScale((prev) => (prev === 0.8 ? 1.1 : 0.8));
+    }, 750);
+
+    const opacityAnimation = setTimeout(() => {
+      setOpacity(1);
+    }, 500);
+
+    const rotationAnimation = setInterval(() => {
+      setRotation((prev) => prev + 360);
+    }, 1500);
+
+    return () => {
+      clearInterval(scaleAnimation);
+      clearTimeout(opacityAnimation);
+      clearInterval(rotationAnimation);
+    };
+  }, []);
+
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-white/70 dark:bg-black/70'>
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{
-          scale: [0.8, 1.1, 1],
-          opacity: [0, 1, 1],
-          rotate: [0, 360],
-        }}
-        transition={{
-          duration: 1.5,
-          ease: 'easeInOut',
-          repeat: Infinity,
-          repeatType: 'reverse',
+      <div
+        style={{
+          transform: `scale(${scale}) rotate(${rotation}deg)`,
+          opacity: opacity,
+          transition: 'transform 0.75s ease-in-out, opacity 0.5s ease-in-out',
         }}
         className='w-16 h-16 border-4 border-primary-500 border-t-primary-200 rounded-full'
       />
-      <motion.span
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
+      <span
+        style={{
+          opacity: opacity,
+          transition: 'opacity 0.5s ease-in-out',
+          transitionDelay: '0.5s',
+        }}
         className='absolute text-sm text-gray-600 dark:text-gray-300 mt-24'
       >
         Loading...
-      </motion.span>
+      </span>
     </div>
   );
 };

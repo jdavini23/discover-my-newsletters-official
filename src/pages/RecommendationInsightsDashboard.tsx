@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { BarChart, Star, TrendingUp, Zap } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 // Conditionally import recharts
@@ -105,11 +104,7 @@ const RecommendationInsightsDashboard: React.FC = () => {
 
       <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
         {/* Algorithm Performance Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex justify-between items-center mb-4'>
             <BarChart className='w-8 h-8 text-primary-500' />
             <h3 className='text-xl font-bold text-gray-900'>Algorithm Performance</h3>
@@ -132,14 +127,10 @@ const RecommendationInsightsDashboard: React.FC = () => {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* User Interactions Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex justify-between items-center mb-4'>
             <Star className='w-8 h-8 text-primary-500' />
             <h3 className='text-xl font-bold text-gray-900'>User Interactions</h3>
@@ -156,14 +147,10 @@ const RecommendationInsightsDashboard: React.FC = () => {
               <p className='text-2xl font-bold text-green-600'>{interactionRatio}%</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Performance Trend Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0, transition: { delay: 0.4 } }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex justify-between items-center mb-4'>
             <Zap className='w-8 h-8 text-primary-500' />
             <h3 className='text-xl font-bold text-gray-900'>Performance Trend</h3>
@@ -177,7 +164,7 @@ const RecommendationInsightsDashboard: React.FC = () => {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
 
       {/* Active A/B Test Section */}

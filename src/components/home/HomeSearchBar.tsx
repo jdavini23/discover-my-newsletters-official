@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { Search, Sparkles } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -26,17 +25,13 @@ export const HomeSearchBar: React.FC = () => {
     <div className='relative w-full max-w-xl mx-auto lg:mx-0'>
       <form onSubmit={handleSearch} className='flex w-full group'>
         <div className='relative flex-grow'>
-          <motion.div
-            className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'
-            initial={{ opacity: 0, x: -10 }}
-            animate={{
-              opacity: isFocused ? 0.7 : 0.5,
-              x: isFocused ? 0 : -10,
-            }}
-            transition={{ duration: 0.3 }}
+          <div
+            className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-all duration-300 ${
+              isFocused ? 'opacity-70 translate-x-0' : 'opacity-50 -translate-x-2'
+            }`}
           >
             <Search className='h-5 w-5 text-primary-500 transition-colors' />
-          </motion.div>
+          </div>
 
           <input
             ref={inputRef}
@@ -64,24 +59,19 @@ export const HomeSearchBar: React.FC = () => {
             '
           />
 
-          <AnimatePresence>
-            {searchQuery.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                className='absolute right-3 top-1/2 -translate-y-1/2'
-              >
-                <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />
-              </motion.div>
-            )}
-          </AnimatePresence>
+          {searchQuery.length > 0 && (
+            <div
+              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
+                searchQuery.length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
+              }`}
+            >
+              <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />
+            </div>
+          )}
         </div>
 
-        <motion.button
+        <button
           type='submit'
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
           className='
             btn-primary 
             rounded-xl 
@@ -98,15 +88,17 @@ export const HomeSearchBar: React.FC = () => {
             flex 
             items-center 
             gap-2
+            hover:scale-105 
+            active:scale-95
           '
         >
           <Sparkles className='h-5 w-5 opacity-70' />
           Discover
-        </motion.button>
+        </button>
       </form>
 
       {/* Playful background effect */}
-      <motion.div
+      <div
         className='
           absolute 
           -z-10 
@@ -123,12 +115,11 @@ export const HomeSearchBar: React.FC = () => {
           transition-opacity 
           duration-500
         '
-        initial={{ opacity: 0 }}
-        animate={{
+        style={{
           opacity: isFocused ? 0.5 : 0,
-          scale: isFocused ? 1.02 : 1,
+          transform: isFocused ? 'scale(1.02)' : 'scale(1)',
+          transition: 'opacity 0.5s, transform 0.5s',
         }}
-        transition={{ duration: 0.5 }}
       />
     </div>
   );

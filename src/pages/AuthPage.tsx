@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -20,11 +19,21 @@ const AuthPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Form validation states
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [displayNameError, setDisplayNameError] = useState('');
+
+  useEffect(() => {
+    // Trigger fade-in animation after component mounts
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const validateEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -85,7 +94,20 @@ const AuthPage = () => {
         navigate('/onboarding');
       }
     } catch (error) {
-      toast.error(isLogin ? 'Login failed' : 'Sign up failed');
+      console.error('Authentication Error:', error);
+
+      // More detailed error handling
+      if (error instanceof Error) {
+        console.error('Error Name:', error.name);
+        console.error('Error Message:', error.message);
+        console.error('Error Stack:', error.stack);
+      }
+
+      // Attempt to extract more specific error information
+      const errorMessage =
+        error instanceof Error ? error.message : isLogin ? 'Login failed' : 'Sign up failed';
+
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -100,90 +122,90 @@ const AuthPage = () => {
       }
       navigate('/newsletters');
     } catch (error) {
-      toast.error(`${provider} login failed`);
+      toast.error('Social login failed');
     }
   };
 
-  const handleForgotPassword = () => {
-    setShowPasswordReset(true);
-  };
-
-  // Reset errors when switching between login/signup
-  useEffect(() => {
-    setEmailError('');
-    setPasswordError('');
-    setDisplayNameError('');
-  }, [isLogin]);
-
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-100 py-12 px-4 sm:px-6 lg:px-8'>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className='max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-2xl border border-gray-100'
+    <div
+      className={`
+        min-h-screen 
+        flex 
+        items-center 
+        justify-center 
+        bg-gradient-to-br 
+        from-primary-50 
+        via-white 
+        to-primary-100 
+        px-4 
+        py-12 
+        transition-all 
+        duration-1000 
+        ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}
+      `}
+    >
+      <div
+        className={`
+          w-full 
+          max-w-md 
+          bg-white 
+          shadow-xl 
+          rounded-2xl 
+          p-8 
+          transition-all 
+          duration-1000 
+          transform 
+          ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}
+        `}
       >
         <AuthFormHeader isLogin={isLogin} />
 
-        <form onSubmit={handleEmailAuth} className='mt-8 space-y-6'>
-          <AnimatePresence>
-            {!isLogin && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <AuthInput
-                  type='text'
-                  name='displayName'
-                  value={displayName}
-                  onChange={(e) => {
-                    setDisplayName(e.target.value);
-                    validateDisplayName(e.target.value);
-                  }}
-                  placeholder='Display Name'
-                  icon='user'
-                  error={displayNameError}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <form onSubmit={handleEmailAuth} className='space-y-6'>
+          <AuthFormToggle isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
+
+          {!isLogin && (
+            <AuthInput
+              label='Display Name'
+              type='text'
+              name='displayName'
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              error={displayNameError}
+              placeholder='Enter your display name'
+              icon='user'
+            />
+          )}
 
           <AuthInput
+            label='Email'
             type='email'
             name='email'
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              validateEmail(e.target.value);
-            }}
-            placeholder='Email Address'
-            icon='email'
+            onChange={(e) => setEmail(e.target.value)}
             error={emailError}
+            placeholder='Enter your email'
+            icon='email'
           />
 
           <AuthInput
+            label='Password'
             type='password'
             name='password'
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              validatePassword(e.target.value);
-            }}
-            placeholder='Password'
-            icon='password'
+            onChange={(e) => setPassword(e.target.value)}
             error={passwordError}
-            showPassword={showPassword}
-            onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
+            placeholder='Enter your password'
+            icon='password'
+            showPasswordToggle={showPassword}
+            onPasswordToggle={() => setShowPassword(!showPassword)}
           />
 
           {isLogin && (
             <div className='text-right'>
               <button
                 type='button'
-                onClick={handleForgotPassword}
-                className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
+                onClick={() => setShowPasswordReset(true)}
+                className='text-sm text-primary-600 hover:text-primary-800 transition-colors'
               >
                 Forgot Password?
               </button>
@@ -193,33 +215,43 @@ const AuthPage = () => {
           <button
             type='submit'
             disabled={isLoading}
-            className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+            className={`
+              w-full 
+              btn-primary 
+              py-3 
+              rounded-lg 
+              transition-all 
+              duration-300 
+              ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-700'}
+            `}
           >
-            {isLoading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
+            {isLoading ? 'Processing...' : isLogin ? 'Log In' : 'Sign Up'}
           </button>
+
+          <div className='relative my-4'>
+            <div className='absolute inset-0 flex items-center'>
+              <div className='w-full border-t border-gray-300'></div>
+            </div>
+            <div className='relative flex justify-center text-sm'>
+              <span className='px-2 bg-white text-gray-500'>Or continue with</span>
+            </div>
+          </div>
+
+          <SocialLoginButtons
+            onGoogleLogin={() => handleSocialLogin('google')}
+            onGitHubLogin={() => handleSocialLogin('github')}
+          />
         </form>
-
-        <div className='relative my-4'>
-          <div className='absolute inset-0 flex items-center'>
-            <div className='w-full border-t border-gray-300'></div>
-          </div>
-          <div className='relative flex justify-center text-sm'>
-            <span className='px-2 bg-white text-gray-500'>Or continue with</span>
-          </div>
-        </div>
-
-        <SocialLoginButtons
-          onGoogleLogin={() => handleSocialLogin('google')}
-          onGitHubLogin={() => handleSocialLogin('github')}
-        />
-
-        <AuthFormToggle isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
-      </motion.div>
+      </div>
 
       {showPasswordReset && (
         <PasswordResetModal
-          isOpen={showPasswordReset}
+          email={email}
           onClose={() => setShowPasswordReset(false)}
+          onResetComplete={() => {
+            setShowPasswordReset(false);
+            toast.success('Password reset email sent');
+          }}
         />
       )}
     </div>

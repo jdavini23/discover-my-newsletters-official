@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Menu, X } from 'lucide-react';
 // Lucide icons
 import { Bell, Lock, LogOut, Palette, Settings as SettingsIcon, Shield, User } from 'lucide-react';
@@ -90,28 +89,18 @@ const SettingsPage: React.FC = () => {
       </button>
 
       {/* Mobile Sidebar Overlay */}
-      <AnimatePresence>
-        {isMobileSidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className='fixed inset-0 bg-black/50 z-40 md:hidden'
-            onClick={toggleMobileSidebar}
-          />
-        )}
-      </AnimatePresence>
+      {isMobileSidebarOpen && (
+        <div className='fixed inset-0 bg-black/50 z-40 md:hidden' onClick={toggleMobileSidebar} />
+      )}
 
       {/* Sidebar */}
-      <motion.div
-        initial={{ x: '-100%' }}
-        animate={{
-          x: isMobileSidebarOpen ? 0 : '-100%',
-          display: isMobileSidebarOpen ? 'block' : 'none',
-        }}
-        transition={{ type: 'tween' }}
-        className='fixed top-0 left-0 w-64 h-full bg-white dark:bg-dark-surface shadow-lg z-50 
-                   md:relative md:block md:w-64 md:translate-x-0'
+      <div
+        className={`
+        fixed top-0 left-0 w-64 h-full bg-white dark:bg-dark-surface 
+        transform transition-transform duration-300 ease-in-out z-50
+        ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        md:relative md:translate-x-0
+      `}
       >
         <div className='p-6'>
           <h2 className='text-2xl font-bold mb-6 flex items-center'>
@@ -150,18 +139,11 @@ const SettingsPage: React.FC = () => {
             </button>
           </nav>
         </div>
-      </motion.div>
+      </div>
 
       {/* Main Content */}
-      <main className='flex-grow p-6 md:p-12 overflow-y-auto'>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className='max-w-4xl mx-auto'
-        >
-          {renderActiveSection()}
-        </motion.div>
+      <main className='flex-grow p-6 md:p-12 overflow-y-auto md:ml-64'>
+        <div>{renderActiveSection()}</div>
       </main>
     </div>
   );

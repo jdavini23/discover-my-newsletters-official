@@ -12,7 +12,7 @@ function validateFirebaseCredentials() {
   const requiredVars = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'];
 
   let isValid = true;
-  requiredVars.forEach(varName => {
+  requiredVars.forEach((varName) => {
     const value = process.env[varName];
     console.log(`${varName}: ${value ? 'PRESENT' : 'MISSING'}`);
     if (!value) isValid = false;

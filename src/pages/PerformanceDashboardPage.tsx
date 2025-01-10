@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { BarChart, Flame, LightningZap, TrendingUp } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -30,11 +29,7 @@ const PerformanceMetricCard: React.FC<{
   trend?: 'up' | 'down' | 'neutral';
 }> = ({ icon: Icon, title, value, subtext, trend }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className='bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all'
-    >
+    <div>
       <div className='flex justify-between items-center mb-4'>
         <Icon className='w-8 h-8 text-primary-500' />
         {trend && (
@@ -64,7 +59,7 @@ const PerformanceMetricCard: React.FC<{
         <span className='text-3xl font-extrabold text-primary-600'>{value}</span>
         {subtext && <span className='text-sm text-gray-500'>{subtext}</span>}
       </div>
-    </motion.div>
+    </div>
   );
 };
 

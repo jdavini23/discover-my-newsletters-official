@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Bell, Filter, Newspaper, TrendingUp } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -81,12 +80,7 @@ const DashboardPage: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className='space-y-6'
-    >
+    <div>
       <header className='mb-8'>
         <h1 className='text-3xl font-bold text-gray-800 dark:text-white'>
           Welcome, {user?.displayName || 'User'}
@@ -98,10 +92,7 @@ const DashboardPage: React.FC = () => {
 
       {/* Insights Section */}
       <section className='grid md:grid-cols-2 gap-6'>
-        <motion.div
-          className='bg-white dark:bg-dark-surface rounded-lg shadow-md p-6'
-          whileHover={{ scale: 1.02 }}
-        >
+        <div>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-xl font-semibold flex items-center'>
               <TrendingUp className='mr-2 text-primary-500' />
@@ -126,13 +117,10 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Newsletters Section */}
-        <motion.div
-          className='bg-white dark:bg-dark-surface rounded-lg shadow-md p-6'
-          whileHover={{ scale: 1.02 }}
-        >
+        <div>
           <div className='flex justify-between items-center mb-4'>
             <h2 className='text-xl font-semibold flex items-center'>
               <Newspaper className='mr-2 text-primary-500' />
@@ -159,9 +147,9 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
           ))}
-        </motion.div>
+        </div>
       </section>
-    </motion.div>
+    </div>
   );
 };
 

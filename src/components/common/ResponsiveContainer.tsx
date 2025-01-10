@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import React from 'react';
 
 import { useResponsive } from '../../hooks/useResponsive';
@@ -43,25 +42,7 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
         </div>
       )}
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className={`
-          container 
-          mx-auto 
-          px-4 
-          sm:px-6 
-          lg:px-8 
-          max-w-7xl 
-          space-y-4 
-          sm:space-y-6 
-          lg:space-y-8
-          ${isMobile ? 'py-4' : 'py-8'}
-        `}
-      >
-        {children}
-      </motion.div>
+      <div>{children}</div>
     </div>
   );
 };

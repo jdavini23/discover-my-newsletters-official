@@ -2,70 +2,70 @@ name: Discover My Newsletters CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
-    - cron: '0 0 * * 1'  # Weekly dependency check
+    - cron: '0 0 * * 1' # Weekly dependency check
   workflow_dispatch:
 
 jobs:
   quick-checks:
     runs-on: ubuntu-24.04
-    
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-        cache: 'npm'
-        cache-dependency-path: 'package-lock.json'
-    
-    - name: Cache npm dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.npm
-          node_modules
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-    
-    - name: Verify npm cache
-      run: |
-        npm config get cache
-        ls -la ~/.npm
-    
-    - name: Install Dependencies
-      run: |
-        npm ci --cache ~/.npm
-    
-    - name: Lint Code
-      run: npm run lint
-    
-    - name: Run Tests
-      run: npm test
-    
-    - name: Build Project
-      run: npm run build
-    
-    - name: Performance Check
-      uses: treosh/lighthouse-ci-action@v10
-      with:
-        urls: |
-          https://discover-my-newsletters.com
-        budgetPath: ./budget.json
-        uploadArtifacts: true
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Verify npm cache
+        run: |
+          npm config get cache
+          ls -la ~/.npm
+
+      - name: Install Dependencies
+        run: |
+          npm ci --cache ~/.npm
+
+      - name: Lint Code
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Build Project
+        run: npm run build
+
+      - name: Performance Check
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://discover-my-newsletters.com
+          budgetPath: ./budget.json
+          uploadArtifacts: true
 
   dependency-updates:
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Check for Dependency Updates
-      run: npx npm-check-updates
-    
-    - name: List Outdated Packages
-      run: npm outdated || true  # Continue even if there are outdated packages
+      - uses: actions/checkout@v4
+
+      - name: Check for Dependency Updates
+        run: npx npm-check-updates
+
+      - name: List Outdated Packages
+        run: npm outdated || true # Continue even if there are outdated packages

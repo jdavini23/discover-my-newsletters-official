@@ -5,8 +5,9 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 // Layout Components
 import Navigation from '@/components/layout/Navigation';
 import { Sidebar } from '@/components/navigation/Sidebar';
-// Context Providers
-import { NavigationProvider } from '@/contexts/NavigationContext';
+
+// Contexts
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 // Lazy-loaded Pages
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
@@ -17,6 +18,7 @@ const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage')
 const RecommendationsPage = React.lazy(() => import('@/pages/RecommendationsPage'));
 const InsightsPage = React.lazy(() => import('@/pages/InsightsPage'));
 const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'));
+const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
 
 // Loading Fallback Component
 import LoadingSpinner from '@/components/common/LoadingSpinner';
@@ -53,18 +55,19 @@ const App: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <NavigationProvider>
+    <ThemeProvider>
       <BrowserRouter>
         <div className='flex'>
           {/* Add Navigation at the top */}
           <Navigation />
 
-          {/* Conditionally render Sidebar only when authenticated */}
-          {isAuthenticated && <Sidebar />}
+          {/* Conditionally render Sidebar content only when authenticated */}
+          <Sidebar />
 
           <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}>
             <Suspense fallback={<LoadingSpinner />}>
               <Routes>
+                <Route path='/' element={<HomePage />} />
                 <Route path='/auth' element={<AuthPage />} />
                 <Route
                   path='/newsletters'
@@ -86,7 +89,7 @@ const App: React.FC = () => {
                   path='/settings'
                   element={
                     <ProtectedRoute>
-                      <ProfilePage />
+                      <SettingsPage />
                     </ProtectedRoute>
                   }
                 />
@@ -101,44 +104,28 @@ const App: React.FC = () => {
                 <Route
                   path='/admin-promotion'
                   element={
-                    <ProtectedRoute requiredRole='user'>
+                    <ProtectedRoute requiredRole='any'>
                       <AdminPromotionPage />
                     </ProtectedRoute>
                   }
                 />
                 <Route
-                  path='/admin'
+                  path='/admin/dashboard'
                   element={
                     <ProtectedRoute requiredRole='admin'>
                       <AdminDashboardPage />
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path='/insights'
-                  element={
-                    <ProtectedRoute requiredRole='admin'>
-                      <InsightsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path='/' element={<HomePage />} />
+                <Route path='/insights' element={<InsightsPage />} />
                 <Route path='*' element={<Navigate to='/' replace />} />
               </Routes>
             </Suspense>
           </main>
         </div>
-
-        {/* Global Toast Notifications */}
-        <Toaster
-          position='top-right'
-          toastOptions={{
-            success: { duration: 3000 },
-            error: { duration: 4000 },
-          }}
-        />
+        <Toaster position='top-right' />
       </BrowserRouter>
-    </NavigationProvider>
+    </ThemeProvider>
   );
 };
 

@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Clipboard, ShieldCheck } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
@@ -90,23 +89,15 @@ export const AdminPromotionPanel: React.FC = () => {
           </div>
 
           {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className='bg-red-50 border-l-4 border-red-400 p-4'
-            >
+            <div>
               <p className='text-red-700'>{error}</p>
-            </motion.div>
+            </div>
           )}
 
           {success && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className='bg-green-50 border-l-4 border-green-400 p-4'
-            >
+            <div>
               <p className='text-green-700'>Successfully promoted to admin!</p>
-            </motion.div>
+            </div>
           )}
 
           <div className='flex space-x-3'>

@@ -15,6 +15,6 @@ export class Interest {
   @Column({ default: true })
   isActive!: boolean;
 
-  @ManyToMany(() => User, user => user.interests)
+  @ManyToMany(() => User, (user) => user.interests)
   users!: User[];
 }

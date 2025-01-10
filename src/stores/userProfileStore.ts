@@ -1,131 +1,153 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-
-import {
-  fetchAvailableTopics,
-  fetchUserProfile,
-  updateNewsletterPreferences,
-  updateUserProfile,
-} from '@/services/firestore';
+import { devtools } from 'zustand/middleware';
+import { createUserProfile, fetchUserProfile, updateUserProfile } from '@/services/firestore';
 import { UserProfile } from '@/types/profile';
+import { getAuth } from 'firebase/auth';
 
-interface UserProfileState {
+type UserProfileState = {
   profile: UserProfile | null;
-  isLoading: boolean;
+  loading: boolean;
   error: string | null;
-  availableTopics: string[];
-
-  fetchProfile: (userId: string) => Promise<void>;
-  updateProfile: (updates: Partial<Omit<UserProfile, 'uid'>>) => Promise<void>;
-  updateNewsletterPrefs: (preferences: UserProfile['newsletterPreferences']) => Promise<void>;
-  loadAvailableTopics: () => Promise<void>;
-  addActivityLog: (activity: UserProfile['activityLog'][0]) => Promise<void>;
+  fetchProfile: (userId?: string) => Promise<void>;
+  createProfile: (initialData?: Partial<UserProfile>) => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
   resetProfile: () => void;
-}
+};
 
-const useUserProfileStore = create<UserProfileState>()(
-  persist(
-    (set, get) => ({
-      profile: null,
-      isLoading: false,
-      error: null,
-      availableTopics: [],
+export const useUserProfileStore = create<UserProfileState>(
+  devtools((set, get) => ({
+    profile: null,
+    loading: false,
+    error: null,
 
-      fetchProfile: async (userId: string) => {
-        set({ isLoading: true, error: null });
-        try {
-          const profile = await fetchUserProfile(userId);
-          set({ profile, isLoading: false });
-        } catch (error) {
+    fetchProfile: async (userId?: string) => {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
+
+      if (!currentUser) {
+        set({
+          profile: null,
+          loading: false,
+          error: 'No authenticated user',
+        });
+        return;
+      }
+
+      const targetUserId = userId || currentUser.uid;
+
+      set({ loading: true, error: null });
+      try {
+        const profile = await fetchUserProfile(targetUserId);
+        set({
+          profile,
+          loading: false,
+          error: null,
+        });
+      } catch (error) {
+        console.error('Profile fetch error:', error);
+
+        // If the error is a permissions issue, try to create the profile
+        if (error instanceof Error && error.message.includes('Missing or insufficient permissions')) {
+          try {
+            const newProfile = await createUserProfile(targetUserId, {
+              email: currentUser.email || '',
+              displayName: currentUser.displayName || '',
+              photoURL: currentUser.photoURL || '',
+            });
+            set({
+              profile: newProfile,
+              loading: false,
+              error: null,
+            });
+          } catch (createError) {
+            console.error('Failed to create profile:', createError);
+            set({
+              profile: null,
+              loading: false,
+              error: createError instanceof Error ? createError.message : 'Failed to create profile',
+            });
+          }
+        } else {
           set({
-            error: error instanceof Error ? error.message : 'Failed to fetch profile',
-            isLoading: false,
+            profile: null,
+            loading: false,
+            error: error instanceof Error ? error.message : 'Unknown error',
           });
         }
-      },
+      }
+    },
 
-      updateProfile: async (updates) => {
-        const { profile } = get();
-        if (!profile) {
-          throw new Error('No profile to update');
-        }
+    createProfile: async (initialData = {}) => {
+      const auth = getAuth();
+      const currentUser = auth.currentUser;
 
-        set({ isLoading: true, error: null });
-        try {
-          const updatedProfile = await updateUserProfile(profile.uid, updates);
-          set({ profile: updatedProfile, isLoading: false });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to update profile',
-            isLoading: false,
-          });
-        }
-      },
+      if (!currentUser) {
+        set({
+          profile: null,
+          loading: false,
+          error: 'No authenticated user',
+        });
+        return;
+      }
 
-      updateNewsletterPrefs: async (preferences) => {
-        const { profile } = get();
-        if (!profile) {
-          throw new Error('No profile to update newsletter preferences');
-        }
+      set({ loading: true, error: null });
+      try {
+        const profile = await createUserProfile(currentUser.uid, {
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || '',
+          photoURL: currentUser.photoURL || '',
+          ...initialData,
+        });
+        set({
+          profile,
+          loading: false,
+          error: null,
+        });
+      } catch (error) {
+        console.error('Profile creation error:', error);
+        set({
+          profile: null,
+          loading: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    },
 
-        set({ isLoading: true, error: null });
-        try {
-          const updatedProfile = await updateNewsletterPreferences(profile.uid, preferences);
-          set({ profile: updatedProfile, isLoading: false });
-        } catch (error) {
-          set({
-            error:
-              error instanceof Error ? error.message : 'Failed to update newsletter preferences',
-            isLoading: false,
-          });
-        }
-      },
+    updateProfile: async (updates) => {
+      const { profile } = get();
 
-      loadAvailableTopics: async () => {
-        set({ isLoading: true, error: null });
-        try {
-          const topics = await fetchAvailableTopics();
-          set({
-            availableTopics: topics.map((topic) => topic.id),
-            isLoading: false,
-          });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to load topics',
-            isLoading: false,
-          });
-        }
-      },
+      if (!profile) {
+        set({
+          error: 'No profile to update',
+        });
+        return;
+      }
 
-      addActivityLog: async (activity) => {
-        const { profile } = get();
-        if (!profile) {
-          throw new Error('No profile to update activity log');
-        }
+      set({ loading: true, error: null });
+      try {
+        const updatedProfile = await updateUserProfile(profile.uid, updates);
+        set({
+          profile: updatedProfile,
+          loading: false,
+          error: null,
+        });
+      } catch (error) {
+        console.error('Profile update error:', error);
+        set({
+          loading: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        });
+      }
+    },
 
-        try {
-          const updatedProfile = await updateUserProfile(profile.uid, {
-            activityLog: [...(profile.activityLog || []), activity],
-          });
-          set({ profile: updatedProfile });
-        } catch (error) {
-          set({
-            error: error instanceof Error ? error.message : 'Failed to add activity log',
-          });
-        }
-      },
-
-      resetProfile: () => {
-        set({ profile: null, isLoading: false, error: null, availableTopics: [] });
-      },
-    }),
-    {
-      name: 'user-profile-storage',
-      partialize: (state) => ({ profile: state.profile }),
-    }
-  )
+    resetProfile: () => {
+      set({
+        profile: null,
+        loading: false,
+        error: null,
+      });
+    },
+  }))
 );
 
-// Export both default and named exports
-export { useUserProfileStore };
 export default useUserProfileStore;

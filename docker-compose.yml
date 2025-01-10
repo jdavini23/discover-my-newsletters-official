@@ -9,7 +9,7 @@ services:
       - ./newsletter-frontend:/app
       - /app/node_modules
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=development
       - REACT_APP_API_URL=http://localhost:4000
@@ -24,7 +24,7 @@ services:
       - ./newsletter-backend:/app
       - /app/node_modules
     ports:
-      - "4000:4000"
+      - '4000:4000'
     environment:
       - NODE_ENV=development
       - DB_HOST=db
@@ -42,7 +42,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: newsletter_development
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
     command: --default-authentication-plugin=mysql_native_password

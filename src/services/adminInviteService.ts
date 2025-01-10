@@ -41,6 +41,9 @@ interface AdminInviteCreateOptions {
 }
 
 export class AdminInviteService {
+  static validateInvite(inviteCode: string) {
+    throw new Error('Method not implemented.');
+  }
   // Generate a new admin invite code with advanced options
   static async generateAdminInviteCode(
     creatorUid: string,

@@ -14,7 +14,7 @@ function diagnoseFirebaseConfig() {
   const requiredEnvVars = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY'];
 
   let allEnvVarsPresent = true;
-  requiredEnvVars.forEach(varName => {
+  requiredEnvVars.forEach((varName) => {
     const value = process.env[varName];
     console.log(`- ${varName}: ${value ? 'PRESENT' : 'MISSING'}`);
     if (!value) {

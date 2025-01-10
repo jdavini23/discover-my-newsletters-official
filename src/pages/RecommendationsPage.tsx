@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion';
 import { Bookmark, RefreshCw, Share, Star } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 
@@ -14,12 +13,7 @@ const RecommendationCard: React.FC<{
   onInteract: (type: 'like' | 'save' | 'share') => void;
 }> = ({ newsletter, onInteract }) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className='bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all'
-    >
+    <div>
       <div className='p-6'>
         <div className='flex items-start mb-4'>
           <img
@@ -70,7 +64,7 @@ const RecommendationCard: React.FC<{
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
@@ -170,29 +164,23 @@ const RecommendationsPage = () => {
           </button>
         </div>
 
-        <AnimatePresence>
-          {recommendations.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className='text-center py-16'
-            >
-              <p className='text-xl text-gray-600'>
-                No recommendations found. Try adjusting your preferences!
-              </p>
-            </motion.div>
-          ) : (
-            <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-              {recommendations.map((newsletter, index) => (
-                <RecommendationCard
-                  key={newsletter.id || `newsletter-${index}`}
-                  newsletter={newsletter}
-                  onInteract={(type) => handleInteraction(newsletter, type)}
-                />
-              ))}
-            </div>
-          )}
-        </AnimatePresence>
+        {recommendations.length === 0 ? (
+          <div>
+            <p className='text-xl text-gray-600'>
+              No recommendations found. Try adjusting your preferences!
+            </p>
+          </div>
+        ) : (
+          <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            {recommendations.map((newsletter, index) => (
+              <RecommendationCard
+                key={newsletter.id || `newsletter-${index}`}
+                newsletter={newsletter}
+                onInteract={(type) => handleInteraction(newsletter, type)}
+              />
+            ))}
+          </div>
+        )}
 
         {feedbackModalOpen && selectedNewsletter && (
           <RecommendationFeedback

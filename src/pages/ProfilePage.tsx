@@ -1,6 +1,5 @@
-import { AnimatePresence, motion } from 'framer-motion';
 // Lucide icons
-import { BarChart, Settings, Shield, Star, User } from 'lucide-react';
+import { BarChart, Settings, Shield, Star, User, LucideIcon } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -13,24 +12,15 @@ import PreferencesSection from '@/components/profile/PreferencesSection';
 import ProfileInfoSection from '@/components/profile/ProfileInfoSection';
 import { AdminInviteService } from '@/services/adminInviteService';
 import { useAuthStore } from '@/stores/authStore';
-import useUserProfileStore from '@/stores/userProfileStore';
-import { 
-  isDefined, 
-  isNonEmptyString, 
-  safeGet 
-} from '@/utils/typeUtils';
+import { useUserProfileStore } from '@/stores/userProfileStore';
+import { isDefined, isNonEmptyString, safeGet } from '@/utils/typeUtils';
 
-type ProfileSectionName = 
-  | 'info' 
-  | 'preferences' 
-  | 'settings' 
-  | 'insights' 
-  | 'admin';
+type ProfileSectionName = 'info' | 'preferences' | 'settings' | 'insights' | 'admin';
 
 interface ProfileSection {
   name: ProfileSectionName;
   label: string;
-  icon: React.ComponentType;
+  icon: LucideIcon;
   component: React.ComponentType;
   adminOnly?: boolean;
 }
@@ -73,12 +63,7 @@ const PROFILE_SECTIONS: ProfileSection[] = [
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuthStore();
-  const { 
-    profile, 
-    fetchProfile, 
-    isLoading, 
-    error 
-  } = useUserProfileStore();
+  const { profile, fetchProfile, loading, error } = useUserProfileStore();
 
   const [activeSection, setActiveSection] = useState<ProfileSectionName>('info');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -95,16 +80,13 @@ const ProfilePage: React.FC = () => {
     }
 
     try {
-      const userId = safeGet(user, 'uid', '');
+      const userId = user?.uid;
       if (!userId) {
         toast.error('User not authenticated', { duration: 3000 });
         return;
       }
 
-      const result = await AdminInviteService.validateAdminInviteCode(
-        userId,
-        adminInviteCode
-      );
+      const result = await AdminInviteService.validateAdminInviteCode(userId, adminInviteCode);
 
       if (result) {
         toast.success('Successfully promoted to admin!', {
@@ -119,10 +101,8 @@ const ProfilePage: React.FC = () => {
         });
       }
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Failed to promote to admin';
-      
+      const errorMessage = error instanceof Error ? error.message : 'Failed to promote to admin';
+
       toast.error(errorMessage, {
         icon: '',
         duration: 3000,
@@ -139,7 +119,7 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      const userId = safeGet(user, 'uid', '');
+      const userId = user?.uid;
       if (!userId) {
         toast.error('User authentication failed');
         return;
@@ -161,52 +141,60 @@ const ProfilePage: React.FC = () => {
         duration: 5000,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error 
-        ? error.message 
-        : 'Could not generate invite code';
-      
+      const errorMessage =
+        error instanceof Error ? error.message : 'Could not generate invite code';
+
       toast.error(errorMessage);
     }
   };
 
   useEffect(() => {
     // Comprehensive authentication check
+    console.log('ProfilePage Authentication Check:', {
+      isAuthenticated,
+      user: user
+        ? {
+            id: user.uid,
+            email: user.email,
+            role: user.role,
+          }
+        : null,
+    });
+
     if (!isAuthenticated) {
+      console.log('Not authenticated, navigating to /auth');
       navigate('/auth');
       return;
     }
 
     // Ensure user exists before fetching profile
-    const userId = safeGet(user, 'uid');
+    const userId = user?.uid;
+    console.log('User ID for profile fetch:', userId);
+
     if (userId) {
       fetchProfile(userId).catch((err) => {
-        const errorMessage = err instanceof Error 
-          ? err.message 
-          : 'Profile fetch failed';
-        
+        const errorMessage = err instanceof Error ? err.message : 'Profile fetch failed';
+
+        console.error('Profile fetch error:', errorMessage);
         toast.error(errorMessage);
         navigate('/auth');
       });
     } else {
+      console.log('No user ID found, navigating to /auth');
       navigate('/auth');
     }
   }, [user, isAuthenticated, fetchProfile, navigate]);
 
   // Memoized loading and error states for performance
   const renderLoadingState = useMemo(() => {
-    if (isLoading) {
+    if (loading) {
       return (
         <div className='flex justify-center items-center min-h-screen bg-gray-50'>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className='text-center p-8 bg-white rounded-2xl shadow-lg'
-          >
+          <div>
             <div className='animate-spin rounded-full h-16 w-16 border-4 border-t-4 border-primary-500 mx-auto mb-4'></div>
             <h2 className='text-xl font-semibold text-gray-700'>Loading Profile</h2>
             <p className='text-gray-500'>Fetching your personalized experience</p>
-          </motion.div>
+          </div>
         </div>
       );
     }
@@ -214,11 +202,7 @@ const ProfilePage: React.FC = () => {
     if (error) {
       return (
         <div className='flex justify-center items-center min-h-screen bg-red-50'>
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            className='text-center p-8 bg-white rounded-2xl shadow-lg'
-          >
+          <div>
             <div className='text-red-500 mb-4'>
               <svg className='mx-auto h-16 w-16' fill='currentColor' viewBox='0 0 24 24'>
                 <path d='M12 2L2 22h20L12 2zm1 18h-2v-2h2v2zm0-4h-2V8h2v8z' />
@@ -227,30 +211,29 @@ const ProfilePage: React.FC = () => {
             <h2 className='text-xl font-semibold text-red-600 mb-2'>Profile Loading Error</h2>
             <p className='text-gray-600 mb-4'>{error}</p>
             <button
-              onClick={() => fetchProfile(safeGet(user, 'uid', ''))}
+              onClick={() => fetchProfile(user?.uid)}
               className='bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600'
             >
               Retry Loading
             </button>
-          </motion.div>
+          </div>
         </div>
       );
     }
 
     return null;
-  }, [isLoading, error, user, fetchProfile]);
+  }, [loading, error, user, fetchProfile]);
 
   // Render available sections based on user role
-  const availableSections = useMemo(() => 
-    PROFILE_SECTIONS.filter(section => 
-      !section.adminOnly || safeGet(user, 'role') === 'admin'
-    ), 
+  const availableSections = useMemo(
+    () =>
+      PROFILE_SECTIONS.filter((section) => !section.adminOnly || safeGet(user, 'role') === 'admin'),
     [user]
   );
 
   // Render active section
   const ActiveSectionComponent = useMemo(() => {
-    const section = availableSections.find(s => s.name === activeSection);
+    const section = availableSections.find((s) => s.name === activeSection);
     return section ? section.component : ProfileInfoSection;
   }, [activeSection, availableSections]);
 
@@ -262,10 +245,12 @@ const ProfilePage: React.FC = () => {
   return (
     <div className='flex min-h-screen bg-gray-50'>
       {/* Sidebar */}
-      <div className={`
+      <div
+        className={`
         w-64 bg-white shadow-md 
         ${isMobileSidebarOpen ? 'block' : 'hidden md:block'}
-      `}>
+      `}
+      >
         <nav className='p-4'>
           {availableSections.map((section) => (
             <button
@@ -273,9 +258,9 @@ const ProfilePage: React.FC = () => {
               onClick={() => setActiveSection(section.name)}
               className={`
                 flex items-center w-full p-2 mb-2 rounded 
-                ${activeSection === section.name 
-                  ? 'bg-primary-500 text-white' 
-                  : 'hover:bg-gray-100'}
+                ${
+                  activeSection === section.name ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'
+                }
               `}
             >
               <section.icon className='mr-2' size={20} />
@@ -286,30 +271,28 @@ const ProfilePage: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className='flex-1 p-6'>
-        {renderLoadingState || <ActiveSectionComponent />}
-      </div>
+      <div className='flex-1 p-6'>{renderLoadingState || <ActiveSectionComponent />}</div>
 
       {/* Admin Promotion Modal */}
       {isAdminPromotionModalOpen && (
         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
           <div className='bg-white p-6 rounded-lg'>
             <h2 className='text-xl font-bold mb-4'>Promote to Admin</h2>
-            <input 
-              type='text' 
+            <input
+              type='text'
               value={adminInviteCode}
               onChange={(e) => setAdminInviteCode(e.target.value)}
               placeholder='Enter Admin Invite Code'
               className='w-full p-2 border rounded mb-4'
             />
             <div className='flex justify-between'>
-              <button 
+              <button
                 onClick={() => setIsAdminPromotionModalOpen(false)}
                 className='bg-gray-200 text-gray-800 px-4 py-2 rounded'
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={handleAdminPromotion}
                 className='bg-primary-500 text-white px-4 py-2 rounded'
               >

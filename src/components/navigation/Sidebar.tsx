@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/authStore';
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { getCurrentSectionItems } = useNavigation();
 
   // Determine user role, default to 'user'
@@ -22,6 +22,11 @@ export const Sidebar: React.FC = () => {
     return location.pathname === path;
   };
 
+  // If not authenticated, return null
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white dark:bg-dark-background border-r border-gray-200 dark:border-dark-border overflow-y-auto transition-transform duration-300 ease-in-out`}
@@ -36,14 +41,11 @@ export const Sidebar: React.FC = () => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`
-                      flex items-center p-3 rounded-lg transition-all duration-200
-                      ${
-                        isActive(item.path)
-                          ? 'bg-primary-100 text-primary-600'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }
-                    `}
+                    className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-primary-100 text-primary-600'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                   >
                     <item.icon className='w-6 h-6 mr-3' />
                     <span className='font-medium'>{item.name}</span>
@@ -63,14 +65,11 @@ export const Sidebar: React.FC = () => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`
-                      flex items-center p-3 rounded-lg transition-all duration-200
-                      ${
-                        isActive(item.path)
-                          ? 'bg-primary-100 text-primary-600'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }
-                    `}
+                    className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-primary-100 text-primary-600'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                   >
                     <item.icon className='w-6 h-6 mr-3' />
                     <span className='font-medium'>{item.name}</span>
@@ -90,14 +89,11 @@ export const Sidebar: React.FC = () => {
                 <li key={item.path}>
                   <Link
                     to={item.path}
-                    className={`
-                      flex items-center p-3 rounded-lg transition-all duration-200
-                      ${
-                        isActive(item.path)
-                          ? 'bg-primary-100 text-primary-600'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }
-                    `}
+                    className={`flex items-center p-3 rounded-lg transition-all duration-200 ${
+                      isActive(item.path)
+                        ? 'bg-primary-100 text-primary-600'
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
                   >
                     <item.icon className='w-6 h-6 mr-3' />
                     <span className='font-medium'>{item.name}</span>

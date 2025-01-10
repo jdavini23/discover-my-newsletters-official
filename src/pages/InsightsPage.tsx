@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+
 import { BarChart, Globe, TrendingUp, Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -70,16 +70,12 @@ const InsightsPage: React.FC = () => {
   if (!user || user.role !== 'admin') {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className='text-center p-8 bg-white rounded-xl shadow-lg'
-        >
+        <div>
           <h2 className='text-2xl font-bold text-red-600 mb-4'>Access Denied</h2>
           <p className='text-gray-600'>
             You do not have permission to view administrative insights.
           </p>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -87,11 +83,7 @@ const InsightsPage: React.FC = () => {
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1 }}
-          className='w-16 h-16 border-4 border-t-4 border-primary-500 rounded-full'
-        />
+        <div>
       </div>
     );
   }
@@ -99,40 +91,26 @@ const InsightsPage: React.FC = () => {
   if (error) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          className='text-center p-8 bg-white rounded-xl shadow-lg'
-        >
+        <div>
           <h2 className='text-2xl font-bold text-red-600 mb-4'>Error</h2>
           <p className='text-gray-600'>{error}</p>
-        </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className='container mx-auto px-4 py-8'>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className='mb-8'
-      >
+      <div>
         <h1 className='text-3xl font-bold text-gray-800 flex items-center'>
           <BarChart className='h-8 w-8 mr-3 text-primary-500' />
           Administrative Insights
         </h1>
-      </motion.div>
+      </div>
 
       <div className='grid md:grid-cols-2 lg:grid-cols-4 gap-6'>
         {/* Total Subscribers */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex items-center mb-4'>
             <Users className='h-8 w-8 text-primary-500 mr-3' />
             <h2 className='text-xl font-semibold text-gray-700'>Total Subscribers</h2>
@@ -140,15 +118,10 @@ const InsightsPage: React.FC = () => {
           <p className='text-3xl font-bold text-gray-900'>
             {insights.totalSubscribers.toLocaleString()}
           </p>
-        </motion.div>
+        </div>
 
         {/* Top Categories */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex items-center mb-4'>
             <TrendingUp className='h-8 w-8 text-primary-500 mr-3' />
             <h2 className='text-xl font-semibold text-gray-700'>Top Categories</h2>
@@ -161,15 +134,10 @@ const InsightsPage: React.FC = () => {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </div>
 
         {/* Global Trends */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.4 }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex items-center mb-4'>
             <Globe className='h-8 w-8 text-primary-500 mr-3' />
             <h2 className='text-xl font-semibold text-gray-700'>Global Trends</h2>
@@ -182,15 +150,10 @@ const InsightsPage: React.FC = () => {
               </li>
             ))}
           </ul>
-        </motion.div>
+        </div>
 
         {/* User Engagement */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5 }}
-          className='bg-white rounded-xl shadow-lg p-6'
-        >
+        <div>
           <div className='flex items-center mb-4'>
             <BarChart className='h-8 w-8 text-primary-500 mr-3' />
             <h2 className='text-xl font-semibold text-gray-700'>User Engagement</h2>
@@ -207,10 +170,11 @@ const InsightsPage: React.FC = () => {
               </span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
 };
 
 export default InsightsPage;
+

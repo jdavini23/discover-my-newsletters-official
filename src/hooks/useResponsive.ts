@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 export enum DeviceType {
   Mobile = 'mobile',
   Tablet = 'tablet',
-  Desktop = 'desktop'
+  Desktop = 'desktop',
 }
 
 // Enhanced responsive state interface
@@ -23,17 +23,17 @@ interface ResponsiveConfig {
 // Default breakpoint configuration
 const DEFAULT_BREAKPOINTS = {
   mobileBreakpoint: 640,
-  tabletBreakpoint: 1024
+  tabletBreakpoint: 1024,
 };
 
 // Utility to determine device type based on screen width
 const getDeviceType = (
-  width: number, 
+  width: number,
   config: ResponsiveConfig = DEFAULT_BREAKPOINTS
 ): DeviceType => {
-  const { mobileBreakpoint, tabletBreakpoint } = { 
-    ...DEFAULT_BREAKPOINTS, 
-    ...config 
+  const { mobileBreakpoint, tabletBreakpoint } = {
+    ...DEFAULT_BREAKPOINTS,
+    ...config,
   };
 
   if (width < mobileBreakpoint) return DeviceType.Mobile;
@@ -42,7 +42,7 @@ const getDeviceType = (
 };
 
 // Determine screen orientation
-const getOrientation = (): 'portrait' | 'landscape' => 
+const getOrientation = (): 'portrait' | 'landscape' =>
   window.innerWidth < window.innerHeight ? 'portrait' : 'landscape';
 
 export const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState => {
@@ -51,7 +51,7 @@ export const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState =>
   const [state, setState] = useState<ResponsiveState>({
     deviceType: getDeviceType(0, mergedConfig),
     screenWidth: 0,
-    orientation: getOrientation()
+    orientation: getOrientation(),
   });
 
   // Memoized resize handler to prevent unnecessary re-renders
@@ -60,7 +60,7 @@ export const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState =>
     setState({
       deviceType: getDeviceType(width, mergedConfig),
       screenWidth: width,
-      orientation: getOrientation()
+      orientation: getOrientation(),
     });
   }, [mergedConfig]);
 

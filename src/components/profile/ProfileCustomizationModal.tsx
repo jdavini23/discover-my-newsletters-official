@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+
 import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
@@ -143,19 +143,8 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
   if (!isOpen) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
-        className='bg-white dark:bg-dark-surface rounded-2xl p-8 max-w-2xl w-full'
-        onClick={(e) => e.stopPropagation()}
+    <div>
+      <div> e.stopPropagation()}
       >
         <div className='text-center mb-6'>
           <User className='mx-auto h-12 w-12 text-primary-600 mb-4' />
@@ -370,7 +359,8 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
             {isLoading ? 'Updating...' : 'Save Profile'}
           </button>
         </form>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   );
 };
+
