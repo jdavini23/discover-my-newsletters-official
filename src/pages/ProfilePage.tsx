@@ -1,5 +1,5 @@
 // Lucide icons
-import { BarChart, Settings, Shield, Star, User, LucideIcon } from 'lucide-react';
+import { BarChart, LucideIcon, Settings, Shield, Star, User } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';

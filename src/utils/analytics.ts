@@ -1,258 +1,162 @@
 // src/utils/analytics.ts
 import Plausible from 'plausible-tracker';
 
-// Configuration for different environments
-const ANALYTICS_CONFIG = {
+// Comprehensive analytics configuration
+export const ANALYTICS_CONFIG = {
   development: {
     domain: 'localhost',
-    apiHost: 'https://plausible.io', // Or your self-hosted Plausible instance
-    trackLocalhost: false, // Disable tracking in development
+    apiHost: 'http://localhost:3000',
+    trackLocalhost: true,
     debug: true,
-    enabled: false, // Completely disable analytics in development
+    enabled: true
   },
   production: {
-    domain: 'your-domain.com', // Replace with your actual domain
-    apiHost: 'https://plausible.io',
+    domain: 'discovermynewsletters.com',
+    apiHost: 'https://api.discovermynewsletters.com',
     trackLocalhost: false,
     debug: false,
-    enabled: true,
-  },
-};
+    enabled: true
+  }
+} as const;
 
 // Determine current environment
-const env = process.env.NODE_ENV || 'development';
+const env = import.meta.env.MODE as keyof typeof ANALYTICS_CONFIG;
 const config = ANALYTICS_CONFIG[env];
 
-// Dummy no-op tracker for development
-const noOpTracker = {
-  enableAutoPageviews: () => {},
-  trackEvent: () => {},
-  trackPageview: () => {},
-};
+// Define event options type
+interface EventOptions {
+  userId?: string;
+  userSegment?: string;
+  platform?: 'web' | 'mobile';
+  source?: string;
+  [key: string]: any;
+}
 
-// Initialize Plausible instance
-const plausibleInstance = config.enabled
-  ? Plausible({
-      domain: config.domain,
-      apiHost: config.apiHost,
-      trackLocalhost: config.trackLocalhost,
-    })
-  : noOpTracker;
-
-// Rate limiting configuration
-const RATE_LIMIT_CONFIG = {
-  maxEventsPerMinute: 10, // Adjust based on Plausible's rate limits
-  eventQueue: [] as { timestamp: number; eventName: string }[],
-};
-
-// Rate limiting function
-const isRateLimited = (eventName: string): boolean => {
-  const now = Date.now();
-
-  // Remove events older than 1 minute
-  RATE_LIMIT_CONFIG.eventQueue = RATE_LIMIT_CONFIG.eventQueue.filter(
-    (event) => now - event.timestamp < 60000
-  );
-
-  // Check if we've exceeded max events per minute
-  if (RATE_LIMIT_CONFIG.eventQueue.length >= RATE_LIMIT_CONFIG.maxEventsPerMinute) {
-    console.warn(`[Analytics] Rate limit exceeded. Skipping event: ${eventName}`);
-    return true;
-  }
-
-  // Add current event to queue
-  RATE_LIMIT_CONFIG.eventQueue.push({ timestamp: now, eventName });
-  return false;
-};
-
-// Initialize analytics
-export const initAnalytics = () => {
-  try {
-    // Only enable auto pageviews if analytics is enabled
-    if (config.enabled) {
-      plausibleInstance.enableAutoPageviews();
-
-      if (config.debug) {
-        console.log('[Analytics] Initialized with config:', config);
-      }
-    } else {
-      console.log('[Analytics] Disabled in current environment');
-    }
-  } catch (error) {
-    console.error('Analytics initialization error:', error);
-  }
-};
-
-// Enhanced event types
-export const EventTypes = {
-  // Recommendation Events
-  RECOMMENDATION_GENERATED: 'recommendation_generated',
-  RECOMMENDATION_INTERACTION: 'recommendation_interaction',
-  RECOMMENDATION_FEEDBACK: 'recommendation_feedback',
-
-  // Newsletter Events
-  NEWSLETTER_SEARCH: 'newsletter_search',
-  NEWSLETTER_SIGNUP: 'newsletter_signup',
-  NEWSLETTER_VIEW: 'newsletter_view',
-  NEWSLETTER_SAVE: 'newsletter_save',
-
-  // User Journey Events
-  ONBOARDING_START: 'onboarding_start',
-  ONBOARDING_COMPLETE: 'onboarding_complete',
-  USER_PREFERENCE_UPDATE: 'user_preference_update',
-
-  // Performance Events
-  PAGE_LOAD_TIME: 'page_load_time',
-  API_RESPONSE_TIME: 'api_response_time',
-
-  // Error Events
-  RECOMMENDATION_ERROR: 'recommendation_error',
-  NETWORK_ERROR: 'network_error',
-  ERROR: 'error',
-};
-
-// Enhanced tracking context
-interface TrackingContext {
+// Tracking context for additional metadata
+export interface TrackingContext {
   userId?: string;
   userSegment?: string;
   platform?: 'web' | 'mobile';
   source?: string;
 }
 
-// Performance tracking utility
-export const performanceTracker = {
-  markStart: (eventName: string) => {
-    performance.mark(`${eventName}_start`);
-  },
+// Analytics service with comprehensive tracking capabilities
+class AnalyticsService {
+  private plausibleInstance: any;
+  private segmentInstance: any;
+  private mixpanelInstance: any;
 
-  markEnd: (eventName: string, context?: TrackingContext) => {
-    performance.mark(`${eventName}_end`);
-    performance.measure(eventName, `${eventName}_start`, `${eventName}_end`);
+  constructor() {
+    this.initializeTrackers();
+  }
 
-    const duration = performance.getEntriesByName(eventName)[0].duration;
+  private initializeTrackers() {
+    // Initialize Plausible instance
+    this.plausibleInstance = config.enabled
+      ? Plausible({
+          domain: config.domain,
+          apiHost: config.apiHost,
+          trackLocalhost: config.trackLocalhost,
+        })
+      : {
+          trackEvent: () => {},
+          trackPageview: () => {},
+        };
+  }
 
-    // Log performance metrics
-    trackEvent(EventTypes.PAGE_LOAD_TIME, {
-      duration,
-      ...context,
-    });
-
-    // Clean up marks and measures
-    performance.clearMarks(`${eventName}_start`);
-    performance.clearMarks(`${eventName}_end`);
-    performance.clearMeasures(eventName);
-  },
-};
-
-// Advanced event tracking with more context
-export const trackEvent = (
-  eventName: string,
-  eventData: Record<string, any> = {},
-  context: TrackingContext = {}
-) => {
-  try {
-    // Enrich event with context
-    const enrichedEventData = {
+  // Track custom events with comprehensive metadata
+  trackEvent(
+    eventName: string, 
+    eventData?: EventOptions, 
+    context?: TrackingContext
+  ): void {
+    const enrichedEventData: EventOptions = {
+      platform: 'web',
+      source: 'web_app',
       ...eventData,
-      userId: context.userId || 'anonymous',
-      userSegment: context.userSegment || 'undefined',
-      platform: context.platform || 'web',
-      source: context.source || 'unknown',
+      ...context
     };
 
-    // Rate limit and log event
-    if (!isRateLimited(eventName)) {
-      plausibleInstance.trackEvent(eventName, enrichedEventData);
-
-      // Optional: Log to console in development
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`📊 Event: ${eventName}`, enrichedEventData);
+    try {
+      // Plausible tracking
+      if (this.plausibleInstance) {
+        this.plausibleInstance.trackEvent(eventName, enrichedEventData);
       }
+    } catch (error) {
+      this.trackError(error as Error, context);
     }
-  } catch (error) {
-    console.error('Analytics tracking error:', error);
   }
-};
 
-// Recommendation tracking utility
-export const recommendationTracker = {
-  trackGeneration: (recommendations: any[], context: TrackingContext) => {
-    trackEvent(
-      EventTypes.RECOMMENDATION_GENERATED,
-      {
-        recommendationCount: recommendations.length,
-        recommendationIds: recommendations.map((r) => r.id),
-      },
-      context
-    );
-  },
-
-  trackInteraction: (
-    newsletter: any,
-    interactionType: 'view' | 'save' | 'share',
-    context: TrackingContext
-  ) => {
-    trackEvent(
-      EventTypes.RECOMMENDATION_INTERACTION,
-      {
-        newsletterId: newsletter.id,
-        newsletterTitle: newsletter.title,
-        interactionType,
-      },
-      context
-    );
-  },
-
-  trackFeedback: (
-    newsletter: any,
-    feedbackType: 'positive' | 'negative',
-    context: TrackingContext
-  ) => {
-    trackEvent(
-      EventTypes.RECOMMENDATION_FEEDBACK,
-      {
-        newsletterId: newsletter.id,
-        newsletterTitle: newsletter.title,
-        feedbackType,
-      },
-      context
-    );
-  },
-};
-
-// Error tracking
-export const trackError = (error: Error, context?: TrackingContext) => {
-  try {
-    const eventData: Record<string, any> = {
-      message: error.message,
-      stack: error.stack,
-      severity: 'high',
+  // Track errors with context
+  trackError(
+    error: Error, 
+    context?: TrackingContext
+  ): void {
+    const errorData: EventOptions = {
+      errorName: error.name,
+      errorMessage: error.message,
+      stackTrace: error.stack,
+      ...context
     };
 
-    trackEvent(EventTypes.ERROR, eventData, context);
-  } catch (trackingError) {
-    console.error('Error tracking failed:', trackingError);
-  }
-};
+    console.error('Tracking Error:', errorData);
 
-// Page view tracking
-export const trackPageView = (path?: string, options?: { referrer?: string }) => {
-  try {
-    plausibleInstance.trackPageview({
-      url: path,
-      referrer: options?.referrer,
-    });
-  } catch (error) {
-    console.error('Page view tracking failed:', error);
+    // Placeholder for error tracking services
+    if (config.enabled && config.debug) {
+      this.trackEvent('error', errorData);
+    }
   }
-};
 
-// Default export for backwards compatibility
-export default {
-  trackEvent,
-  trackError,
-  trackPageView,
-  performanceTracker,
-  recommendationTracker,
-  EventTypes,
-};
+  // Track page views
+  trackPageView(
+    path?: string, 
+    options?: { 
+      referrer?: string; 
+      context?: TrackingContext 
+    }
+  ): void {
+    const pageViewData: EventOptions = {
+      path: path || window.location.pathname,
+      referrer: options?.referrer || document.referrer,
+      ...options?.context
+    };
+
+    this.trackEvent('page_view', pageViewData);
+  }
+
+  // Performance tracking utilities
+  get performanceTracker() {
+    return {
+      trackPageLoad: () => {
+        const timing = window.performance.timing;
+        this.trackEvent('page_load_performance', {
+          loadTime: timing.loadEventEnd - timing.navigationStart
+        });
+      }
+    };
+  }
+
+  // Recommendation tracking utilities
+  get recommendationTracker() {
+    return {
+      trackRecommendationView: (newsletterId: string) => {
+        this.trackEvent('recommendation_viewed', { newsletterId });
+      },
+      trackRecommendationClick: (newsletterId: string) => {
+        this.trackEvent('recommendation_clicked', { newsletterId });
+      }
+    };
+  }
+}
+
+// Singleton instance of analytics service
+const analytics = new AnalyticsService();
+
+// Export tracking methods for direct use
+export const { 
+  trackEvent, 
+  trackError, 
+  trackPageView 
+} = analytics;
+
+export default analytics;

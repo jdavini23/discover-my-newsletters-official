@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
 
 import { useAuthStore } from '@/stores/authStore';
-import { toast } from 'react-hot-toast';
 
 const AccountSettingsSection: React.FC = () => {
   const { user } = useAuthStore();

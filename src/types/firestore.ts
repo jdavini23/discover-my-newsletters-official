@@ -1,10 +1,12 @@
 import { Timestamp } from 'firebase/firestore';
+import { UserRole } from './roles';
 
 export interface User {
   id: string;
   email: string;
   displayName?: string;
   createdAt: Timestamp;
+  role: UserRole;
 
   // Newsletter preferences
   newsletterPreferences: {
@@ -28,13 +30,19 @@ export interface Newsletter {
   url: string;
   topics: string[];
   author: string;
+  category: string;
+  tags: string[];
   coverImageUrl?: string;
-  subscriberCount: number;
+  subscribers: number;
   createdAt: Timestamp;
 
   // Additional metadata for recommendations
   popularity: number;
   averageRating?: number;
+  frequency: 'daily' | 'weekly' | 'monthly';
+  contentType?: string;
+  lastPublishedDate?: Timestamp;
+  publishedAt?: Timestamp;
 
   // Recommendation-specific fields
   recommendationMetadata: {

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
 import { Search, Settings } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -132,7 +132,7 @@ const NewsletterDiscoveryPage: React.FC = () => {
         },
       };
 
-      await NewsletterService.subscribeToNewsletter(newsletterId, user.email, subscriptionDetails);
+      await NewsletterService.subscribeNewsletter(newsletterId, user.email, subscriptionDetails);
       toast.success('Successfully subscribed to newsletter!');
       setSelectedNewsletter(null);
     } catch (error) {

@@ -13,7 +13,8 @@ const SecuritySection: React.FC = () => {
   const handleLogout = async () => {
     try {
       setIsLoading(true);
-      await AuthService.signOut();
+      const authService = AuthService.getInstance();
+      await authService.signOut();
       toast.success('Logged out successfully');
       navigate('/auth');
     } catch (error) {

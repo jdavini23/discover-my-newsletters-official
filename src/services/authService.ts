@@ -1,22 +1,42 @@
 import axios, { AxiosError } from 'axios';
-import {
-  confirmPasswordReset,
-  createUserWithEmailAndPassword,
-  getAuth,
-  sendPasswordResetEmail,
-  signInWithEmailAndPassword,
-  signInWithPopup,
-  signOut,
-  User,
-  verifyPasswordResetCode,
-} from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
-import { GithubAuthProvider, GoogleAuthProvider } from 'firebase/auth';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  sendPasswordResetEmail,
+  confirmPasswordReset,
+  verifyPasswordResetCode,
+  onAuthStateChanged,
+  User as FirebaseUser,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  serverTimestamp 
+} from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
-import analytics from '@/utils/analytics';
+import { trackEvent, trackError } from '@/utils/analytics';
 import { isNonEmptyString, safeGet, validateEmail, validatePassword } from '@/utils/typeUtils';
+import { initializeApp } from 'firebase/app';
+import { USER_ROLES, UserRole } from '@/types/roles';
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY || '',
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || '',
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: process.env.VITE_FIREBASE_APP_ID || '',
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || '',
+};
 
 // Comprehensive error handling for authentication
 enum AuthErrorType {
@@ -52,44 +72,29 @@ class AuthServiceError extends Error {
       'auth/weak-password',
     ];
 
-    if (authErrorCodes.includes(error.code)) {
-      switch (error.code) {
-        case 'auth/network-request-failed':
-          return new AuthServiceError(
-            'Network error. Please check your connection.',
-            AuthErrorType.NETWORK_ERROR,
-            error
-          );
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          return new AuthServiceError(
-            'Invalid email or password.',
-            AuthErrorType.INVALID_CREDENTIALS,
-            error
-          );
-        case 'auth/user-not-found':
-          return new AuthServiceError(
-            'No user found with this email.',
-            AuthErrorType.USER_NOT_FOUND,
-            error
-          );
-        case 'auth/email-already-in-use':
-          return new AuthServiceError(
-            'Email is already registered.',
-            AuthErrorType.EMAIL_ALREADY_IN_USE,
-            error
-          );
-        case 'auth/weak-password':
-          return new AuthServiceError('Password is too weak.', AuthErrorType.WEAK_PASSWORD, error);
-      }
+    const errorCode = error.code;
+    let errorType = AuthErrorType.UNKNOWN_ERROR;
+
+    switch (errorCode) {
+      case 'auth/network-request-failed':
+        errorType = AuthErrorType.NETWORK_ERROR;
+        break;
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        errorType = AuthErrorType.INVALID_CREDENTIALS;
+        break;
+      case 'auth/user-not-found':
+        errorType = AuthErrorType.USER_NOT_FOUND;
+        break;
+      case 'auth/email-already-in-use':
+        errorType = AuthErrorType.EMAIL_ALREADY_IN_USE;
+        break;
+      case 'auth/weak-password':
+        errorType = AuthErrorType.WEAK_PASSWORD;
+        break;
     }
 
-    // Fallback for non-auth errors or unknown error codes
-    return new AuthServiceError(
-      error.message || 'An unknown authentication error occurred',
-      AuthErrorType.UNKNOWN_ERROR,
-      error
-    );
+    return new AuthServiceError(error.message, errorType, error);
   }
 }
 
@@ -100,9 +105,11 @@ interface UserProfile {
   displayName?: string;
   photoURL?: string;
   emailVerified: boolean;
+  role: string;
   newsletterPreferences?: {
     categories: string[];
     frequency: 'daily' | 'weekly' | 'monthly';
+    darkMode?: boolean;
   };
 }
 
@@ -119,7 +126,7 @@ interface UpdateProfilePayload {
 
 // Authentication configuration
 const AUTH_CONFIG = {
-  BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  BASE_URL: process.env.VITE_API_URL || 'http://localhost:5000/api',
   SOCIAL_PROVIDERS: {
     GOOGLE: 'google',
     GITHUB: 'github',
@@ -127,14 +134,29 @@ const AUTH_CONFIG = {
 };
 
 export class AuthService {
-  private static auth = getAuth();
-  private static db = getFirestore();
-  private static googleProvider = new GoogleAuthProvider();
-  private static githubProvider = new GithubAuthProvider();
+  private static instance: AuthService;
+  private _app = initializeApp(firebaseConfig);
+  private _auth = getAuth(this._app);
+  private _db = getFirestore(this._app);
+  private _googleProvider = new GoogleAuthProvider();
+  private _githubProvider = new GithubAuthProvider();
+
+  private constructor() {}
+
+  public static getInstance(): AuthService {
+    if (!this.instance) {
+      this.instance = new AuthService();
+    }
+    return this.instance;
+  }
 
   // Centralized method to get current user token with enhanced error handling
-  static async getCurrentUserToken(): Promise<string> {
-    const currentUser = this.auth.currentUser;
+  async getCurrentUserToken(): Promise<string> {
+    if (!this._auth) {
+      throw new AuthServiceError('Authentication not initialized', AuthErrorType.UNAUTHORIZED);
+    }
+
+    const currentUser = this._auth.currentUser;
     if (!currentUser) {
       throw new AuthServiceError('No authenticated user', AuthErrorType.UNAUTHORIZED);
     }
@@ -157,7 +179,7 @@ export class AuthService {
   }
 
   // Validate input before authentication
-  private static validateAuthInput(email: string, password: string): void {
+  private validateAuthInput(email: string, password: string): void {
     if (!validateEmail(email)) {
       throw new AuthServiceError('Invalid email format', AuthErrorType.INVALID_CREDENTIALS);
     }
@@ -170,13 +192,23 @@ export class AuthService {
     }
   }
 
+  private validateFirebaseInitialized() {
+    if (!this._auth || !this._db) {
+      throw new Error('Firebase not initialized');
+    }
+  }
+
   // Social Login Methods with comprehensive error handling
-  static async signInWithGoogle(): Promise<UserProfile> {
+  async signInWithGoogle(): Promise<UserProfile> {
+    if (!this._auth || !this._googleProvider) {
+      throw new AuthServiceError('Authentication not initialized', AuthErrorType.UNAUTHORIZED);
+    }
+
     try {
-      const result = await signInWithPopup(this.auth, this.googleProvider);
+      const result = await signInWithPopup(this._auth, this._googleProvider);
       const user = result.user;
 
-      analytics.trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GOOGLE });
+      trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GOOGLE });
 
       return this.formatUserProfile(user);
     } catch (error) {
@@ -194,12 +226,16 @@ export class AuthService {
     }
   }
 
-  static async signInWithGitHub(): Promise<UserProfile> {
+  async signInWithGitHub(): Promise<UserProfile> {
+    if (!this._auth || !this._githubProvider) {
+      throw new AuthServiceError('Authentication not initialized', AuthErrorType.UNAUTHORIZED);
+    }
+
     try {
-      const result = await signInWithPopup(this.auth, this.githubProvider);
+      const result = await signInWithPopup(this._auth, this._githubProvider);
       const user = result.user;
 
-      analytics.trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GITHUB });
+      trackEvent('social_login', { provider: AUTH_CONFIG.SOCIAL_PROVIDERS.GITHUB });
 
       return this.formatUserProfile(user);
     } catch (error) {
@@ -218,88 +254,118 @@ export class AuthService {
   }
 
   // Email Authentication Methods with input validation
-  static async signUp(email: string, password: string, displayName?: string): Promise<UserProfile> {
+  async signUp(
+    email: string, 
+    password: string, 
+    displayName?: string, 
+    role: UserRole = USER_ROLES.USER
+  ): Promise<UserProfile> {
+    this.validateFirebaseInitialized();
     this.validateAuthInput(email, password);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+      // Create user in Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        this._auth!, 
+        email, 
+        password
+      );
       const user = userCredential.user;
 
-      // Optional: Update profile
-      if (displayName && isNonEmptyString(displayName)) {
-        await this.updateProfile({ displayName });
-      }
+      // Determine role (with special case for admin)
+      const assignedRole = email.endsWith('@discovermynewsletters.com') 
+        ? USER_ROLES.ADMIN 
+        : role;
 
-      analytics.trackEvent('user_signup', { method: 'email' });
+      const userProfile = this.formatUserProfile(user);
+      userProfile.role = assignedRole;
 
-      return this.formatUserProfile(user);
+      // Create user document in Firestore with role
+      const userDocRef = doc(this._db!, 'users', user.uid);
+      await setDoc(userDocRef, {
+        ...userProfile,
+        createdAt: serverTimestamp(),
+        newsletterPreferences: {
+          interestedTopics: [],
+          frequencyPreference: 'weekly',
+          receiveRecommendations: true
+        },
+        recommendationProfile: {
+          viewedNewsletters: [],
+          subscribedNewsletters: [],
+          interactionScores: {}
+        }
+      });
+
+      // Log user creation for analytics
+      trackEvent('user_signup', { 
+        userId: user.uid, 
+        email: user.email,
+        role: assignedRole 
+      });
+
+      // Format and return user profile
+      return userProfile;
     } catch (error) {
-      const authError =
-        error instanceof FirebaseError
-          ? AuthServiceError.fromFirebaseError(error)
-          : new AuthServiceError('Sign up failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-
-      toast.error(authError.message);
-      throw authError;
+      // Enhanced error handling
+      trackError(error as Error);
+      throw new AuthServiceError(
+        'Signup failed', 
+        this.mapFirebaseAuthError(error),
+        error as Error
+      );
     }
   }
 
-  static async signIn(email: string, password: string): Promise<UserProfile> {
+  async signIn(email: string, password: string): Promise<UserProfile> {
+    this.validateFirebaseInitialized();
     this.validateAuthInput(email, password);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(this.auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(this._auth!, email, password);
 
-      analytics.trackEvent('user_login', { method: 'email' });
+      trackEvent('user_login', { 
+        userId: userCredential.user.uid, 
+        email: userCredential.user.email
+      });
 
       return this.formatUserProfile(userCredential.user);
     } catch (error) {
-      const authError =
-        error instanceof FirebaseError
-          ? AuthServiceError.fromFirebaseError(error)
-          : new AuthServiceError('Sign in failed', AuthErrorType.UNKNOWN_ERROR, error as Error);
-
-      toast.error(authError.message);
-      throw authError;
+      // Enhanced error handling
+      trackError(error as Error);
+      throw new AuthServiceError(
+        'Login failed', 
+        this.mapFirebaseAuthError(error),
+        error as Error
+      );
     }
   }
 
   // Password Reset Methods with enhanced error handling
-  static async sendPasswordResetCode(email: string, resetCode?: string): Promise<boolean> {
-    if (!validateEmail(email)) {
-      throw new AuthServiceError('Invalid email format', AuthErrorType.INVALID_CREDENTIALS);
-    }
+  async sendPasswordResetCode(email: string, resetCode?: string): Promise<boolean> {
+    this.validateFirebaseInitialized();
 
     try {
+      // Verify reset code if provided
       if (resetCode) {
-        // Verify reset code
-        await verifyPasswordResetCode(this.auth, resetCode);
-        analytics.trackEvent('password_reset_code_verified', { email });
-        toast.success('Password reset code verified');
-        return true;
-      } else {
-        // Send reset code
-        await sendPasswordResetEmail(this.auth, email);
-        analytics.trackEvent('password_reset_request', { email });
-        toast.success('Password reset code sent to your email');
-        return true;
+        await verifyPasswordResetCode(this._auth!, resetCode);
       }
-    } catch (error) {
-      const authError =
-        error instanceof FirebaseError
-          ? AuthServiceError.fromFirebaseError(error)
-          : new AuthServiceError(
-              'Failed to process password reset',
-              AuthErrorType.UNKNOWN_ERROR,
-              error as Error
-            );
 
-      toast.error(authError.message);
-      return false;
+      // Send password reset email
+      await sendPasswordResetEmail(this._auth!, email);
+      
+      return true;
+    } catch (error) {
+      trackError(error as Error);
+      throw new AuthServiceError(
+        'Password reset failed', 
+        this.mapFirebaseAuthError(error),
+        error as Error
+      );
     }
   }
 
-  static async resetPassword(code: string, newPassword: string): Promise<void> {
+  async resetPassword(code: string, newPassword: string): Promise<void> {
     if (!validatePassword(newPassword)) {
       throw new AuthServiceError(
         'Password must be at least 8 characters',
@@ -308,9 +374,9 @@ export class AuthService {
     }
 
     try {
-      await confirmPasswordReset(this.auth, code, newPassword);
+      await confirmPasswordReset(this._auth!, code, newPassword);
 
-      analytics.trackEvent('password_reset_success');
+      trackEvent('password_reset_success');
       toast.success('Password reset successfully');
     } catch (error) {
       const authError =
@@ -328,47 +394,35 @@ export class AuthService {
   }
 
   // User Logout Method with comprehensive session management
-  static async signOut(): Promise<void> {
+  async signOut(): Promise<void> {
+    this.validateFirebaseInitialized();
+
     try {
-      // Sign out from Firebase
-      await signOut(this.auth);
+      const currentUser = this._auth!.currentUser;
+      
+      // Track logout event
+      if (currentUser) {
+        trackEvent('user_logout', {
+          userId: currentUser.uid
+        });
+      }
 
-      // Optional: Add analytics tracking for logout
-      analytics.track('User Logout', {
-        method: 'standard',
-        timestamp: new Date().toISOString(),
-      });
-
-      // Optional: Clear any local storage or session data
-      localStorage.removeItem('user');
-      sessionStorage.removeItem('authToken');
+      await signOut(this._auth!);
     } catch (error) {
-      // Handle potential logout errors
-      const authError = 
-        error instanceof FirebaseError
-          ? AuthServiceError.fromFirebaseError(error)
-          : new AuthServiceError(
-              'Logout failed',
-              AuthErrorType.UNKNOWN_ERROR,
-              error as Error
-            );
-
-      // Log the error for debugging
-      console.error('Logout Error:', authError);
-
-      // Optional: Show user-friendly toast notification
-      toast.error('Failed to log out. Please try again.');
-
-      // Rethrow the error for caller to handle
-      throw authError;
+      trackError(error as Error);
+      throw new AuthServiceError(
+        'Logout failed', 
+        this.mapFirebaseAuthError(error),
+        error as Error
+      );
     }
   }
 
   // Profile Management with comprehensive validation
-  static async updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
+  async updateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
     try {
       const token = await this.getCurrentUserToken();
-      const currentUser = this.auth.currentUser;
+      const currentUser = this._auth!.currentUser;
 
       if (!currentUser) {
         throw new AuthServiceError('Unauthorized', AuthErrorType.UNAUTHORIZED);
@@ -382,7 +436,7 @@ export class AuthService {
       });
 
       // Update local Firestore document if backend update succeeds
-      const userDocRef = doc(this.db, 'users', currentUser.uid);
+      const userDocRef = doc(this._db!, 'users', currentUser.uid);
       await setDoc(userDocRef, payload, { merge: true });
 
       return this.formatUserProfile(currentUser);
@@ -405,15 +459,48 @@ export class AuthService {
     }
   }
 
-  // Utility method to format user profile
-  private static formatUserProfile(user: User): UserProfile {
+  private formatUserProfile(user: FirebaseUser): UserProfile {
+    if (!user) {
+      throw new Error('Invalid user object');
+    }
+
     return {
       id: user.uid,
       email: user.email || '',
-      displayName: user.displayName || '',
-      photoURL: user.photoURL || '',
+      displayName: user.displayName || user.email?.split('@')[0] || 'User',
+      photoURL: user.photoURL || undefined,
       emailVerified: user.emailVerified,
+      role: (user as any).role || USER_ROLES.USER,
+      newsletterPreferences: {
+        categories: [],
+        frequency: 'weekly',
+        darkMode: false
+      }
     };
+  }
+
+  private mapFirebaseAuthError(error: unknown): AuthErrorType {
+    if (error instanceof FirebaseError) {
+      switch (error.code) {
+        case 'auth/network-request-failed':
+          return AuthErrorType.NETWORK_ERROR;
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          return AuthErrorType.INVALID_CREDENTIALS;
+        case 'auth/user-not-found':
+          return AuthErrorType.USER_NOT_FOUND;
+        case 'auth/email-already-in-use':
+          return AuthErrorType.EMAIL_ALREADY_IN_USE;
+        case 'auth/weak-password':
+          return AuthErrorType.WEAK_PASSWORD;
+        default:
+          return AuthErrorType.UNKNOWN_ERROR;
+      }
+    } else if (error instanceof Error) {
+      return AuthErrorType.UNKNOWN_ERROR;
+    } else {
+      return AuthErrorType.UNKNOWN_ERROR;
+    }
   }
 }
 

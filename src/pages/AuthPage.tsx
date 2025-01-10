@@ -87,10 +87,12 @@ const AuthPage = () => {
 
     try {
       if (isLogin) {
-        await AuthService.signIn(email, password);
+        const authService = AuthService.getInstance();
+        await authService.signIn(email, password);
         navigate('/newsletters');
       } else {
-        await AuthService.signUp(email, password, displayName);
+        const authService = AuthService.getInstance();
+        await authService.signUp(email, password, displayName);
         navigate('/onboarding');
       }
     } catch (error) {
@@ -115,10 +117,11 @@ const AuthPage = () => {
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     try {
+      const authService = AuthService.getInstance();
       if (provider === 'google') {
-        await AuthService.signInWithGoogle();
+        await authService.signInWithGoogle();
       } else {
-        await AuthService.signInWithGitHub();
+        await authService.signInWithGitHub();
       }
       navigate('/newsletters');
     } catch (error) {

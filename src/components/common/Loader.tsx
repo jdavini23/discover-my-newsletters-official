@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const Loader: React.FC = () => {
   const [scale, setScale] = useState(0.8);

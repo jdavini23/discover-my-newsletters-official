@@ -1,0 +1,110 @@
+# Discover My Newsletters Workspace Rules
+
+## 1. Project Overview
+
+- **Purpose**: Newsletter discovery and personalization platform
+- **Tech Stack**: React, TypeScript, Firebase, Zustand
+- **Core Principles**: User-centric design, privacy-first approach
+
+## 2. Firebase Configuration
+
+- Always use environment variables for Firebase configuration
+- Never commit sensitive credentials to version control
+- Implement robust error handling for Firebase operations
+- Use Firebase Authentication with email/password and social login providers
+
+## 3. State Management Guidelines
+
+- Use Zustand for all global and complex state management
+- Implement middleware for logging and debugging
+- Keep store logic pure and side-effect free
+- Use immer for immutable state updates
+
+## 4. Authentication Workflow
+
+- Implement comprehensive auth flows: login, signup, password reset
+- Use persistent authentication with secure token management
+- Implement role-based access control
+- Add multi-factor authentication options
+
+## 5. Performance Optimization
+
+- Implement code-splitting and lazy loading
+- Use React.memo and useMemo for performance-critical components
+- Minimize re-renders and optimize rendering paths
+- Implement efficient data fetching strategies
+
+## 6. Error Handling
+
+- Create centralized error handling mechanism
+- Use error boundaries for React components
+- Implement comprehensive logging
+- Provide user-friendly error messages
+
+## 7. Newsletter Discovery Features
+
+- Implement semantic search for newsletters
+- Create personalized recommendation algorithms
+- Support multiple newsletter categories
+- Allow user-defined preferences and interests
+
+## 8. Testing Strategy
+
+- Aim for 80%+ test coverage
+- Write unit tests for utility functions
+- Create integration tests for critical user journeys
+- Implement end-to-end tests for core features
+
+## 9. Accessibility and Internationalization
+
+- Follow WCAG 2.1 guidelines
+- Support RTL languages
+- Implement keyboard navigation
+- Use i18n for translations
+
+## 10. Development Workflow
+
+- Use conventional commit messages
+- Implement pre-commit and pre-push hooks
+- Conduct code reviews with at least one team member
+- Maintain clear and updated documentation
+
+## 11. Security Considerations
+
+- Implement input validation and sanitization
+- Use HttpOnly cookies for token management
+- Protect against common web vulnerabilities
+- Regularly update dependencies
+- Implement rate limiting for API endpoints
+
+## 12. Performance Monitoring
+
+- Integrate performance tracking
+- Monitor key metrics: load time, user interactions
+- Set up error tracking and reporting
+- Implement performance budgets
+
+## 13. Design System
+
+- Maintain consistent UI/UX across components
+- Use a modular and reusable component library
+- Follow atomic design principles
+- Ensure responsive design for all screen sizes
+
+## 14. Data Privacy
+
+- Implement data minimization principles
+- Allow user control over data collection
+- Provide clear privacy settings
+- Comply with GDPR and CCPA regulations
+
+## 15. Continuous Integration
+
+- Automate build and deployment processes
+- Run linting, type checking, and tests on every commit
+- Use GitHub Actions for CI/CD
+- Implement automatic dependency updates
+
+## Conclusion
+
+These rules are living documents. They should be reviewed and updated regularly to reflect the project's evolving needs and best practices.

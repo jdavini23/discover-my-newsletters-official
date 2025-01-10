@@ -5,7 +5,6 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 // Layout Components
 import Navigation from '@/components/layout/Navigation';
 import { Sidebar } from '@/components/navigation/Sidebar';
-
 // Contexts
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
@@ -56,7 +55,12 @@ const App: React.FC = () => {
 
   return (
     <ThemeProvider>
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <div className='flex'>
           {/* Add Navigation at the top */}
           <Navigation />

@@ -25,7 +25,6 @@ dist-ssr
 *.sw?
 
 # Environment files
-.env
 .env.local
 .env.development.local
 .env.test.local
@@ -49,3 +48,6 @@ secrets/
 .npm
 .eslintcache
 .cache
+
+# windsurf rules
+

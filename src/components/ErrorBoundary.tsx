@@ -1,5 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+
 import { trackEvent } from '@/utils/analytics';
+
 import ErrorFallback from './ErrorFallback';
 
 // Enhanced error metadata interface

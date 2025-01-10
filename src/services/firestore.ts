@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth';
 import {
   addDoc,
   collection,
@@ -17,7 +18,6 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
 
 import { Newsletter, NewsletterFilter, User } from '@/types/firestore';
 import { UpdateProfileParams, UserActivity, UserProfile } from '@/types/profile';
@@ -30,10 +30,10 @@ export const createUserProfile = async (
   userId: string,
   initialData: Partial<UserProfile> | Partial<User>
 ): Promise<UserProfile> => {
-  console.log('Creating user profile:', { 
-    userId, 
+  console.log('Creating user profile:', {
+    userId,
     initialData,
-    currentUser: authInstance.currentUser?.uid 
+    currentUser: authInstance.currentUser?.uid,
   });
 
   // Verify authentication
@@ -44,9 +44,9 @@ export const createUserProfile = async (
 
   // Verify user ID matches authenticated user
   if (authInstance.currentUser.uid !== userId) {
-    console.error('User ID mismatch', { 
-      requestedUserId: userId, 
-      authenticatedUserId: authInstance.currentUser.uid 
+    console.error('User ID mismatch', {
+      requestedUserId: userId,
+      authenticatedUserId: authInstance.currentUser.uid,
     });
     throw new Error('Missing or insufficient permissions');
   }
@@ -58,7 +58,8 @@ export const createUserProfile = async (
     uid: userId,
     email: initialData.email || authInstance.currentUser.email || '',
     displayName: initialData.displayName || authInstance.currentUser.displayName || '',
-    photoURL: 'photoURL' in initialData ? initialData.photoURL : authInstance.currentUser.photoURL || '',
+    photoURL:
+      'photoURL' in initialData ? initialData.photoURL : authInstance.currentUser.photoURL || '',
     bio: '',
     interests: [],
     newsletterPreferences: {
@@ -68,18 +69,18 @@ export const createUserProfile = async (
     activityLog: [],
     accountCreatedAt: Timestamp.now(),
     lastLoginAt: Timestamp.now(),
-    ...initialData  // Spread initial data to override defaults
+    ...initialData, // Spread initial data to override defaults
   };
 
   try {
-    console.log('Setting user document:', { 
-      userRef: userRef.path, 
-      defaultProfile 
+    console.log('Setting user document:', {
+      userRef: userRef.path,
+      defaultProfile,
     });
 
     // Use merge to avoid overwriting existing data
     await setDoc(userRef, defaultProfile, { merge: true });
-    
+
     const userSnap = await getDoc(userRef);
     console.log('User document after creation:', {
       exists: userSnap.exists(),
@@ -147,7 +148,7 @@ export const fetchUserProfile = async (userId: string): Promise<UserProfile> => 
     // If document doesn't exist, attempt to create it
     if (!userSnap.exists()) {
       console.warn('User profile document does not exist. Attempting to create.');
-      
+
       // Attempt to create a default profile
       const defaultProfile: UserProfile = {
         uid: userId,

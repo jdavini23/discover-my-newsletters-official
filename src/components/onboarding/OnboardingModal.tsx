@@ -1,4 +1,4 @@
-import { CheckIcon, Heart, Search, Sparkles, GroupIcon } from 'lucide-react';
+import { CheckIcon, GroupIcon, Heart, Search, Sparkles } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
 
 import { recommendationService } from '@/services/recommendationService';

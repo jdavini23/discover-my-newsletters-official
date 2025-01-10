@@ -340,4 +340,4 @@ export class RecommendationInsightsService {
   }
 }
 
-export { RecommendationInsightsErrorType, RecommendationInsightsError };
+export { RecommendationInsightsError, RecommendationInsightsErrorType };

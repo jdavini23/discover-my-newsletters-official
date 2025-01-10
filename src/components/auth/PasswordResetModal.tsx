@@ -28,7 +28,8 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
     e.preventDefault();
     setIsLoading(true);
     try {
-      await AuthService.sendPasswordResetCode(email);
+      const authService = AuthService.getInstance();
+      await authService.sendPasswordResetCode(email);
       toast.success('Reset code sent to your email');
       setResetStage('code');
     } catch (error) {
@@ -42,7 +43,8 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
     e.preventDefault();
     setIsLoading(true);
     try {
-      const isValid = await AuthService.sendPasswordResetCode(email, resetCode);
+      const authService = AuthService.getInstance();
+      const isValid = await authService.sendPasswordResetCode(email, resetCode);
       if (isValid) {
         setResetStage('newPassword');
       } else {
@@ -64,7 +66,8 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
 
     setIsLoading(true);
     try {
-      await AuthService.resetPassword(email, resetCode, newPassword);
+      const authService = AuthService.getInstance();
+      await authService.resetPassword(resetCode, newPassword);
       toast.success('Password reset successfully');
       setIsVisible(false);
       setTimeout(onResetComplete || onClose, 300);

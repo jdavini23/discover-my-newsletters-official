@@ -1,12 +1,27 @@
-
 import { BarChart, Globe, TrendingUp, Users } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 import { RecommendationInsightsService } from '@/services/recommendationInsightsService';
 import { useAuthStore } from '@/stores/authStore';
+import { useIsAdmin } from '@/utils/rbac';
 
 const InsightsPage: React.FC = () => {
-  const { user } = useAuthStore();
+  const isAdmin = useIsAdmin();
+
+  // Early return if not an admin
+  if (!isAdmin) {
+    return (
+      <div className='flex justify-center items-center h-screen'>
+        <div>
+          <h2 className='text-2xl font-bold text-red-600 mb-4'>Access Denied</h2>
+          <p className='text-gray-600'>
+            You do not have permission to view administrative insights.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   const [insights, setInsights] = useState<{
     totalSubscribers: number;
     topCategories: { name: string; count: number }[];
@@ -67,23 +82,10 @@ const InsightsPage: React.FC = () => {
     fetchInsights();
   }, []);
 
-  if (!user || user.role !== 'admin') {
-    return (
-      <div className='flex justify-center items-center h-screen'>
-        <div>
-          <h2 className='text-2xl font-bold text-red-600 mb-4'>Access Denied</h2>
-          <p className='text-gray-600'>
-            You do not have permission to view administrative insights.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className='flex justify-center items-center h-screen'>
-        <div>
+        <div>Loading...</div>
       </div>
     );
   }
@@ -177,4 +179,3 @@ const InsightsPage: React.FC = () => {
 };
 
 export default InsightsPage;
-

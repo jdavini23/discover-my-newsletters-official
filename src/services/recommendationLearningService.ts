@@ -1,12 +1,12 @@
 import {
   addDoc,
   collection,
-  Timestamp,
-  query,
-  where,
   getDocs,
-  orderBy,
   limit,
+  orderBy,
+  query,
+  Timestamp,
+  where,
 } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 
@@ -15,8 +15,8 @@ import { RecommendationScorer } from '@/ml/recommendationScorer';
 import { Newsletter } from '@/types/Newsletter';
 import { UserProfile } from '@/types/profile';
 import { recommendationTracker } from '@/utils/analytics';
-import { validateNonEmptyString } from '@/utils/typeUtils';
 import { trackEvent } from '@/utils/analytics';
+import { validateNonEmptyString } from '@/utils/typeUtils';
 
 // Enhanced error handling for recommendation learning
 enum RecommendationLearningErrorType {
@@ -214,4 +214,4 @@ export class RecommendationLearningService {
   }
 }
 
-export { RecommendationLearningErrorType, RecommendationLearningError };
+export { RecommendationLearningError, RecommendationLearningErrorType };

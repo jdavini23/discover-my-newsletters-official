@@ -1,3 +1,4 @@
+import { getAuth } from 'firebase/auth';
 import {
   addDoc,
   collection,
@@ -5,29 +6,46 @@ import {
   getDocs,
   getFirestore,
   limit,
+  orderBy,
   query,
   setDoc,
   Timestamp,
+  updateDoc,
   where,
 } from 'firebase/firestore';
-import { getAuth, User as FirebaseUser } from 'firebase/auth';
-
 import { toast } from 'react-hot-toast';
 
 import { auth } from '@/config/firebase';
-import { Newsletter, NewsletterFilter, User, UserNewsletterInteraction } from '@/types/firestore';
-import { isDefined, isNonEmptyString, safeGet, validateNonEmptyString } from '@/utils/typeUtils';
+import { ABTestingService, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
+import { RecommendationScorer } from '@/ml/recommendationScorer';
+import { NewsletterFilter } from '@/types/filters';
+import {
+  User,
+  UserNewsletterInteraction,
+  UserProfile as FirestoreUserProfile,
+} from '@/types/firestore';
+import { Newsletter } from '@/types/Newsletter';
+import {
+  ContentDepth,
+  InteractionType,
+  ReadingFrequency,
+  RecommendationAlgorithmVariant,
+  RecommendationContext,
+  RecommendationErrorType,
+  RecommendationMetadata as BaseRecommendationMetadata,
+  RecommendationScore,
+  UserPreference,
+  UserProfile,
+} from '@/types/recommendation';
 import { trackEvent } from '@/utils/analytics';
+import { recommendationTracker } from '@/utils/analytics';
+import { isDefined, isNonEmptyString, safeGet, validateNonEmptyString } from '@/utils/typeUtils';
+
+import { RecommendationLearningService } from './recommendationLearningService';
+
+const db = getFirestore();
 
 // Enhanced error handling for recommendation service
-enum RecommendationErrorType {
-  UNAUTHORIZED = 'Unauthorized',
-  INVALID_INPUT = 'Invalid Input',
-  NETWORK_ERROR = 'Network Error',
-  RECOMMENDATION_FAILED = 'Recommendation Generation Failed',
-  UNKNOWN_ERROR = 'Unknown Error',
-}
-
 class RecommendationError extends Error {
   type: RecommendationErrorType;
   originalError?: Error;
@@ -45,14 +63,10 @@ class RecommendationError extends Error {
   }
 }
 
-const db = getFirestore();
-
 // Improved type definitions
-type InteractionType = 'view' | 'subscribe' | 'read' | 'dismiss';
-
 type TopicWeights = Record<string, number>;
 
-interface RecommendationMetadata {
+interface RecommendationMetadata extends BaseRecommendationMetadata {
   topicWeights: TopicWeights;
   contentQualityScore: number;
 }
@@ -139,15 +153,15 @@ export const generatePersonalizedRecommendations = async (
 ): Promise<Newsletter[]> => {
   try {
     const {
-      topics = safeGet(user, 'newsletterPreferences.interestedTopics', []),
+      topics = user.newsletterPreferences?.interestedTopics ?? [],
       pageSize = 12,
       sortBy = 'recommended',
     } = filters;
 
     // Ensure we have a non-empty array for 'not-in' filter
-    const excludedNewsletters =
-      safeGet(user, 'recommendationProfile.subscribedNewsletters', []).length > 0
-        ? safeGet(user, 'recommendationProfile.subscribedNewsletters', [])
+    const excludedNewsletters: string[] =
+      (user.recommendationProfile?.subscribedNewsletters?.length ?? 0 > 0)
+        ? user.recommendationProfile.subscribedNewsletters
         : ['__no_match__'];
 
     // Base recommendation query
@@ -157,7 +171,7 @@ export const generatePersonalizedRecommendations = async (
     );
 
     // Filter by user's interested topics
-    if (isDefined(topics) && topics.length > 0) {
+    if (topics.length > 0) {
       recommendationQuery = query(
         recommendationQuery,
         where('topics', 'array-contains-any', topics),
@@ -168,7 +182,7 @@ export const generatePersonalizedRecommendations = async (
     // Sort based on selected option
     switch (sortBy) {
       case 'popularity':
-        recommendationQuery = query(recommendationQuery, orderBy('subscriberCount', 'desc'));
+        recommendationQuery = query(recommendationQuery, orderBy('subscribers', 'desc'));
         break;
       case 'rating':
         recommendationQuery = query(recommendationQuery, orderBy('averageRating', 'desc'));
@@ -196,24 +210,16 @@ export const generatePersonalizedRecommendations = async (
 
     // Track recommendation generation event
     trackEvent('personalized_recommendations_generated', {
-      userId: user.id,
+      userId: user.uid,
       topicCount: topics.length,
       recommendationCount: recommendations.length,
     });
 
     return recommendations;
   } catch (error) {
-    const recommendationError =
-      error instanceof RecommendationError
-        ? error
-        : new RecommendationError(
-            'Failed to generate personalized recommendations',
-            RecommendationErrorType.RECOMMENDATION_FAILED,
-            error as Error
-          );
-
-    toast.error(recommendationError.message);
-    throw recommendationError;
+    console.error('Error generating personalized recommendations:', error);
+    toast.error('Failed to generate recommendations');
+    return [];
   }
 };
 
@@ -293,16 +299,6 @@ export const updateNewsletterRecommendationMetadata = async (
     throw recommendationError;
   }
 };
-
-export { RecommendationErrorType, RecommendationError };
-
-import { ABTestingService, RecommendationAlgorithmVariant } from '@/ml/abTestingFramework';
-import { RecommendationScorer } from '@/ml/recommendationScorer';
-import { recommendationTracker } from '@/utils/analytics';
-
-import { NewsletterFilter, User, UserNewsletterInteraction } from '../types/firestore';
-import { RecommendationEngine } from '../types/recommendation';
-import { RecommendationLearningService } from './recommendationLearningService';
 
 class RecommendationService implements RecommendationEngine {
   private calculateContentBasedScore(
@@ -1181,16 +1177,3 @@ class RecommendationService implements RecommendationEngine {
 }
 
 export const recommendationService = new RecommendationService();
-
-// Enhanced type definitions for recommendation context
-export interface RecommendationContext {
-  userId?: string;
-  preferences?: {
-    categories?: string[];
-    readingFrequency?: ReadingFrequency;
-    excludedNewsletters?: string[];
-  };
-  currentInterests?: string[];
-  userSegment?: string;
-  limit?: number;
-}

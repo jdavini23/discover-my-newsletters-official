@@ -1,5 +1,5 @@
-import React from 'react';
-const index = () => {
-  return null;
-};
-export default index;
+export * from './interactions';
+export * from './Newsletter';
+export type { User as ProfileUser } from './profile';
+export * from './recommendation';
+export type { User } from './user';

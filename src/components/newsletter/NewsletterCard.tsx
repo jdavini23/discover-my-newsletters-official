@@ -5,9 +5,10 @@ import { Newsletter } from '@/stores/newsletterStore';
 interface NewsletterCardProps {
   newsletter: Newsletter;
   onClick?: () => void;
+  onSubscribe?: () => Promise<void>;
 }
 
-const NewsletterCard: React.FC<NewsletterCardProps> = ({ newsletter, onClick }) => {
+const NewsletterCard: React.FC<NewsletterCardProps> = ({ newsletter, onClick, onSubscribe }) => {
   return (
     <div
       className='bg-white shadow-md rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300'

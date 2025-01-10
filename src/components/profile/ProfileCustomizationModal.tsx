@@ -1,9 +1,8 @@
-
 import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-import AuthService from '../../services/authService';
+import { AuthService } from '../../services/authService';
 import { useAuthStore } from '../../stores/authStore';
 
 const NEWSLETTER_CATEGORIES = [
@@ -107,7 +106,8 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
       };
 
       // Attempt to update profile
-      await AuthService.updateProfile(updatePayload);
+      const authService = AuthService.getInstance();
+      await authService.updateProfile(updatePayload);
 
       // Handle profile image upload if exists
       if (profileImage) {
@@ -115,7 +115,8 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
         formData.append('profileImage', profileImage);
 
         try {
-          await AuthService.uploadProfileImage(formData);
+          const authService = AuthService.getInstance();
+          await authService.uploadProfileImage(formData);
         } catch (imageUploadError: unknown) {
           console.error('Image upload failed', imageUploadError);
           // Non-blocking error for image upload
@@ -131,7 +132,8 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
       if (error instanceof Error && error.message === 'Unauthorized') {
         toast.error('Your session has expired. Please log in again.');
         // Optional: Trigger logout or redirect to login
-        AuthService.signOut();
+        const authService = AuthService.getInstance();
+        authService.signOut();
       } else {
         toast.error('Failed to update profile. Please try again.');
       }
@@ -144,8 +146,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
 
   return (
     <div>
-      <div> e.stopPropagation()}
-      >
+      <div onClick={(e) => e.stopPropagation()}>
         <div className='text-center mb-6'>
           <User className='mx-auto h-12 w-12 text-primary-600 mb-4' />
           <h2 className='text-2xl font-bold'>Customize Your Profile</h2>
@@ -227,14 +228,11 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
                   key={category}
                   type='button'
                   onClick={() => handleCategoryToggle(category)}
-                  className={`
-                    px-3 py-1 rounded-full text-sm transition
-                    ${
-                      selectedCategories.includes(category)
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }
-                  `}
+                  className={`px-3 py-1 rounded-full text-sm transition ${
+                    selectedCategories.includes(category)
+                      ? 'bg-primary-600 text-white'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
                 >
                   {category}
                 </button>
@@ -256,22 +254,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
               onChange={(e) =>
                 setNewsletterFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')
               }
-              className='
-                w-full 
-                px-3 
-                py-2 
-                border 
-                border-gray-300 
-                dark:border-gray-600 
-                rounded-md 
-                shadow-sm 
-                focus:outline-none 
-                focus:ring-2 
-                focus:ring-offset-2 
-                focus:ring-primary-500 
-                dark:bg-dark-surface 
-                dark:text-white
-              '
+              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:bg-dark-surface dark:text-white'
             >
               {NEWSLETTER_FREQUENCIES.map((freq) => (
                 <option key={freq.value} value={freq.value}>
@@ -307,44 +290,13 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
               </div>
               <button
                 onClick={toggleDarkMode}
-                className='
-                  relative 
-                  inline-flex 
-                  h-6 
-                  w-11 
-                  flex-shrink-0 
-                  cursor-pointer 
-                  rounded-full 
-                  border-2 
-                  border-transparent 
-                  transition-colors 
-                  duration-200 
-                  ease-in-out 
-                  focus:outline-none 
-                  focus:ring-2 
-                  focus:ring-primary-500 
-                  focus:ring-offset-2
-                  bg-gray-200 
-                  dark:bg-gray-700
-                '
+                className='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 bg-gray-200 dark:bg-gray-700'
                 aria-label='Toggle dark mode'
               >
                 <span
-                  className={`
-                    ${isDarkMode ? 'translate-x-5' : 'translate-x-0'}
-                    pointer-events-none 
-                    inline-block 
-                    h-5 
-                    w-5 
-                    transform 
-                    rounded-full 
-                    bg-white 
-                    shadow-lg 
-                    ring-0 
-                    transition 
-                    duration-200 
-                    ease-in-out
-                  `}
+                  className={`${
+                    isDarkMode ? 'translate-x-5' : 'translate-x-0'
+                  } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
                 />
               </button>
             </div>
@@ -363,4 +315,3 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
     </div>
   );
 };
-

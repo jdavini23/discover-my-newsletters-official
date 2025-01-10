@@ -64,6 +64,14 @@ export const handleError = (error: Error | AppError) => {
   }
 };
 
+/**
+ * Creates a new AppError instance with the provided message, severity, and context.
+ *
+ * @param {string} message - The error message.
+ * @param {ErrorSeverity} [severity=ErrorSeverity.MEDIUM] - The error severity.
+ * @param {Record<string, unknown>} [context] - The error context.
+ * @returns {AppError} A new AppError instance.
+ */
 export const createError = (
   message: string,
   severity: ErrorSeverity = ErrorSeverity.MEDIUM,

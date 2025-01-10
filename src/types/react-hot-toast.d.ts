@@ -13,5 +13,9 @@ declare module 'react-hot-toast' {
     function error(message: string, options?: Partial<Toast>): string;
     function loading(message: string, options?: Partial<Toast>): string;
     function blank(message: string, options?: Partial<Toast>): string;
+
+    export function info(message: string) {
+      throw new Error('Function not implemented.');
+    }
   }
 }

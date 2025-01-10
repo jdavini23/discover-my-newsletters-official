@@ -4,10 +4,48 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>Discover My Newsletters</title>
+    <style>
+      /* Diagnostic styles to ensure root is visible */
+      #root {
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial, sans-serif;
+      }
+      #root::before {
+        content: 'Application Loading...';
+        color: red;
+        font-size: 24px;
+      }
+    </style>
   </head>
   <body>
+    <noscript>
+      <div style="color: red; font-size: 24px">
+        You need to enable JavaScript to run this application.
+      </div>
+    </noscript>
     <div id="root"></div>
+    <script>
+      // Early error logging
+      window.addEventListener('error', function (event) {
+        console.error('🚨 Global Error:', event.error);
+        document.getElementById('root').innerHTML = `<div style="color: red;">
+            Application Failed to Load: ${event.error}
+          </div>`;
+      });
+
+      window.addEventListener('unhandledrejection', function (event) {
+        console.error('🚨 Unhandled Promise Rejection:', event.reason);
+        document.getElementById('root').innerHTML = `<div style="color: red;">
+            Unhandled Promise Rejection: ${event.reason}
+          </div>`;
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
