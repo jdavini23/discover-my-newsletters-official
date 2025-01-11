@@ -1,5 +1,7 @@
-import React from 'react';
 const firebase = () => {
-  return null;
+    return null;
 };
-export default firebase;
+export type  = default;
+firebase;
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';

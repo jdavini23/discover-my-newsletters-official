@@ -1,11 +1,3 @@
-import { CheckIcon, GroupIcon, Heart, Search, Sparkles } from 'lucide-react';
-import React, { useCallback, useState } from 'react';
-
-import { recommendationService } from '@/services/recommendationService';
-import { useAuthStore } from '@/stores/authStore';
-import { useUserProfileStore } from '@/stores/userProfileStore';
-import { ContentDepth, ReadingFrequency } from '@/types/profile';
-
 const NEWSLETTER_CATEGORIES = [
   'Technology',
   'Science',
@@ -20,13 +12,20 @@ const NEWSLETTER_CATEGORIES = [
   'Culture',
   'Politics',
 ];
-
 const READING_FREQUENCIES = [
-  { value: ReadingFrequency.DAILY, label: 'Daily' },
-  { value: ReadingFrequency.WEEKLY, label: 'Weekly' },
-  { value: ReadingFrequency.MONTHLY, label: 'Monthly' },
+  {
+    value: ReadingFrequency.DAILY,
+    label: 'Daily',
+  },
+  {
+    value: ReadingFrequency.WEEKLY,
+    label: 'Weekly',
+  },
+  {
+    value: ReadingFrequency.MONTHLY,
+    label: 'Monthly',
+  },
 ];
-
 const CONTENT_DEPTHS = [
   {
     value: ContentDepth.QUICK_INSIGHTS,
@@ -39,26 +38,26 @@ const CONTENT_DEPTHS = [
     description: 'Comprehensive, in-depth content',
   },
 ];
-
-export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
-  isOpen,
-  onClose,
-}) => {
+type;
+const OnboardingModal: React.FC<{
+  isOpen: boolean;
+  onClose: () => void;
+}> = ({ isOpen, onClose }) => {
   const { user } = useAuthStore();
   const { updateProfile } = useUserProfileStore();
-
   const [currentStep, setCurrentStep] = useState(0);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[0]>([0]);
   const [readingFrequency, setReadingFrequency] = useState<ReadingFrequency | null>(null);
   const [contentDepth, setContentDepth] = useState<ContentDepth | null>(null);
   const [isVisible, setIsVisible] = useState(isOpen);
-
-  const handleCategoryToggle = useCallback((category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
-    );
-  }, []);
-
+  const handleCategoryToggle = useCallback(
+    (category: string) => {
+      setSelectedCategories((prev) =>
+        prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
+      );
+    },
+    [0]
+  );
   const handleNext = () => {
     if (currentStep < 3) {
       setCurrentStep((prev) => prev + 1);
@@ -77,26 +76,22 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             lastOnboardingUpdate: new Date(),
           },
         });
-
         // Generate initial recommendations
         recommendationService.generateInitialRecommendations(user.uid, {
           categories: selectedCategories,
           readingFrequency,
           contentDepth,
         });
-
         setIsVisible(false);
         setTimeout(onClose, 300);
       }
     }
   };
-
   const handleBack = () => {
     if (currentStep > 0) {
       setCurrentStep((prev) => prev - 1);
     }
   };
-
   const renderStep = () => {
     switch (currentStep) {
       case 0:
@@ -111,7 +106,6 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             </div>
           </div>
         );
-
       case 1:
         return (
           <div>
@@ -136,7 +130,6 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             </div>
           </div>
         );
-
       case 2:
         return (
           <div>
@@ -161,7 +154,6 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             </div>
           </div>
         );
-
       case 3:
         return (
           <div>
@@ -192,14 +184,11 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
             </div>
           </div>
         );
-
       default:
         return null;
     }
   };
-
   if (!isOpen) return null;
-
   return (
     <div
       className={`
@@ -282,3 +271,10 @@ export const OnboardingModal: React.FC<{ isOpen: boolean; onClose: () => void }>
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { CheckIcon, GroupIcon, Heart, Search, Sparkles } from 'lucide-react';
+import React, { useCallback, useState } from 'react';
+import { recommendationService } from '@/services/recommendationService';
+import { useAuthStore } from '@/stores/authStore';
+import { useUserProfileStore } from '@/stores/userProfileStore';
+import { ContentDepth, ReadingFrequency } from '@/types/profile';

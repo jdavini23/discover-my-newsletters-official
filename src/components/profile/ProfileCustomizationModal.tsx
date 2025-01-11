@@ -1,10 +1,3 @@
-import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
-
-import { AuthService } from '../../services/authService';
-import { useAuthStore } from '../../stores/authStore';
-
 const NEWSLETTER_CATEGORIES = [
   'Technology',
   'Science',
@@ -17,19 +10,26 @@ const NEWSLETTER_CATEGORIES = [
   'Startups',
   'Innovation',
 ];
-
 const NEWSLETTER_FREQUENCIES = [
-  { value: 'daily', label: 'Daily' },
-  { value: 'weekly', label: 'Weekly' },
-  { value: 'monthly', label: 'Monthly' },
+  {
+    value: 'daily',
+    label: 'Daily',
+  },
+  {
+    value: 'weekly',
+    label: 'Weekly',
+  },
+  {
+    value: 'monthly',
+    label: 'Monthly',
+  },
 ];
-
 interface ProfileCustomizationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
+type;
+const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
   isOpen,
   onClose,
 }) => {
@@ -37,30 +37,25 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
   const [displayName, setDisplayName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [profileImage, setProfileImage] = useState<File | null>(null);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[0]>([0]);
   const [newsletterFrequency, setNewsletterFrequency] = useState<'daily' | 'weekly' | 'monthly'>(
     'weekly'
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
-
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || '');
       setEmail(user.email || '');
-
       // Check current theme preference
       const savedTheme = localStorage.getItem('theme');
       setIsDarkMode(savedTheme === 'dark');
     }
   }, [user]);
-
   const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-
     if (newMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -69,31 +64,26 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
       localStorage.setItem('theme', 'light');
     }
   };
-
   const handleCategoryToggle = (category: string) => {
     setSelectedCategories((prev) =>
       prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
     );
   };
-
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setProfileImage(e.target.files[0]);
     }
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       // Validate inputs
       if (!displayName) {
         toast.error('Display name cannot be empty');
         setIsLoading(false);
-        return;
+        return undefined;
       }
-
       // Prepare update payload
       const updatePayload = {
         displayName,
@@ -104,16 +94,13 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
           darkMode: isDarkMode,
         },
       };
-
       // Attempt to update profile
       const authService = AuthService.getInstance();
       await authService.updateProfile(updatePayload);
-
       // Handle profile image upload if exists
       if (profileImage) {
         const formData = new FormData();
         formData.append('profileImage', profileImage);
-
         try {
           const authService = AuthService.getInstance();
           await authService.uploadProfileImage(formData);
@@ -122,12 +109,10 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
           // Non-blocking error for image upload
         }
       }
-
       // Close modal and refresh profile
       onClose();
     } catch (error: unknown) {
       console.error('Profile update error:', error);
-
       // Specific error handling
       if (error instanceof Error && error.message === 'Unauthorized') {
         toast.error('Your session has expired. Please log in again.');
@@ -141,9 +126,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
       setIsLoading(false);
     }
   };
-
   if (!isOpen) return null;
-
   return (
     <div>
       <div onClick={(e) => e.stopPropagation()}>
@@ -294,9 +277,7 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
                 aria-label='Toggle dark mode'
               >
                 <span
-                  className={`${
-                    isDarkMode ? 'translate-x-5' : 'translate-x-0'
-                  } pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
+                  className={`${isDarkMode ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
                 />
               </button>
             </div>
@@ -315,3 +296,9 @@ export const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps>
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { AuthService } from '../../services/authService';
+import { useAuthStore } from '../../stores/authStore';

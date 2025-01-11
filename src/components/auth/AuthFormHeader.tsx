@@ -1,10 +1,8 @@
-import React from 'react';
-
 interface AuthFormHeaderProps {
   isLogin: boolean;
 }
-
-export const AuthFormHeader: React.FC<AuthFormHeaderProps> = ({ isLogin }) => {
+type;
+const AuthFormHeader: React.FC<AuthFormHeaderProps> = ({ isLogin }) => {
   return (
     <div>
       <h2 className='mt-6 text-center text-3xl font-extrabold text-gray-900 mb-2'>
@@ -18,3 +16,5 @@ export const AuthFormHeader: React.FC<AuthFormHeaderProps> = ({ isLogin }) => {
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';

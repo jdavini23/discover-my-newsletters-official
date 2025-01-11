@@ -1,7 +1,6 @@
-// src/utils/performance.ts
-export const measurePerformance = (componentName: string) => {
+type;
+const measurePerformance = (componentName: string) => {
   const start = performance.now();
-
   return {
     end: () => {
       const end = performance.now();
@@ -9,7 +8,8 @@ export const measurePerformance = (componentName: string) => {
     },
   };
 };
-
-export const logRenderCycle = (componentName: string) => {
+type;
+const logRenderCycle = (componentName: string) => {
   console.log(`[Render] ${componentName} component rendered`);
 };
+import type { GlobalTypes } from '@/types/global';

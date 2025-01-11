@@ -1,30 +1,19 @@
-import { Activity, Key, Shield, Users } from 'lucide-react';
-import React from 'react';
-
-import { AdminInviteManager } from '@/components/admin/AdminInviteManager';
-import { useAuthStore } from '@/stores/authStore';
-
 const AdminDashboardPage: React.FC = () => {
-  const { user } = useAuthStore();
-
-  // Prevent non-admin access
-  if (user?.role !== 'admin') {
-    return (
-      <div className='flex items-center justify-center min-h-screen bg-red-50'>
+    const { user } = useAuthStore();
+    // Prevent non-admin access
+    if (user?.role !== 'admin') {
+        return (<div className='flex items-center justify-center min-h-screen bg-red-50'>
         <div>
-          <Shield className='mx-auto text-red-500 mb-4' size={64} />
+          <Shield className='mx-auto text-red-500 mb-4' size={64}/>
           <h2 className='text-2xl font-bold text-red-600 mb-2'>Access Denied</h2>
           <p className='text-gray-600'>Only administrators can access this dashboard.</p>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className='container mx-auto px-4 py-8'>
+      </div>);
+    }
+    return (<div className='container mx-auto px-4 py-8'>
       <div>
         <h1 className='text-3xl font-bold flex items-center'>
-          <Shield className='mr-3 text-blue-600' /> Admin Dashboard
+          <Shield className='mr-3 text-blue-600'/> Admin Dashboard
         </h1>
         <p className='text-gray-600'>Manage platform settings and user invitations</p>
       </div>
@@ -33,7 +22,7 @@ const AdminDashboardPage: React.FC = () => {
         {/* Admin Invite Management */}
         <div>
           <h2 className='text-xl font-semibold mb-4 flex items-center'>
-            <Key className='mr-2 text-green-600' /> Invite Management
+            <Key className='mr-2 text-green-600'/> Invite Management
           </h2>
           <AdminInviteManager />
         </div>
@@ -41,7 +30,7 @@ const AdminDashboardPage: React.FC = () => {
         {/* User Management (Placeholder) */}
         <div>
           <h2 className='text-xl font-semibold mb-4 flex items-center'>
-            <Users className='mr-2 text-blue-600' /> User Management
+            <Users className='mr-2 text-blue-600'/> User Management
           </h2>
           <p className='text-gray-500'>Coming soon...</p>
         </div>
@@ -49,13 +38,17 @@ const AdminDashboardPage: React.FC = () => {
         {/* Platform Activity (Placeholder) */}
         <div>
           <h2 className='text-xl font-semibold mb-4 flex items-center'>
-            <Activity className='mr-2 text-purple-600' /> Platform Activity
+            <Activity className='mr-2 text-purple-600'/> Platform Activity
           </h2>
           <p className='text-gray-500'>Coming soon...</p>
         </div>
       </div>
-    </div>
-  );
+    </div>);
 };
-
-export default AdminDashboardPage;
+export type  = default;
+AdminDashboardPage;
+import type { GlobalTypes } from '@/types/global';
+import { Activity, Key, Shield, Users } from 'lucide-react';
+import React from 'react';
+import { AdminInviteManager } from '@/components/admin/AdminInviteManager';
+import { useAuthStore } from '@/stores/authStore';

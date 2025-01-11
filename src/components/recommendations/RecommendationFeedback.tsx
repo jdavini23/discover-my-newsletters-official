@@ -1,34 +1,24 @@
-import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
-import React, { useState } from 'react';
-
-import { recommendationService } from '@/services/recommendationService';
-import { Newsletter } from '@/types/Newsletter';
-import { trackEvent } from '@/utils/analytics';
-
 interface RecommendationFeedbackProps {
   newsletter: Newsletter;
   onClose: () => void;
-  user: any; // Add user prop to the component
+  user: unknown; // Add user prop to the component
 }
-
-export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
+type;
+const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
   newsletter,
   onClose,
   user, // Add user prop to the component
 }) => {
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
   const [additionalFeedback, setAdditionalFeedback] = useState('');
-
   const handleFeedback = async (type: 'positive' | 'negative') => {
     setFeedback(type);
-
     try {
       await recommendationService.recordRecommendationFeedback({
         newsletterId: newsletter.id,
         feedbackType: type,
         comment: additionalFeedback,
       });
-
       trackEvent(
         'recommendation_feedback',
         {
@@ -44,7 +34,6 @@ export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
       console.error('Failed to submit feedback:', error);
     }
   };
-
   return (
     <div>
       <div>
@@ -112,3 +101,9 @@ export const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { recommendationService } from '@/services/recommendationService';
+import { Newsletter } from '@/types/Newsletter';
+import { trackEvent } from '@/utils/analytics';

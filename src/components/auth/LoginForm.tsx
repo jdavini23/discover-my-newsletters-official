@@ -1,22 +1,11 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-
-import { useAuthStore } from '@/stores/authStore';
-
 // Validation schema
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
-
 type LoginFormData = z.infer<typeof loginSchema>;
-
-export const LoginForm: React.FC = () => {
+type;
+const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const { login } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +16,6 @@ export const LoginForm: React.FC = () => {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
-
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
@@ -42,7 +30,6 @@ export const LoginForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
       <div>
@@ -53,9 +40,7 @@ export const LoginForm: React.FC = () => {
           id='email'
           type='email'
           {...register('email')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.email ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.email ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='you@example.com'
         />
         {errors.email && <p className='mt-2 text-sm text-red-600'>{errors.email.message}</p>}
@@ -70,9 +55,7 @@ export const LoginForm: React.FC = () => {
           type='password'
           autoComplete='current-password'
           {...register('password')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.password ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.password ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='••••••••'
         />
         {errors.password && <p className='mt-2 text-sm text-red-600'>{errors.password.message}</p>}
@@ -112,3 +95,12 @@ export const LoginForm: React.FC = () => {
     </form>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { useAuthStore } from '@/stores/authStore';

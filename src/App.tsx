@@ -1,136 +1,144 @@
-import React, { Suspense } from 'react';
-import { Toaster } from 'react-hot-toast';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-// Layout Components
-import Navigation from '@/components/layout/Navigation';
-import { Sidebar } from '@/components/navigation/Sidebar';
-// Contexts
-import { ThemeProvider } from '@/contexts/ThemeContext';
+// Import providers
+import { AuthProvider } from '@/contexts/AuthContext';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 
-// Lazy-loaded Pages
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
-const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
-const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
-const AdminPromotionPage = React.lazy(() => import('@/pages/AdminPromotionPage'));
-const RecommendationsPage = React.lazy(() => import('@/pages/RecommendationsPage'));
-const InsightsPage = React.lazy(() => import('@/pages/InsightsPage'));
-const AdminDashboardPage = React.lazy(() => import('@/pages/AdminDashboardPage'));
-const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
-
-// Loading Fallback Component
+// Import components
+import Sidebar from '@/components/navigation/Sidebar';
+import TopNavbar from '@/components/navigation/TopNavbar';
+import NotificationDropdown from '@/components/navigation/NotificationDropdown';
+import UserProfileDropdown from '@/components/navigation/UserProfileDropdown';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
-// Authentication and Protected Routes
-import { useAuthStore } from '@/stores/authStore';
+import AppRoutes from '@/routes/AppRoutes';
 
-const ProtectedRoute: React.FC<{
-  children: React.ReactNode;
-  requiredRole?: 'user' | 'admin' | 'any';
-}> = ({ children, requiredRole = 'user' }) => {
-  const { user, isAuthenticated, isLoading } = useAuthStore();
+// Import services and stores
+import { AuthState, useAuthStore } from '@/stores/authStore';
+import { AuthService } from '@/services/authService';
+import { initializeFirebase } from '@/config/firebase';
 
-  // Show loading spinner while authentication is being initialized
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
+// Import types
+import type { GlobalTypes } from '@/types/global';
 
-  // Check authentication status
-  if (!isAuthenticated) {
-    return <Navigate to='/auth' replace />;
-  }
-
-  // Check role-based access
-  if (requiredRole !== 'any') {
-    if (requiredRole === 'admin' && user?.role !== 'admin') {
-      return <Navigate to='/admin-promotion' replace />;
-    }
-  }
-
-  return <>{children}</>;
+const ErrorFallback = ({ error, resetErrorBoundary }: {
+    error: Error;
+    resetErrorBoundary: () => void;
+}) => {
+    return (<div className='error-container' role='alert'>
+      <h1>Something went wrong</h1>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>);
 };
 
 const App: React.FC = () => {
-  const { isAuthenticated } = useAuthStore();
+    // Combine initialization states
+    const [appState, setAppState] = useState<{
+        isInitialized: boolean;
+        isClientSide: boolean;
+        initError: Error | null;
+    }>({
+        isInitialized: false,
+        isClientSide: false,
+        initError: null
+    });
+    // Use the auth store hook consistently
+    const { isAuthenticated } = useAuthStore();
+    const navigate = useNavigate();
+    const location = useLocation();
+    // Combine initialization effects
+    useEffect(() => {
+        const initializeApp = async () => {
+            try {
+                // Safely clear any existing content - use a safer method
+                const rootElement = document.getElementById('root');
+                if (rootElement) {
+                    while (rootElement.firstChild) {
+                        rootElement.removeChild(rootElement.firstChild);
+                    }
+                }
+                
+                // Perform initialization steps
+                const authService = AuthService.getInstance();
+                
+                // Initialize Firebase first
+                initializeFirebase();
+                
+                // Set the external updater for auth state
+                const updateAuthStore = (state: Partial<AuthState>) => {
+                    useAuthStore.setState(state);
+                };
+                authService.setAuthStoreUpdater(updateAuthStore);
+                
+                // Initialize authentication
+                await authService.initializeAuth();
+                
+                // Update state
+                setAppState({
+                    isInitialized: true,
+                    isClientSide: true,
+                    initError: null
+                });
+            }
+            catch (error) {
+                console.error('App initialization failed:', error);
+                setAppState({
+                    isInitialized: false,
+                    isClientSide: true,
+                    initError: error instanceof Error ? error : new Error('Unknown initialization error')
+                });
+            }
+        };
+        
+        initializeApp();
+    }, []); // Empty dependency array ensures this runs only once
 
-  return (
-    <ThemeProvider>
-      <BrowserRouter
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true,
-        }}
-      >
-        <div className='flex'>
-          {/* Add Navigation at the top */}
-          <Navigation />
+    // Memoize rendering logic
+    const renderContent = useMemo(() => {
+        // Prevent rendering on server-side
+        if (!appState.isClientSide) {
+            return null;
+        }
+        // Error boundary fallback
+        if (appState.initError) {
+            return (<div className='error-container'>
+          <h1>Application Initialization Error</h1>
+          <p>{appState.initError.message}</p>
+          <button onClick={() => window.location.reload()}>Reload Application</button>
+        </div>);
+        }
+        // Loading state
+        if (!appState.isInitialized) {
+            return <LoadingSpinner />;
+        }
+        // Main application render
+        return (
+            <AuthProvider>
+                <NavigationProvider>
+                    <div className='app-container flex flex-col min-h-screen'>
+                        <TopNavbar />
+                        <div className='flex flex-grow mt-16'>
+                            {isAuthenticated && <Sidebar />}
+                            <main className='main-content flex-grow'>
+                                <AppRoutes />
+                            </main>
+                        </div>
+                    </div>
+                </NavigationProvider>
+            </AuthProvider>
+        );
+    }, [appState, isAuthenticated, location, navigate]);
 
-          {/* Conditionally render Sidebar content only when authenticated */}
-          <Sidebar />
-
-          <main className={`flex-grow p-8 ${isAuthenticated ? 'ml-64' : ''} mt-16`}>
-            <Suspense fallback={<LoadingSpinner />}>
-              <Routes>
-                <Route path='/' element={<HomePage />} />
-                <Route path='/auth' element={<AuthPage />} />
-                <Route
-                  path='/newsletters'
-                  element={
-                    <ProtectedRoute>
-                      <NewsletterDiscoveryPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/profile'
-                  element={
-                    <ProtectedRoute>
-                      <ProfilePage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/settings'
-                  element={
-                    <ProtectedRoute>
-                      <SettingsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/recommendations'
-                  element={
-                    <ProtectedRoute>
-                      <RecommendationsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/admin-promotion'
-                  element={
-                    <ProtectedRoute requiredRole='any'>
-                      <AdminPromotionPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path='/admin/dashboard'
-                  element={
-                    <ProtectedRoute requiredRole='admin'>
-                      <AdminDashboardPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path='/insights' element={<InsightsPage />} />
-                <Route path='*' element={<Navigate to='/' replace />} />
-              </Routes>
-            </Suspense>
-          </main>
-        </div>
-        <Toaster position='top-right' />
-      </BrowserRouter>
-    </ThemeProvider>
-  );
+    return (
+        <ErrorBoundary 
+            FallbackComponent={ErrorFallback}
+            onReset={() => window.location.reload()}
+        >
+            {renderContent}
+        </ErrorBoundary>
+    );
 };
 
 export default App;

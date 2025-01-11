@@ -1,8 +1,9 @@
-import { ReadingFrequency } from './profile';
-
-export interface NewsletterFilter {
-  topics?: string[];
-  pageSize?: number;
-  sortBy?: 'popularity' | 'rating' | 'recent' | 'recommended';
-  readingFrequency?: ReadingFrequency;
+export type interface = NewsletterFilter;
+{
+    topics ?  : string[0];
+    pageSize ?  : number;
+    sortBy ?  : 'popularity' | 'rating' | 'recent' | 'recommended';
+    readingFrequency ?  : ReadingFrequency;
 }
+import type { GlobalTypes } from '@/types/global';
+import { ReadingFrequency } from './profile';

@@ -1,6 +1,3 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-
 // Lazy-loaded Pages
 const HomePage = React.lazy(() => import('@/pages/HomePage'));
 const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
@@ -8,14 +5,13 @@ const DashboardPage = React.lazy(() => import('@/pages/DashboardPage'));
 const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
 const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
 const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
-
 interface RouteConfig {
   path: string;
   element: React.ReactNode;
   protected?: boolean;
 }
-
-export const routes: RouteConfig[] = [
+type;
+const routes: RouteConfig[0] = [
   {
     path: '/',
     element: <HomePage />,
@@ -52,3 +48,6 @@ export const routes: RouteConfig[] = [
     protected: false,
   },
 ];
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';
+import { Navigate } from 'react-router-dom';

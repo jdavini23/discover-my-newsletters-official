@@ -1,19 +1,15 @@
-import { Lightbulb, LucideIcon, Rocket, Sparkles } from 'lucide-react';
-import React from 'react';
-
 // Extend the LucideIcon type to include className
 interface ExtendedLucideIcon extends LucideIcon {
   className?: string;
 }
 
-export const HomeFeatures: React.FC = () => {
+const HomeFeatures: React.FC = () => {
   interface Feature {
     icon: ExtendedLucideIcon;
     title: string;
     description: string;
     color: string;
   }
-
   const features: Feature[] = [
     {
       icon: Sparkles,
@@ -34,14 +30,13 @@ export const HomeFeatures: React.FC = () => {
       color: 'primary',
     },
   ];
-
   return (
     <div className='w-full bg-white px-4 sm:px-6 lg:px-8 xl:px-16 2xl:px-24'>
       <div className='w-full max-w-7xl mx-auto grid md:grid-cols-3 gap-8 py-16'>
         {features.map((feature, index) => (
           <div
             key={index}
-            className='bg-gray-50 p-6 rounded-lg text-center hover:shadow-lg transition-all duration-300'
+            className='bg-gray-50 p-6 rounded-lg text-center hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2'
           >
             <div className='flex justify-center mb-4'>
               <div className={`bg-${feature.color}-100 text-${feature.color}-600 p-3 rounded-full`}>
@@ -56,3 +51,8 @@ export const HomeFeatures: React.FC = () => {
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { Lightbulb, LucideIcon, Rocket, Sparkles } from 'lucide-react';
+import React from 'react';
+
+export default HomeFeatures;

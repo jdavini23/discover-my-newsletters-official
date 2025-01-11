@@ -1,5 +1,6 @@
-import { Bell as BellIcon, Check as CheckIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+import { Bell as BellIcon, Check as CheckIcon } from 'lucide-react';
+import type { GlobalTypes } from '@/types/global';
 
 interface Notification {
   id: string;
@@ -8,10 +9,9 @@ interface Notification {
   timestamp: number;
 }
 
-export const NotificationDropdown: React.FC = () => {
+const NotificationDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([
-    // Mock notifications for development
     {
       id: '1',
       message: 'Welcome to Discover My Newsletters!',
@@ -26,7 +26,6 @@ export const NotificationDropdown: React.FC = () => {
     },
   ]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -34,17 +33,14 @@ export const NotificationDropdown: React.FC = () => {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
+  }, [dropdownRef]);
   const markAllAsRead = () => {
     setNotifications([]);
   };
-
   const getNotificationIcon = (type: string) => {
     const iconClasses = 'w-4 h-4 mr-2';
     switch (type) {
@@ -58,7 +54,6 @@ export const NotificationDropdown: React.FC = () => {
         return <BellIcon className={`${iconClasses} text-blue-500`} />;
     }
   };
-
   return (
     <div className='relative' ref={dropdownRef}>
       <button
@@ -109,3 +104,5 @@ export const NotificationDropdown: React.FC = () => {
     </div>
   );
 };
+
+export default NotificationDropdown;

@@ -1,3 +1,4 @@
+import type { GlobalTypes } from '@/types/global';
 import { Search, Sparkles } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,28 +8,25 @@ export const HomeSearchBar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-
   const handleSearch = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
       if (searchQuery.trim()) {
-        navigate('/newsletters', { state: { initialSearch: searchQuery } });
+        navigate('/newsletters', {
+          state: { initialSearch: searchQuery },
+        });
       }
     },
     [searchQuery, navigate]
   );
-
   const handleFocus = () => setIsFocused(true);
   const handleBlur = () => setIsFocused(false);
-
   return (
-    <div className='relative w-full max-w-xl mx-auto lg:mx-0'>
+    <div className='relative w-full max-w-xl mx-auto'>
       <form onSubmit={handleSearch} className='flex w-full group'>
         <div className='relative flex-grow'>
           <div
-            className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-all duration-300 ${
-              isFocused ? 'opacity-70 translate-x-0' : 'opacity-50 -translate-x-2'
-            }`}
+            className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-all duration-300 ${isFocused ? 'opacity-70 translate-x-0' : 'opacity-50 -translate-x-2'}`}
           >
             <Search className='h-5 w-5 text-primary-500 transition-colors' />
           </div>
@@ -61,9 +59,7 @@ export const HomeSearchBar: React.FC = () => {
 
           {searchQuery.length > 0 && (
             <div
-              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${
-                searchQuery.length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'
-              }`}
+              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${searchQuery.length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
             >
               <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />
             </div>

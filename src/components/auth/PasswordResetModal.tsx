@@ -1,17 +1,10 @@
-import { MailIcon } from 'lucide-react';
-import { LockIcon } from 'lucide-react';
-import React, { useState } from 'react';
-
-import { toast } from '@/lib/react-hot-toast';
-import { AuthService } from '@/services/authService';
-
 interface PasswordResetModalProps {
   email?: string;
   onClose: () => void;
   onResetComplete?: () => void;
 }
-
-export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
+type;
+const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   email: initialEmail = '',
   onClose,
   onResetComplete,
@@ -23,7 +16,6 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isVisible, setIsVisible] = useState(true);
-
   const handleSendResetCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -38,7 +30,6 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
-
   const handleVerifyResetCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -56,14 +47,12 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
       toast.error('Passwords do not match');
-      return;
+      return undefined;
     }
-
     setIsLoading(true);
     try {
       const authService = AuthService.getInstance();
@@ -77,12 +66,10 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
-
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(onClose, 300);
   };
-
   return (
     <div
       className={`
@@ -303,3 +290,9 @@ export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { MailIcon } from 'lucide-react';
+import { LockIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from '@/lib/react-hot-toast';
+import { AuthService } from '@/services/authService';

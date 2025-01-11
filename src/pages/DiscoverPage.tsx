@@ -1,58 +1,48 @@
-import React, { useState } from 'react';
-
-import { useAuth } from '../contexts/AuthContext';
-
 interface Newsletter {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  subscriberCount: number;
-  category: string;
+    id: string;
+    title: string;
+    description: string;
+    imageUrl: string;
+    subscriberCount: number;
+    category: string;
 }
-
-const mockNewsletters: Newsletter[] = [
-  {
-    id: '1',
-    title: 'Tech Weekly',
-    description: 'Stay up to date with the latest in technology',
-    imageUrl: 'https://via.placeholder.com/150',
-    subscriberCount: 5000,
-    category: 'Technology',
-  },
-  {
-    id: '2',
-    title: 'Business Insider',
-    description: 'Business news and market analysis',
-    imageUrl: 'https://via.placeholder.com/150',
-    subscriberCount: 10000,
-    category: 'Business',
-  },
-  {
-    id: '3',
-    title: 'Science Today',
-    description: 'Latest discoveries in science',
-    imageUrl: 'https://via.placeholder.com/150',
-    subscriberCount: 3000,
-    category: 'Science',
-  },
+const mockNewsletters: Newsletter[0] = [
+    {
+        id: '1',
+        title: 'Tech Weekly',
+        description: 'Stay up to date with the latest in technology',
+        imageUrl: 'https://via.placeholder.com/150',
+        subscriberCount: 5000,
+        category: 'Technology'
+    },
+    {
+        id: '2',
+        title: 'Business Insider',
+        description: 'Business news and market analysis',
+        imageUrl: 'https://via.placeholder.com/150',
+        subscriberCount: 10000,
+        category: 'Business'
+    },
+    {
+        id: '3',
+        title: 'Science Today',
+        description: 'Latest discoveries in science',
+        imageUrl: 'https://via.placeholder.com/150',
+        subscriberCount: 3000,
+        category: 'Science'
+    }
 ];
-
 const DiscoverPage: React.FC = () => {
-  const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-
-  const categories = ['all', 'Technology', 'Business', 'Science'];
-
-  const filteredNewsletters = mockNewsletters.filter((newsletter) => {
-    const matchesSearch = newsletter.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || newsletter.category === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  return (
-    <div className='space-y-6'>
+    const { user } = useAuth();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const categories = ['all', 'Technology', 'Business', 'Science'];
+    const filteredNewsletters = mockNewsletters.filter((newsletter) => {
+        const matchesSearch = newsletter.title.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory = selectedCategory === 'all' || newsletter.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+    return (<div className='space-y-6'>
       <div className='bg-white dark:bg-gray-800 shadow sm:rounded-lg'>
         <div className='px-4 py-5 sm:p-6'>
           <h1 className='text-2xl font-bold text-gray-900 dark:text-white'>Discover Newsletters</h1>
@@ -64,40 +54,20 @@ const DiscoverPage: React.FC = () => {
 
       <div className='flex flex-col sm:flex-row gap-4'>
         <div className='flex-1'>
-          <input
-            type='text'
-            placeholder='Search newsletters...'
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm'
-          />
+          <input type='text' placeholder='Search newsletters...' value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm'/>
         </div>
         <div className='sm:w-48'>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm'
-          >
-            {categories.map((category) => (
-              <option key={category} value={category}>
+          <select value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)} className='block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white sm:text-sm'>
+            {categories.map((category) => (<option key={category} value={category}>
                 {category.charAt(0).toUpperCase() + category.slice(1)}
-              </option>
-            ))}
+              </option>))}
           </select>
         </div>
       </div>
 
       <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
-        {filteredNewsletters.map((newsletter) => (
-          <div
-            key={newsletter.id}
-            className='bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg'
-          >
-            <img
-              src={newsletter.imageUrl}
-              alt={newsletter.title}
-              className='w-full h-48 object-cover'
-            />
+        {filteredNewsletters.map((newsletter) => (<div key={newsletter.id} className='bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg'>
+            <img src={newsletter.imageUrl} alt={newsletter.title} className='w-full h-48 object-cover'/>
             <div className='p-6'>
               <h3 className='text-lg font-medium text-gray-900 dark:text-white'>
                 {newsletter.title}
@@ -117,11 +87,12 @@ const DiscoverPage: React.FC = () => {
                 Subscribe
               </button>
             </div>
-          </div>
-        ))}
+          </div>))}
       </div>
-    </div>
-  );
+    </div>);
 };
-
-export default DiscoverPage;
+export type  = default;
+DiscoverPage;
+import type { GlobalTypes } from '@/types/global';
+import React, { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';

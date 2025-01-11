@@ -1,272 +1,213 @@
 // Lucide icons
-import { BarChart, LucideIcon, Settings, Shield, Star, User } from 'lucide-react';
-import React, { useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-
-import { AdminInviteManager } from '@/components/admin/AdminInviteManager';
-import AccountSettingsSection from '@/components/profile/AccountSettingsSection';
-import InteractionInsightsSection from '@/components/profile/InteractionInsightsSection';
-import PreferencesSection from '@/components/profile/PreferencesSection';
-// Profile Page Sections
-import ProfileInfoSection from '@/components/profile/ProfileInfoSection';
-import { AdminInviteService } from '@/services/adminInviteService';
-import { useAuthStore } from '@/stores/authStore';
-import { useUserProfileStore } from '@/stores/userProfileStore';
-import { isDefined, isNonEmptyString, safeGet } from '@/utils/typeUtils';
-
 type ProfileSectionName = 'info' | 'preferences' | 'settings' | 'insights' | 'admin';
-
 interface ProfileSection {
-  name: ProfileSectionName;
-  label: string;
-  icon: LucideIcon;
-  component: React.ComponentType;
-  adminOnly?: boolean;
+    name: ProfileSectionName;
+    label: string;
+    icon: LucideIcon;
+    component: React.ComponentType;
+    adminOnly?: boolean;
 }
-
-const PROFILE_SECTIONS: ProfileSection[] = [
-  {
-    name: 'info',
-    label: 'Profile Info',
-    icon: User,
-    component: ProfileInfoSection,
-  },
-  {
-    name: 'preferences',
-    label: 'Preferences',
-    icon: Star,
-    component: PreferencesSection,
-  },
-  {
-    name: 'settings',
-    label: 'Account Settings',
-    icon: Settings,
-    component: AccountSettingsSection,
-  },
-  {
-    name: 'insights',
-    label: 'Interaction Insights',
-    icon: BarChart,
-    component: InteractionInsightsSection,
-  },
-  // Add admin section only for admins
-  {
-    name: 'admin',
-    label: 'Admin Tools',
-    icon: Shield,
-    component: AdminInviteManager,
-    adminOnly: true,
-  },
+const PROFILE_SECTIONS: ProfileSection[0] = [
+    {
+        name: 'info',
+        label: 'Profile Info',
+        icon: User,
+        component: ProfileInfoSection
+    },
+    {
+        name: 'preferences',
+        label: 'Preferences',
+        icon: Star,
+        component: PreferencesSection
+    },
+    {
+        name: 'settings',
+        label: 'Account Settings',
+        icon: Settings,
+        component: AccountSettingsSection
+    },
+    {
+        name: 'insights',
+        label: 'Interaction Insights',
+        icon: BarChart,
+        component: InteractionInsightsSection
+    },
+    {
+        name: 'admin',
+        label: 'Admin Tools',
+        icon: Shield,
+        component: AdminInviteManager,
+        adminOnly: true
+    }
 ];
-
 const ProfilePage: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuthStore();
-  const { profile, fetchProfile, loading, error } = useUserProfileStore();
-
-  const [activeSection, setActiveSection] = useState<ProfileSectionName>('info');
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
-
-  // New state for admin promotion modal
-  const [isAdminPromotionModalOpen, setIsAdminPromotionModalOpen] = useState(false);
-  const [adminInviteCode, setAdminInviteCode] = useState('');
-
-  // Handler for admin promotion
-  const handleAdminPromotion = async () => {
-    if (!isNonEmptyString(adminInviteCode)) {
-      toast.error('Please enter a valid invite code', { duration: 3000 });
-      return;
-    }
-
-    try {
-      const userId = user?.uid;
-      if (!userId) {
-        toast.error('User not authenticated', { duration: 3000 });
-        return;
-      }
-
-      const result = await AdminInviteService.validateAdminInviteCode(userId, adminInviteCode);
-
-      if (result) {
-        toast.success('Successfully promoted to admin!', {
-          icon: '',
-          duration: 4000,
+    const navigate = useNavigate();
+    const { user, isAuthenticated } = useAuthStore();
+    const { profile, fetchProfile, loading, error } = useUserProfileStore();
+    const [activeSection, setActiveSection] = useState<ProfileSectionName>('info');
+    const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+    // New state for admin promotion modal
+    const [isAdminPromotionModalOpen, setIsAdminPromotionModalOpen] = useState(false);
+    const [adminInviteCode, setAdminInviteCode] = useState('');
+    // Handler for admin promotion
+    const handleAdminPromotion = async () => {
+        if (!isNonEmptyString(adminInviteCode)) {
+            toast.error('Please enter a valid invite code', {
+                duration: 3000
+            });
+            return undefined;
+        }
+        try {
+            const userId = user?.uid;
+            if (!userId) {
+                toast.error('User not authenticated', {
+                    duration: 3000
+                });
+                return undefined;
+            }
+            const result = await AdminInviteService.validateAdminInviteCode(userId, adminInviteCode);
+            if (result) {
+                toast.success('Successfully promoted to admin!', {
+                    icon: '',
+                    duration: 4000
+                });
+                setIsAdminPromotionModalOpen(false);
+            }
+            else {
+                toast.error('Invalid or expired invite code', {
+                    icon: '',
+                    duration: 3000
+                });
+            }
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to promote to admin';
+            toast.error(errorMessage, {
+                icon: '',
+                duration: 3000
+            });
+        }
+    };
+    // Optional: Function to generate an admin invite code (for admins)
+    const generateAdminInviteCode = async () => {
+        try {
+            // Only allow existing admins to generate invite codes
+            if (safeGet(user, 'role') !== 'admin') {
+                toast.error('Only admins can generate invite codes');
+                return undefined;
+            }
+            const userId = user?.uid;
+            if (!userId) {
+                toast.error('User authentication failed');
+                return undefined;
+            }
+            const newInviteCode = await AdminInviteService.generateAdminInviteCode(userId, {
+                maxUses: 3, // Limit to 3 uses
+                expiryDays: 14, // Expires in 14 days
+                // Only include notes if user has a display name
+                ...(safeGet(user, 'displayName') && {
+                    notes: `Generated by ${user.displayName}`
+                })
+            });
+            // Copy to clipboard and show toast
+            navigator.clipboard.writeText(newInviteCode);
+            toast.success(`Invite Code Generated: ${newInviteCode}`, {
+                icon: '',
+                duration: 5000
+            });
+        }
+        catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Could not generate invite code';
+            toast.error(errorMessage);
+        }
+    };
+    useEffect(() => {
+        // Comprehensive authentication check
+        console.log('ProfilePage Authentication Check:', {
+            isAuthenticated,
+            user: user
+                ? {
+                    id: user.uid,
+                    email: user.email,
+                    role: user.role
+                }
+                : null
         });
-        setIsAdminPromotionModalOpen(false);
-      } else {
-        toast.error('Invalid or expired invite code', {
-          icon: '',
-          duration: 3000,
-        });
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to promote to admin';
-
-      toast.error(errorMessage, {
-        icon: '',
-        duration: 3000,
-      });
-    }
-  };
-
-  // Optional: Function to generate an admin invite code (for admins)
-  const generateAdminInviteCode = async () => {
-    try {
-      // Only allow existing admins to generate invite codes
-      if (safeGet(user, 'role') !== 'admin') {
-        toast.error('Only admins can generate invite codes');
-        return;
-      }
-
-      const userId = user?.uid;
-      if (!userId) {
-        toast.error('User authentication failed');
-        return;
-      }
-
-      const newInviteCode = await AdminInviteService.generateAdminInviteCode(userId, {
-        maxUses: 3, // Limit to 3 uses
-        expiryDays: 14, // Expires in 14 days
-        // Only include notes if user has a display name
-        ...(safeGet(user, 'displayName') && {
-          notes: `Generated by ${user.displayName}`,
-        }),
-      });
-
-      // Copy to clipboard and show toast
-      navigator.clipboard.writeText(newInviteCode);
-      toast.success(`Invite Code Generated: ${newInviteCode}`, {
-        icon: '',
-        duration: 5000,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Could not generate invite code';
-
-      toast.error(errorMessage);
-    }
-  };
-
-  useEffect(() => {
-    // Comprehensive authentication check
-    console.log('ProfilePage Authentication Check:', {
-      isAuthenticated,
-      user: user
-        ? {
-            id: user.uid,
-            email: user.email,
-            role: user.role,
-          }
-        : null,
-    });
-
-    if (!isAuthenticated) {
-      console.log('Not authenticated, navigating to /auth');
-      navigate('/auth');
-      return;
-    }
-
-    // Ensure user exists before fetching profile
-    const userId = user?.uid;
-    console.log('User ID for profile fetch:', userId);
-
-    if (userId) {
-      fetchProfile(userId).catch((err) => {
-        const errorMessage = err instanceof Error ? err.message : 'Profile fetch failed';
-
-        console.error('Profile fetch error:', errorMessage);
-        toast.error(errorMessage);
-        navigate('/auth');
-      });
-    } else {
-      console.log('No user ID found, navigating to /auth');
-      navigate('/auth');
-    }
-  }, [user, isAuthenticated, fetchProfile, navigate]);
-
-  // Memoized loading and error states for performance
-  const renderLoadingState = useMemo(() => {
-    if (loading) {
-      return (
-        <div className='flex justify-center items-center min-h-screen bg-gray-50'>
+        if (!isAuthenticated) {
+            console.log('Not authenticated, navigating to /auth');
+            navigate('/auth');
+            return undefined;
+        }
+        // Ensure user exists before fetching profile
+        const userId = user?.uid;
+        console.log('User ID for profile fetch:', userId);
+        if (userId) {
+            fetchProfile(userId).catch((err) => {
+                const errorMessage = err instanceof Error ? err.message : 'Profile fetch failed';
+                console.error('Profile fetch error:', errorMessage);
+                toast.error(errorMessage);
+                navigate('/auth');
+            });
+        }
+        else {
+            console.log('No user ID found, navigating to /auth');
+            navigate('/auth');
+        }
+    }, [user, isAuthenticated, fetchProfile, navigate]);
+    // Memoized loading and error states for performance
+    const renderLoadingState = useMemo(() => {
+        if (loading) {
+            return (<div className='flex justify-center items-center min-h-screen bg-gray-50'>
           <div>
             <div className='animate-spin rounded-full h-16 w-16 border-4 border-t-4 border-primary-500 mx-auto mb-4'></div>
             <h2 className='text-xl font-semibold text-gray-700'>Loading Profile</h2>
             <p className='text-gray-500'>Fetching your personalized experience</p>
           </div>
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className='flex justify-center items-center min-h-screen bg-red-50'>
+        </div>);
+        }
+        if (error) {
+            return (<div className='flex justify-center items-center min-h-screen bg-red-50'>
           <div>
             <div className='text-red-500 mb-4'>
               <svg className='mx-auto h-16 w-16' fill='currentColor' viewBox='0 0 24 24'>
-                <path d='M12 2L2 22h20L12 2zm1 18h-2v-2h2v2zm0-4h-2V8h2v8z' />
+                <path d='M12 2L2 22h20L12 2zm1 18h-2v-2h2v2zm0-4h-2V8h2v8z'/>
               </svg>
             </div>
             <h2 className='text-xl font-semibold text-red-600 mb-2'>Profile Loading Error</h2>
             <p className='text-gray-600 mb-4'>{error}</p>
-            <button
-              onClick={() => fetchProfile(user?.uid)}
-              className='bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600'
-            >
+            <button onClick={() => fetchProfile(user?.uid)} className='bg-primary-500 text-white px-4 py-2 rounded hover:bg-primary-600'>
               Retry Loading
             </button>
           </div>
-        </div>
-      );
+        </div>);
+        }
+        return null;
+    }, [loading, error, user, fetchProfile]);
+    // Render available sections based on user role
+    const availableSections = useMemo(() => PROFILE_SECTIONS.filter((section) => !section.adminOnly || safeGet(user, 'role') === 'admin'), [user]);
+    // Render active section
+    const ActiveSectionComponent = useMemo(() => {
+        const section = availableSections.find((s) => s.name === activeSection);
+        return section ? section.component : ProfileInfoSection;
+    }, [activeSection, availableSections]);
+    // Prevent rendering if not authenticated
+    if (!isAuthenticated) {
+        return null;
     }
-
-    return null;
-  }, [loading, error, user, fetchProfile]);
-
-  // Render available sections based on user role
-  const availableSections = useMemo(
-    () =>
-      PROFILE_SECTIONS.filter((section) => !section.adminOnly || safeGet(user, 'role') === 'admin'),
-    [user]
-  );
-
-  // Render active section
-  const ActiveSectionComponent = useMemo(() => {
-    const section = availableSections.find((s) => s.name === activeSection);
-    return section ? section.component : ProfileInfoSection;
-  }, [activeSection, availableSections]);
-
-  // Prevent rendering if not authenticated
-  if (!isAuthenticated) {
-    return null;
-  }
-
-  return (
-    <div className='flex min-h-screen bg-gray-50'>
+    return (<div className='flex min-h-screen bg-gray-50'>
       {/* Sidebar */}
-      <div
-        className={`
+      <div className={`
         w-64 bg-white shadow-md 
         ${isMobileSidebarOpen ? 'block' : 'hidden md:block'}
-      `}
-      >
+      `}>
         <nav className='p-4'>
-          {availableSections.map((section) => (
-            <button
-              key={section.name}
-              onClick={() => setActiveSection(section.name)}
-              className={`
+          {availableSections.map((section) => (<button key={section.name} onClick={() => setActiveSection(section.name)} className={`
                 flex items-center w-full p-2 mb-2 rounded 
-                ${
-                  activeSection === section.name ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'
-                }
-              `}
-            >
-              <section.icon className='mr-2' size={20} />
+                ${activeSection === section.name ? 'bg-primary-500 text-white' : 'hover:bg-gray-100'}
+              `}>
+              <section.icon className='mr-2' size={20}/>
               {section.label}
-            </button>
-          ))}
+            </button>))}
         </nav>
       </div>
 
@@ -274,36 +215,35 @@ const ProfilePage: React.FC = () => {
       <div className='flex-1 p-6'>{renderLoadingState || <ActiveSectionComponent />}</div>
 
       {/* Admin Promotion Modal */}
-      {isAdminPromotionModalOpen && (
-        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
+      {isAdminPromotionModalOpen && (<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center'>
           <div className='bg-white p-6 rounded-lg'>
             <h2 className='text-xl font-bold mb-4'>Promote to Admin</h2>
-            <input
-              type='text'
-              value={adminInviteCode}
-              onChange={(e) => setAdminInviteCode(e.target.value)}
-              placeholder='Enter Admin Invite Code'
-              className='w-full p-2 border rounded mb-4'
-            />
+            <input type='text' value={adminInviteCode} onChange={(e) => setAdminInviteCode(e.target.value)} placeholder='Enter Admin Invite Code' className='w-full p-2 border rounded mb-4'/>
             <div className='flex justify-between'>
-              <button
-                onClick={() => setIsAdminPromotionModalOpen(false)}
-                className='bg-gray-200 text-gray-800 px-4 py-2 rounded'
-              >
+              <button onClick={() => setIsAdminPromotionModalOpen(false)} className='bg-gray-200 text-gray-800 px-4 py-2 rounded'>
                 Cancel
               </button>
-              <button
-                onClick={handleAdminPromotion}
-                className='bg-primary-500 text-white px-4 py-2 rounded'
-              >
+              <button onClick={handleAdminPromotion} className='bg-primary-500 text-white px-4 py-2 rounded'>
                 Promote
               </button>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  );
+        </div>)}
+    </div>);
 };
-
-export default ProfilePage;
+export type  = default;
+ProfilePage;
+import type { GlobalTypes } from '@/types/global';
+import { BarChart, LucideIcon, Settings, Shield, Star, User } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { AdminInviteManager } from '@/components/admin/AdminInviteManager';
+import AccountSettingsSection from '@/components/profile/AccountSettingsSection';
+import InteractionInsightsSection from '@/components/profile/InteractionInsightsSection';
+import PreferencesSection from '@/components/profile/PreferencesSection';
+import ProfileInfoSection from '@/components/profile/ProfileInfoSection';
+import { AdminInviteService } from '@/services/adminInviteService';
+import { useAuthStore } from '@/stores/authStore';
+import { useUserProfileStore } from '@/stores/userProfileStore';
+import { isDefined, isNonEmptyString, safeGet } from '@/utils/typeUtils';

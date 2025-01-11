@@ -1,27 +1,14 @@
-import '@testing-library/jest-dom';
-
-import { cleanup } from '@testing-library/react';
-import { http, HttpResponse } from 'msw';
-import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll } from 'vitest';
-import { vi } from 'vitest';
-import { mockIDBFactory } from 'vitest-mock-extended';
-
 // Establish API mocking before all tests
 const server = setupServer();
 // Add any default handlers here if needed
-
 beforeAll(() => server.listen());
-
 // Automatically clean up after each test
 afterEach(() => {
   cleanup(); // Cleans up any rendered components
   server.resetHandlers(); // Reset any request handlers that we may add during the tests
 });
-
 // Clean up after the tests are finished.
 afterAll(() => server.close());
-
 // Mock window.matchMedia for testing
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -36,7 +23,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
-
 // Polyfill for structuredClone in JSDOM
 if (!globalThis.structuredClone) {
   globalThis.structuredClone = (obj: unknown) => {
@@ -44,13 +30,11 @@ if (!globalThis.structuredClone) {
     return JSON.parse(JSON.stringify(obj));
   };
 }
-
 // Mock global IndexedDB
 Object.defineProperty(window, 'indexedDB', {
   value: mockIDBFactory,
   writable: true,
 });
-
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
@@ -67,29 +51,32 @@ const localStorageMock = (() => {
     }),
   };
 })();
-
 Object.defineProperty(window, 'localStorage', {
   value: localStorageMock,
   writable: true,
 });
-
 // Mock Intersection Observer
 class MockIntersectionObserver {
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();
 }
-
 Object.defineProperty(window, 'IntersectionObserver', {
   writable: true,
   value: MockIntersectionObserver,
 });
-
 // Silence console warnings during tests
 console.warn = vi.fn();
 console.error = vi.fn();
-
 // Mock window.addEventListener('unhandledrejection')
 window.addEventListener('unhandledrejection', (event) => {
   console.warn(`Unhandled promise rejection: ${event.reason}`);
 });
+import type { GlobalTypes } from '@/types/global';
+import '@testing-library/jest-dom';
+import { cleanup } from '@testing-library/react';
+import { http, HttpResponse } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, afterEach, beforeAll } from 'vitest';
+import { vi } from 'vitest';
+import { mockIDBFactory } from 'vitest-mock-extended';

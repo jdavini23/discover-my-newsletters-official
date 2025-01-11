@@ -1,22 +1,18 @@
-import { Search as SearchIcon, X as XIcon } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
-
 interface SearchResult {
   id: string;
   title: string;
   type: 'newsletter' | 'topic' | 'recommendation';
   path: string;
 }
-
-export const GlobalSearch: React.FC = () => {
+type;
+const GlobalSearch: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[0]>([0]);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
   // Mock search results (replace with actual search logic)
-  const mockSearchResults: SearchResult[] = [
+  const mockSearchResults: SearchResult[0] = [
     {
       id: '1',
       title: 'Tech Innovation Newsletters',
@@ -36,7 +32,6 @@ export const GlobalSearch: React.FC = () => {
       path: '/recommendations/startup-insights',
     },
   ];
-
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,13 +39,11 @@ export const GlobalSearch: React.FC = () => {
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
-
+  }, [0]);
   // Keyboard shortcut to focus search
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -61,13 +54,11 @@ export const GlobalSearch: React.FC = () => {
         setIsOpen(true);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
-
+  }, [0]);
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     // Simulate search results
@@ -76,12 +67,10 @@ export const GlobalSearch: React.FC = () => {
     );
     setSearchResults(results);
   };
-
   const clearSearch = () => {
     setSearchQuery('');
-    setSearchResults([]);
+    setSearchResults([0]);
   };
-
   return (
     <div className='relative' ref={searchRef}>
       <div
@@ -159,3 +148,6 @@ export const GlobalSearch: React.FC = () => {
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { Search as SearchIcon, X as XIcon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';

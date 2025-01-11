@@ -1,28 +1,38 @@
-import { React } from 'react';
-
 interface NewsletterPreviewModalProps {
   newsletter: Newsletter;
   onClose: () => void;
   onSubscribe: (newsletterId: string) => void;
 }
-
-export const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
+type;
+const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
   newsletter,
   onClose,
   onSubscribe,
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
+      initial={{
+        opacity: 0,
+      }}
+      animate={{
+        opacity: 1,
+      }}
+      exit={{
+        opacity: 0,
+      }}
       className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        exit={{ scale: 0.9 }}
+        initial={{
+          scale: 0.9,
+        }}
+        animate={{
+          scale: 1,
+        }}
+        exit={{
+          scale: 0.9,
+        }}
         className='bg-white rounded-2xl p-6 max-w-2xl w-full shadow-xl'
         onClick={(e) => e.stopPropagation()}
       >
@@ -38,9 +48,7 @@ export const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`h-5 w-5 ${
-                    i < Math.round(newsletter.rating || 0) ? 'text-yellow-500' : 'text-gray-300'
-                  }`}
+                  className={`h-5 w-5 ${i < Math.round(newsletter.rating || 0) ? 'text-yellow-500' : 'text-gray-300'}`}
                 />
               ))}
               <span className='text-gray-600 ml-2'>
@@ -97,3 +105,5 @@ export const NewsletterPreviewModal: React.FC<NewsletterPreviewModalProps> = ({
     </motion.div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { React } from 'react';

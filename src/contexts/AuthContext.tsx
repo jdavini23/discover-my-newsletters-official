@@ -1,6 +1,5 @@
+import React, { createContext, ReactNode, useContext } from 'react';
 import { User } from 'firebase/auth';
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
-
 import { useAuthStore } from '@/stores/authStore';
 
 interface AuthContextType {
@@ -11,20 +10,29 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const AuthProvider: React.FC<{
+  children: ReactNode;
+}> = ({ children }) => {
   const { user, isAuthenticated, isLoading } = useAuthStore();
-
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => {
+const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
+
+export { AuthProvider, useAuth };

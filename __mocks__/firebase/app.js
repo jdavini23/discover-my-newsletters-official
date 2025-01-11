@@ -5,5 +5,5 @@ const mockGetApp = jest.fn(() => ({}));
 module.exports = {
   initializeApp: mockInitializeApp,
   getApps: mockGetApps,
-  getApp: mockGetApp
+  getApp: mockGetApp,
 };

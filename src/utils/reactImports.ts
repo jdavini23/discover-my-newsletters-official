@@ -1,3 +1,4 @@
 // Standardized React Imports
-import React from 'react';
 export { React };
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';

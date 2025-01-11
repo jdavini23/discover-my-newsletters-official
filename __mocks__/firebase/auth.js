@@ -21,5 +21,5 @@ module.exports = {
   onAuthStateChanged: mockOnAuthStateChanged,
   GoogleAuthProvider: mockGoogleAuthProvider,
   GithubAuthProvider: mockGithubAuthProvider,
-  signInWithPopup: mockSignInWithPopup
+  signInWithPopup: mockSignInWithPopup,
 };

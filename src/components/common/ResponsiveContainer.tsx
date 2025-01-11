@@ -1,21 +1,15 @@
-import React from 'react';
-
-import { useResponsive } from '../../hooks/useResponsive';
-import { DarkModeToggle } from '../ui/DarkModeToggle';
-
 interface ResponsiveContainerProps {
   children: React.ReactNode;
   className?: string;
   showDarkModeToggle?: boolean;
 }
-
-export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
+type;
+const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   children,
   className = '',
   showDarkModeToggle = true,
 }) => {
   const { isMobile } = useResponsive();
-
   return (
     <div
       className={`
@@ -46,3 +40,7 @@ export const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';
+import { useResponsive } from '../../hooks/useResponsive';
+import { DarkModeToggle } from '../ui/DarkModeToggle';

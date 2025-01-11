@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "CommonJS",
+    "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "strict": true,
     "esModuleInterop": true,
@@ -16,8 +16,15 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["node", "jest"]
+    "types": ["node", "jest", "vite/client"],
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true
   },
-  "include": ["src", "jest.config.js", "jest.setup.js"],
+  "include": ["src", "jest.config.js", "jest.setup.js", "vite.config.ts"],
   "exclude": ["node_modules"]
 }

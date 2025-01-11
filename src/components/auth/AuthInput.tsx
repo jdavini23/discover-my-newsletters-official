@@ -1,6 +1,3 @@
-import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
-import React from 'react';
-
 interface AuthInputProps {
   type: 'text' | 'email' | 'password';
   name: string;
@@ -13,8 +10,8 @@ interface AuthInputProps {
   showPasswordToggle?: boolean;
   onPasswordToggle?: () => void;
 }
-
-export const AuthInput: React.FC<AuthInputProps> = ({
+type;
+const AuthInput: React.FC<AuthInputProps> = ({
   type,
   name,
   value,
@@ -30,7 +27,6 @@ export const AuthInput: React.FC<AuthInputProps> = ({
     const iconProps = {
       className: 'absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400',
     };
-
     switch (icon) {
       case 'user':
         return <User {...iconProps} />;
@@ -42,7 +38,6 @@ export const AuthInput: React.FC<AuthInputProps> = ({
         return null;
     }
   };
-
   return (
     <div className='mb-4'>
       {label && <label className='block text-sm font-medium text-gray-700'>{label}</label>}
@@ -83,3 +78,6 @@ export const AuthInput: React.FC<AuthInputProps> = ({
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import React from 'react';

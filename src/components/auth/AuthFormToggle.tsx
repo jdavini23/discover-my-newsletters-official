@@ -1,11 +1,9 @@
-import React from 'react';
-
 interface AuthFormToggleProps {
   isLogin: boolean;
   onToggle: () => void;
 }
-
-export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) => {
+type;
+const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) => {
   return (
     <div className='text-center mt-4'>
       <button
@@ -27,3 +25,5 @@ export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggl
     </div>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import React from 'react';

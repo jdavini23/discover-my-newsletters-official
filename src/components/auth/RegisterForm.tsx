@@ -1,12 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-
-import { useAuthStore } from '@/stores/authStore';
-
 // Validation schema
 const registerSchema = z
   .object({
@@ -19,10 +10,9 @@ const registerSchema = z
     message: "Passwords don't match",
     path: ['confirmPassword'],
   });
-
 type RegisterFormData = z.infer<typeof registerSchema>;
-
-export const RegisterForm: React.FC = () => {
+type;
+const RegisterForm: React.FC = () => {
   const navigate = useNavigate();
   const { register: registerUser } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +23,6 @@ export const RegisterForm: React.FC = () => {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
-
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     try {
@@ -48,7 +37,6 @@ export const RegisterForm: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
       <div>
@@ -59,9 +47,7 @@ export const RegisterForm: React.FC = () => {
           id='name'
           type='text'
           {...register('name')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.name ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.name ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='John Doe'
         />
         {errors.name && <p className='mt-2 text-sm text-red-600'>{errors.name.message}</p>}
@@ -75,9 +61,7 @@ export const RegisterForm: React.FC = () => {
           id='email'
           type='email'
           {...register('email')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.email ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.email ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='you@example.com'
         />
         {errors.email && <p className='mt-2 text-sm text-red-600'>{errors.email.message}</p>}
@@ -92,9 +76,7 @@ export const RegisterForm: React.FC = () => {
           type='password'
           autoComplete='new-password'
           {...register('password')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.password ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.password ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='••••••••'
         />
         {errors.password && <p className='mt-2 text-sm text-red-600'>{errors.password.message}</p>}
@@ -109,9 +91,7 @@ export const RegisterForm: React.FC = () => {
           type='password'
           autoComplete='new-password'
           {...register('confirmPassword')}
-          className={`mt-1 block w-full rounded-md border ${
-            errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-          } shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
+          className={`mt-1 block w-full rounded-md border ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'} shadow-sm py-2 px-3 focus:ring-primary-500 focus:border-primary-500`}
           placeholder='••••••••'
         />
         {errors.confirmPassword && (
@@ -131,3 +111,11 @@ export const RegisterForm: React.FC = () => {
     </form>
   );
 };
+import type { GlobalTypes } from '@/types/global';
+import { zodResolver } from '@hookform/resolvers/zod';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { z } from 'zod';
+import { useAuthStore } from '@/stores/authStore';
