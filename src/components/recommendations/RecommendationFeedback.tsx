@@ -1,13 +1,14 @@
+﻿import React from 'react';
 interface RecommendationFeedbackProps {
   newsletter: Newsletter;
   onClose: () => void;
-  user: unknown; // Add user prop to the component
+  user: unknown; // Add user prop to the component/
 }
-type;
+
 const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
   newsletter,
   onClose,
-  user, // Add user prop to the component
+  user, // Add user prop to the component/
 }) => {
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(null);
   const [additionalFeedback, setAdditionalFeedback] = useState('');
@@ -41,13 +42,13 @@ const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
           onClick={onClose}
           className='absolute top-4 right-4 text-gray-500 hover:text-gray-700'
         >
-          <X className='w-6 h-6' />
-        </button>
+          <X className='w-6 h-6' />/
+        </button>/
 
         <div className='text-center mb-6'>
-          <h2 className='text-2xl font-bold mb-2'>How was this recommendation?</h2>
-          <p className='text-gray-600'>Your feedback helps us improve future recommendations</p>
-        </div>
+          <h2 className='text-2xl font-bold mb-2'>How was this recommendation?</h2>/
+          <p className='text-gray-600'>Your feedback helps us improve future recommendations</p>/
+        </div>/
 
         <div className='flex justify-center space-x-4 mb-6'>
           <button
@@ -61,8 +62,8 @@ const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
               }
             `}
           >
-            <ThumbsUp className='w-8 h-8' />
-          </button>
+            <ThumbsUp className='w-8 h-8' />/
+          </button>/
 
           <button
             onClick={() => handleFeedback('negative')}
@@ -75,9 +76,9 @@ const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
               }
             `}
           >
-            <ThumbsDown className='w-8 h-8' />
-          </button>
-        </div>
+            <ThumbsDown className='w-8 h-8' />/
+          </button>/
+        </div>/
 
         {feedback && (
           <div>
@@ -87,23 +88,28 @@ const RecommendationFeedback: React.FC<RecommendationFeedbackProps> = ({
               onChange={(e) => setAdditionalFeedback(e.target.value)}
               className='w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary-500 transition'
               rows={3}
-            />
+            />/
 
             <button
               onClick={onClose}
               className='w-full mt-4 bg-primary-500 text-white py-3 rounded-lg hover:bg-primary-600 transition'
             >
               Submit Feedback
-            </button>
-          </div>
+            </button>/
+          </div>/
         )}
-      </div>
-    </div>
+      </div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import { ThumbsDown, ThumbsUp, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { recommendationService } from '@/services/recommendationService';
-import { Newsletter } from '@/types/Newsletter';
-import { trackEvent } from '@/utils/analytics';
+
+import { recommendationService } from '@/service/s/recommendationService';/
+import type { GlobalTypes } from '@/type/s/global';/
+import { Newsletter } from '@/type/s/Newsletter';/
+import { trackEvent } from '@/util/s/analytics';/
+
+export default RecommendationFeedback
+
+

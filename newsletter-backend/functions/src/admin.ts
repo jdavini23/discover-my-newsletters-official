@@ -1,19 +1,19 @@
-import * as functions from 'firebase-functions';
+﻿import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
-// Ensure Firebase Admin is initialized
+// Ensure Firebase Admin is initialized/
 if (admin.apps.length === 0) {
   admin.initializeApp();
 }
 
-// Cloud function to set admin claims
+// Cloud function to set admin claims/
 export const setAdminClaims = functions.https.onCall(async (data, context) => {
-  // Ensure the user is authenticated
+  // Ensure the user is authenticated/
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  // Verify admin secret (you should store this securely in Firebase config)
+  // Verify admin secret (you should store this securely in Firebase config)/
   const adminSecret = functions.config().admin?.secret;
   if (data.adminSecret !== adminSecret) {
     throw new functions.https.HttpsError('permission-denied', 'Invalid admin secret');
@@ -31,35 +31,35 @@ export const setAdminClaims = functions.https.onCall(async (data, context) => {
   }
 });
 
-// Cloud function to create initial admin user
+// Cloud function to create initial admin user/
 export const createInitialAdminUser = functions.https.onCall(async (data, _context) => {
   const { email, password, adminSecret } = data;
 
-  // Validate input
+  // Validate input/
   if (!email || !password || !adminSecret) {
     throw new functions.https.HttpsError('invalid-argument', 'Missing required fields');
   }
 
-  // Verify admin secret
+  // Verify admin secret/
   const storedAdminSecret = functions.config().admin?.secret;
   if (adminSecret !== storedAdminSecret) {
     throw new functions.https.HttpsError('permission-denied', 'Invalid admin secret');
   }
 
   try {
-    // Create user
+    // Create user/
     const userRecord = await admin.auth().createUser({
       email,
       password,
       emailVerified: false,
     });
 
-    // Set admin custom claims
+    // Set admin custom claims/
     await admin.auth().setCustomUserClaims(userRecord.uid, {
       admin: true,
     });
 
-    // Optional: Store additional user info in Firestore
+    // Optional: Store additional user info in Firestore/
     await admin.firestore().collection('users').doc(userRecord.uid).set({
       email,
       role: 'admin',
@@ -76,3 +76,4 @@ export const createInitialAdminUser = functions.https.onCall(async (data, _conte
     throw new functions.https.HttpsError('internal', 'Failed to create admin user');
   }
 });
+

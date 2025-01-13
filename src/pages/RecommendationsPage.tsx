@@ -1,3 +1,4 @@
+﻿import React from 'react';
 const RecommendationCard: React.FC<{
     newsletter: Newsletter;
     onInteract: (type: 'like' | 'save' | 'share') => void;
@@ -5,42 +6,42 @@ const RecommendationCard: React.FC<{
     return (<div>
       <div className='p-6'>
         <div className='flex items-start mb-4'>
-          <img src={newsletter.imageUrl || '/default-newsletter-icon.svg'} alt={`${newsletter.title} logo`} className='w-16 h-16 rounded-lg mr-4 object-cover'/>
+          <img src={newsletter.imageUrl || '/default-newsletter-icon.svg'} alt={`${newsletter.title} logo`} className='w-16 h-16 rounded-lg mr-4 object-cover/'/>/
           <div>
-            <h3 className='text-xl font-bold text-gray-900'>{newsletter.title}</h3>
-            <p className='text-sm text-gray-500'>{newsletter.author}</p>
-          </div>
-        </div>
+            <h3 className='text-xl font-bold text-gray-900'>{newsletter.title}</h3>/
+            <p className='text-sm text-gray-500'>{newsletter.author}</p>/
+          </div>/
+        </div>/
 
-        <p className='text-gray-600 mb-4 line-clamp-3'>{newsletter.description}</p>
+        <p className='text-gray-600 mb-4 line-clamp-3'>{newsletter.description}</p>/
 
         <div className='flex justify-between items-center'>
           <div className='flex items-center space-x-2 text-gray-600'>
-            <Star className='w-5 h-5 text-yellow-500'/>
-            <span>{newsletter.rating !== undefined ? newsletter.rating.toFixed(1) : 'N/A'}</span>
-            <span>•</span>
+            <Star className='w-5 h-5 text-yellow-500'/>/
+            <span>{newsletter.rating !== undefined ? newsletter.rating.toFixed(1) : 'N/A'}/</span>/
+            <span>â€¢</span>/
             <span>
               {newsletter.subscribers !== undefined
             ? newsletter.subscribers.toLocaleString()
-            : 'N/A'}{' '}
+            : 'N/A'}{' '}/
               subscribers
-            </span>
-          </div>
+            </span>/
+          </div>/
 
           <div className='flex space-x-2'>
             <button onClick={() => onInteract('like')} className='p-2 hover:bg-gray-100 rounded-full transition'>
-              <Star className='w-5 h-5 text-gray-500 hover:text-yellow-500'/>
-            </button>
+              <Star className='w-5 h-5 text-gray-500 hover:text-yellow-500'/>/
+            </button>/
             <button onClick={() => onInteract('save')} className='p-2 hover:bg-gray-100 rounded-full transition'>
-              <Bookmark className='w-5 h-5 text-gray-500 hover:text-primary-500'/>
-            </button>
+              <Bookmark className='w-5 h-5 text-gray-500 hover:text-primary-500'/>/
+            </button>/
             <button onClick={() => onInteract('share')} className='p-2 hover:bg-gray-100 rounded-full transition'>
-              <Share className='w-5 h-5 text-gray-500 hover:text-green-500'/>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>);
+              <Share className='w-5 h-5 text-gray-500 hover:text-green-500'/>/
+            </button>/
+          </div>/
+        </div>/
+      </div>/
+    </div>);/
 };
 const RecommendationsPage = () => {
     const { user } = useAuthStore();
@@ -110,42 +111,43 @@ const RecommendationsPage = () => {
     };
     if (loading) {
         return (<div className='flex justify-center items-center h-screen'>
-        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500'></div>
-      </div>);
+        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500'></div>/
+      </div>);/
     }
     if (error) {
-        return <div className='flex justify-center items-center h-screen text-red-500'>{error}</div>;
+        return <div className='flex justify-center items-center h-screen text-red-500'>{error}</div>;/
     }
-    return (<ErrorBoundary fallback={<div>Something went wrong</div>}>
+    return (<ErrorBoundary fallback={<div>Something went wrong</div>}>/
       <div className='container mx-auto px-4 py-8'>
         <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-bold text-gray-900'>Your Recommendations</h1>
+          <h1 className='text-3xl font-bold text-gray-900'>Your Recommendations</h1>/
           <button onClick={handleRefreshRecommendations} className='flex items-center space-x-2 bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition'>
-            <RefreshCw className='w-5 h-5'/>
-            <span>Refresh</span>
-          </button>
-        </div>
+            <RefreshCw className='w-5 h-5'/>/
+            <span>Refresh</span>/
+          </button>/
+        </div>/
 
         {recommendations.length === 0 ? (<div>
             <p className='text-xl text-gray-600'>
               No recommendations found. Try adjusting your preferences!
-            </p>
-          </div>) : (<div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {recommendations.map((newsletter, index) => (<RecommendationCard key={newsletter.id || `newsletter-${index}`} newsletter={newsletter} onInteract={(type) => handleInteraction(newsletter, type)}/>))}
-          </div>)}
+            </p>/
+          </div>) : (<div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>/
+            {recommendations.map((newsletter, index) => (<RecommendationCard key={newsletter.id || `newsletter-${index}`} newsletter={newsletter} onInteract={(type) => handleInteraction(newsletter, type)}/>))}/
+          </div>)}/
 
-        {feedbackModalOpen && selectedNewsletter && (<RecommendationFeedback newsletter={selectedNewsletter} onClose={() => setFeedbackModalOpen(false)} user={user}/>)}
-      </div>
-    </ErrorBoundary>);
+        {feedbackModalOpen && selectedNewsletter && (<RecommendationFeedback newsletter={selectedNewsletter} onClose={() => setFeedbackModalOpen(false)} user={user}/>)}/
+      </div>/
+    </ErrorBoundary>);/
 };
-export type  = default;
-RecommendationsPage;
-import type { GlobalTypes } from '@/types/global';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
 import { Bookmark, RefreshCw, Share, Star } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ErrorBoundary } from '@/components/common/ErrorBoundary';
-import { RecommendationFeedback } from '@/components/recommendations/RecommendationFeedback';
-import { recommendationService } from '@/services/recommendationService';
-import { useAuthStore } from '@/stores/authStore';
-import { Newsletter } from '@/types/Newsletter';
-import { trackEvent } from '@/utils/analytics';
+import { ErrorBoundary } from '@/component/s/commo/n/ErrorBoundary';/
+import { RecommendationFeedback } from '@/component/s/recommendation/s/RecommendationFeedback';/
+import { recommendationService } from '@/service/s/recommendationService';/
+import { useAuthStore } from '@/store/s/authStore';/
+import { Newsletter } from '@/type/s/Newsletter';/
+import { trackEvent } from '@/util/s/analytics'/
+
+

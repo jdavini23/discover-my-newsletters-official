@@ -1,13 +1,14 @@
+﻿import React from 'react';
 import Plausible from 'plausible-tracker';
 
-// Comprehensive analytics configuration
+// Comprehensive analytics configuration/
 export const ANALYTICS_CONFIG = {
   debug: import.meta.env.VITE_ANALYTICS_DEBUG === 'true',
   plausibleDomain: import.meta.env.VITE_PLAUSIBLE_DOMAIN || 'localhost',
-  plausibleApiHost: import.meta.env.VITE_PLAUSIBLE_API_HOST || 'http://localhost:3000',
+  plausibleApiHost: import.meta.env.VITE_PLAUSIBLE_API_HOST || 'http://localhost:3000',/
 };
 
-// Define event options type
+// Define event options type/
 export interface EventOptions {
   userId?: string;
   userSegment?: string;
@@ -16,7 +17,7 @@ export interface EventOptions {
   [key: string]: unknown;
 }
 
-// Tracking context for additional metadata
+// Tracking context for additional metadata/
 export interface TrackingContext {
   userId?: string;
   userSegment?: string;
@@ -26,7 +27,7 @@ export interface TrackingContext {
   context?: string;
 }
 
-// Analytics service with comprehensive tracking capabilities
+// Analytics service with comprehensive tracking capabilities/
 class AnalyticsService {
   private plausibleInstance: unknown;
   constructor() {
@@ -34,7 +35,7 @@ class AnalyticsService {
   }
   private initializeTrackers() {
     try {
-      // Only initialize if analytics is enabled and in production
+      // Only initialize if analytics is enabled and in production/
       const isAnalyticsEnabled = import.meta.env.VITE_ANALYTICS_ENABLED === 'true';
       if (isAnalyticsEnabled && import.meta.env.PROD) {
         this.plausibleInstance = Plausible({
@@ -42,26 +43,26 @@ class AnalyticsService {
           apiHost: ANALYTICS_CONFIG.plausibleApiHost,
           trackLocalhost: true,
         });
-        console.log('📊 Analytics Initialized:', {
+        console.log('ðŸ“Š Analytics Initialized:', {
           domain: ANALYTICS_CONFIG.plausibleDomain,
           apiHost: ANALYTICS_CONFIG.plausibleApiHost,
         });
       } else {
-        console.warn('🚫 Analytics tracking is disabled');
+        console.warn('ðŸš« Analytics tracking is disabled');
         this.plausibleInstance = null;
       }
     } catch (error) {
-      console.error('❌ Failed to initialize analytics:', error);
+      console.error('âŒ Failed to initialize analytics:', error);
       this.plausibleInstance = null;
     }
   }
-  // Track events with comprehensive error handling
+  // Track events with comprehensive error handling/
   trackEvent(eventName: string, eventData?: EventOptions, context?: TrackingContext): void {
-    // Skip tracking if analytics is disabled
+    // Skip tracking if analytics is disabled/
     const isAnalyticsEnabled = import.meta.env.VITE_ANALYTICS_ENABLED === 'true';
     if (!isAnalyticsEnabled) {
       if (ANALYTICS_CONFIG.debug) {
-        console.log('🔍 Analytics Tracking Skipped:', {
+        console.log('ðŸ” Analytics Tracking Skipped:', {
           eventName,
           eventData,
           context,
@@ -76,24 +77,24 @@ class AnalyticsService {
       ...context,
     };
     try {
-      // Plausible tracking with robust error handling
+      // Plausible tracking with robust error handling/
       if (this.plausibleInstance) {
         try {
           this.plausibleInstance.trackEvent(eventName, enrichedEventData);
         } catch (plausibleError) {
-          console.warn('⚠️ Plausible tracking failed:', plausibleError);
-          // Optionally log to a fallback error tracking service
+          console.warn('âš ï¸ Plausible tracking failed:', plausibleError);
+          // Optionally log to a fallback error tracking service/
         }
       }
     } catch (error) {
-      console.error('🚨 Event Tracking Error:', {
+      console.error('ðŸš¨ Event Tracking Error:', {
         eventName,
         error,
         eventData: enrichedEventData,
       });
     }
   }
-  // Track errors with context
+  // Track errors with context/
   trackError(error: Error, context?: TrackingContext): void {
     const errorData: EventOptions = {
       errorName: error.name,
@@ -102,13 +103,13 @@ class AnalyticsService {
       ...context,
     };
     console.error('Tracking Error:', errorData);
-    // Placeholder for error tracking services
+    // Placeholder for error tracking services/
     const isAnalyticsEnabled = import.meta.env.VITE_ANALYTICS_ENABLED === 'true';
     if (isAnalyticsEnabled && ANALYTICS_CONFIG.debug) {
       this.trackEvent('error', errorData);
     }
   }
-  // Track page views
+  // Track page views/
   trackPageView(
     path?: string,
     options?: {
@@ -123,7 +124,7 @@ class AnalyticsService {
     };
     this.trackEvent('page_view', pageViewData);
   }
-  // Performance tracking utilities
+  // Performance tracking utilities/
   get performanceTracker() {
     return {
       trackPageLoad: () => {
@@ -134,7 +135,7 @@ class AnalyticsService {
       },
     };
   }
-  // Recommendation tracking utilities
+  // Recommendation tracking utilities/
   get recommendationTracker() {
     return {
       trackRecommendationView: (newsletterId: string) => {
@@ -146,7 +147,7 @@ class AnalyticsService {
     };
   }
 }
-// Singleton instance of analytics service
+// Singleton instance of analytics service/
 const analytics = new AnalyticsService();
 
 export function trackEvent(eventName: string, eventData?: EventOptions, context?: TrackingContext) {
@@ -168,19 +169,48 @@ export function trackPageView(
 }
 
 export const recommendationTracker = {
-  trackRecommendationView: (newsletterId: string, context?: TrackingContext) => 
+  trackRecommendationView: (newsletterId: string, context?: TrackingContext) =>
     analytics.recommendationTracker.trackRecommendationView(newsletterId, context),
-  
-  trackRecommendationClick: (newsletterId: string, context?: TrackingContext) => 
+
+  trackRecommendationClick: (newsletterId: string, context?: TrackingContext) =>
     analytics.recommendationTracker.trackRecommendationClick(newsletterId, context),
-  
+
   trackRecommendationFeedback: (
     newsletterId: string,
     feedback: 'positive' | 'negative',
     context?: TrackingContext
-  ) => analytics.trackEvent('recommendation_feedback', { newsletterId, feedback }, context)
+  ) => analytics.trackEvent('recommendation_feedback', { newsletterId, feedback }, context),
 };
 
 export default analytics;
 
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global'/
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export = export
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+export type EventOptions = EventOptions;
+export type TrackingContext = TrackingContext
+
+
+

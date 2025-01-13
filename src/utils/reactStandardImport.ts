@@ -1,3 +1,8 @@
-export { React };
-import type { GlobalTypes } from '@/types/global';
+﻿export { React };
 import React from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default reactStandardImport
+
+

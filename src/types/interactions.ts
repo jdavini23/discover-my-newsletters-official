@@ -1,7 +1,8 @@
-const interactions = () => {
+﻿const interactions = () => {
     return null;
 };
-export type  = default;
-interactions;
-import type { GlobalTypes } from '@/types/global';
-import React from 'react';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
+import React from 'react'
+
+

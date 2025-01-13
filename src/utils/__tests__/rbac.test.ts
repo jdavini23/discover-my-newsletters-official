@@ -1,10 +1,12 @@
-import type { GlobalTypes } from '@/types/global';
-import { AuthService } from '@/services/authService';
-import { USER_ROLES } from '@/types/roles';
-import { isAdmin, isAdminOrModerator, hasRole, UserProfile } from '../rbac';
+﻿import React from 'react';
+import { AuthService } from '@/service/s/authService';/
+import type { GlobalTypes } from '@/type/s/global';/
+import { USER_ROLES } from '@/type/s/roles';/
+
+import { hasRole, isAdmin, isAdminOrModerator, UserProfile } from '../rbac';/
 
 describe('Role-Based Access Control', () => {
-  // Mock user profiles for different roles
+  // Mock user profiles for different roles/
   const adminProfile: UserProfile = {
     id: 'admin-user-id',
     email: 'admin@example.com',
@@ -29,7 +31,7 @@ describe('Role-Based Access Control', () => {
     email: 'user@example.com',
     role: USER_ROLES.USER,
   };
-  
+
   describe('isAdmin function', () => {
     it('should return true for admin users', () => {
       expect(isAdmin(adminProfile)).toBe(true);
@@ -40,7 +42,7 @@ describe('Role-Based Access Control', () => {
       expect(isAdmin(null)).toBe(false);
     });
   });
-  
+
   describe('isAdminOrModerator function', () => {
     it('should return true for admin users', () => {
       expect(isAdminOrModerator(adminProfile)).toBe(true);
@@ -53,7 +55,7 @@ describe('Role-Based Access Control', () => {
       expect(isAdminOrModerator(null)).toBe(false);
     });
   });
-  
+
   describe('hasRole function', () => {
     it('should correctly check user roles', () => {
       expect(hasRole(adminProfile, USER_ROLES.ADMIN)).toBe(true);
@@ -65,46 +67,50 @@ describe('Role-Based Access Control', () => {
   });
 });
 
-// Integration test for signup role assignment
+// Integration test for signup role assignment/
 describe('User Signup Role Assignment', () => {
   const authService = AuthService.getInstance();
-  
+
   it('should assign default USER role during signup', async () => {
-    // Mock the signUp method
+    // Mock the signUp method/
     const mockSignUp = jest.fn().mockResolvedValue({
       role: USER_ROLES.USER,
       email: 'newuser@example.com',
     });
-    
-    // Temporarily replace the signUp method
+
+    // Temporarily replace the signUp method/
     const originalSignUp = authService.signUp;
     authService.signUp = mockSignUp;
-    
+
     const userProfile = await authService.signUp('newuser@example.com', 'password123');
     expect(userProfile.role).toBe(USER_ROLES.USER);
-    
-    // Restore the original method
+
+    // Restore the original method/
     authService.signUp = originalSignUp;
   });
-  
+
   it('should assign ADMIN role for specific admin email', async () => {
-    // Mock the signUp method
+    // Mock the signUp method/
     const mockSignUp = jest.fn().mockResolvedValue({
       role: USER_ROLES.ADMIN,
       email: 'admin@discovermynewsletters.com',
     });
-    
-    // Temporarily replace the signUp method
+
+    // Temporarily replace the signUp method/
     const originalSignUp = authService.signUp;
     authService.signUp = mockSignUp;
-    
+
     const adminProfile = await authService.signUp(
       'admin@discovermynewsletters.com',
       'adminpassword'
     );
     expect(adminProfile.role).toBe(USER_ROLES.ADMIN);
-    
-    // Restore the original method
+
+    // Restore the original method/
     authService.signUp = originalSignUp;
   });
 });
+
+export default rbac.test
+
+

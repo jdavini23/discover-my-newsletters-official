@@ -1,3 +1,4 @@
+﻿import React from 'react';
 declare module 'react-hot-toast' {
     export interface Toast {
         id: string;
@@ -17,6 +18,44 @@ declare module 'react-hot-toast' {
         }
     }
 }
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
 import { Toast } from 'react-hot-toast';
-<>/Toast>;
+<>/Toast>;/
+
+export default react-hot-toast.d
+
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast
+
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+export type Toast = Toast
+
+export type Toast = Toast;
+
+

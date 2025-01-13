@@ -1,4 +1,5 @@
-type;
+﻿import React from 'react';
+
 const DarkModeToggle: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   useEffect(() => {
@@ -52,13 +53,18 @@ const DarkModeToggle: React.FC = () => {
         }}
       >
         {isDarkMode ? (
-          <SunIcon className='h-6 w-6 text-yellow-500' />
+          <SunIcon className='h-6 w-6 text-yellow-500' />/
         ) : (
-          <MoonIcon className='h-6 w-6 text-indigo-600' />
+          <MoonIcon className='h-6 w-6 text-indigo-600' />/
         )}
-      </motion.div>
-    </motion.button>
+      </motion.div>/
+    </motion.button>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import React, { useEffect, useState } from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default DarkModeToggle
+
+

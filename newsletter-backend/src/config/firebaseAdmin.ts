@@ -1,15 +1,15 @@
-import * as admin from 'firebase-admin';
-import { ServiceAccount } from 'firebase-admin/lib/credential';
+﻿import * as admin from 'firebase-admin';
+import { ServiceAccount } from 'firebase-admin/li/b/credential';/
 import dotenv from 'dotenv';
 
-// Load environment variables
-dotenv.config({ path: process.cwd() + '/.env' });
+// Load environment variables/
+dotenv.config({ path: process.cwd() + '/.env' });/
 
-// Ensure the app is only initialized once
+// Ensure the app is only initialized once/
 if (!admin.apps.length) {
   const projectId = process.env.FIREBASE_PROJECT_ID || '';
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL || '';
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\/n/g, '\n');/
 
   console.log('Firebase Config:', {
     projectId: !!projectId,
@@ -17,7 +17,7 @@ if (!admin.apps.length) {
     privateKeyLength: privateKey.length,
   });
 
-  // Validate service account config
+  // Validate service account config/
   if (!projectId || !clientEmail || !privateKey) {
     console.error('Missing Firebase service account configuration');
     console.error('Environment Variables:', {
@@ -36,13 +36,13 @@ if (!admin.apps.length) {
 
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccountConfig),
-    // Optional: Add other configuration like database URL if needed
+    // Optional: Add other configuration like database URL if needed/
   });
 }
 
 export const firebaseAdmin = admin;
 
-// Utility functions for admin operations
+// Utility functions for admin operations/
 export const verifyIdToken = async (token: string): Promise<admin.auth.DecodedIdToken> => {
   try {
     return await firebaseAdmin.auth().verifyIdToken(token);
@@ -63,7 +63,7 @@ export const createAdminUser = async (
       emailVerified: false,
     });
 
-    // Optional: Set custom claims for admin
+    // Optional: Set custom claims for admin/
     await firebaseAdmin.auth().setCustomUserClaims(user.uid, { admin: true });
 
     return user;
@@ -72,3 +72,4 @@ export const createAdminUser = async (
     throw error;
   }
 };
+

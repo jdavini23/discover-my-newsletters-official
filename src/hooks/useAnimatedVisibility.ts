@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+﻿import React from 'react';
+import { useEffect, useState } from 'react';
 
 export const useAnimatedVisibility = (delay = 50) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -16,8 +17,12 @@ export const useAnimatedVisibility = (delay = 50) => {
     content: `
       transition-all duration-1000 
       ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'}
-    `
+    `,
   };
 
   return { isVisible, visibilityClasses };
 };
+
+export default useAnimatedVisibility
+
+

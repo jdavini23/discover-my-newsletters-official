@@ -1,4 +1,5 @@
-// Conditionally import recharts
+﻿import React from 'react';
+// Conditionally import recharts/
 CartesianGrid,
     Cell,
     Line,
@@ -11,14 +12,14 @@ CartesianGrid,
     YAxis;
 from;
 'recharts';
-// Color palette for visualizations
+// Color palette for visualizations/
 const COLOR_PALETTE = [
-    '#3B82F6', // Blue
-    '#10B981', // Green
-    '#F43F5E', // Red
-    '#8B5CF6', // Purple
+    '#3B82F6', // Blue/
+    '#10B981', // Green/
+    '#F43F5E', // Red/
+    '#8B5CF6', // Purple/
 ];
-// Mock data generation for demonstration
+// Mock data generation for demonstration/
 const generateMockInsightsData = () => {
     return {
         algorithmPerformance: [
@@ -48,13 +49,13 @@ const RecommendationInsightsDashboard: React.FC = () => {
         const fetchInsightsData = async () => {
             try {
                 setLoading(true);
-                // TODO: Implement actual data fetching
-                // const data = await recommendationService.fetchRecommendationInsights();
+                // TODO: Implement actual data fetching/
+                // const data = await recommendationService.fetchRecommendationInsights();/
                 const data = generateMockInsightsData();
                 setInsightsData(data);
-                // Fetch active A/B tests
-                // const activeTests = await ABTestingService.getActiveTests();
-                // setActiveTest(activeTests[0]?.id || null);
+                // Fetch active /A/B tests/
+                // const activeTests = await ABTestingService.getActiveTests();/
+                // setActiveTest(activeTests[0]?.id || null);/
             }
             catch (error) {
                 console.error('Failed to fetch recommendation insights:', error);
@@ -68,103 +69,104 @@ const RecommendationInsightsDashboard: React.FC = () => {
     const interactionRatio = useMemo(() => {
         const { totalRecommendations, positiveInteractions } = insightsData.userInteractions;
         return totalRecommendations > 0
-            ? ((positiveInteractions / totalRecommendations) * 100).toFixed(2)
+            ? ((positiveInteractions / totalRecommendations) * 100).toFixed(2)/
             : '0.00';
     }, [insightsData]);
     if (loading) {
         return (<div className='flex justify-center items-center h-screen'>
-        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500'></div>
-      </div>);
+        <div className='animate-spin rounded-full h-32 w-32 border-t-2 border-primary-500'></div>/
+      </div>);/
     }
     return (<div className='container mx-auto px-4 py-8'>
       <div className='mb-8'>
-        <h1 className='text-3xl font-bold text-gray-900 mb-2'>Recommendation Insights</h1>
+        <h1 className='text-3xl font-bold text-gray-900 mb-2'>Recommendation Insights</h1>/
         <p className='text-gray-600'>
           Comprehensive analytics of our newsletter recommendation system
-        </p>
-      </div>
+        </p>/
+      </div>/
 
       <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8'>
-        {/* Algorithm Performance Card */}
+        {/* Algorithm Performance Card /*/}/
         <div>
           <div className='flex justify-between items-center mb-4'>
-            <BarChart className='w-8 h-8 text-primary-500'/>
-            <h3 className='text-xl font-bold text-gray-900'>Algorithm Performance</h3>
-          </div>
-          {/* Fallback to simple div if PieChart fails */}
+            <BarChart className='w-8 h-8 text-primary-500'/>/
+            <h3 className='text-xl font-bold text-gray-900'>Algorithm Performance</h3>/
+          </div>/
+          {/* Fallback to simple div if PieChart fails /*/}/
           <div className='h-[200px] overflow-auto'>
             {insightsData.algorithmPerformance.map((perf, index) => (<div key={perf.variant} className='flex items-center mb-2' style={{
             color: COLOR_PALETTE[index % COLOR_PALETTE.length]
         }}>
                 <div className='w-4 h-4 mr-2 rounded-full' style={{
             backgroundColor: COLOR_PALETTE[index % COLOR_PALETTE.length]
-        }}/>
+        }}/>/
                 <span>
                   {perf.variant}: {perf.score.toFixed(2)}
-                </span>
-              </div>))}
-          </div>
-        </div>
+                </span>/
+              </div>))}/
+          </div>/
+        </div>/
 
-        {/* User Interactions Card */}
+        {/* User Interactions Card /*/}/
         <div>
           <div className='flex justify-between items-center mb-4'>
-            <Star className='w-8 h-8 text-primary-500'/>
-            <h3 className='text-xl font-bold text-gray-900'>User Interactions</h3>
-          </div>
+            <Star className='w-8 h-8 text-primary-500'/>/
+            <h3 className='text-xl font-bold text-gray-900'>User Interactions</h3>/
+          </div>/
           <div className='grid grid-cols-2 gap-4'>
             <div>
-              <p className='text-sm text-gray-500'>Total Recommendations</p>
+              <p className='text-sm text-gray-500'>Total Recommendations</p>/
               <p className='text-2xl font-bold text-primary-600'>
                 {insightsData.userInteractions.totalRecommendations}
-              </p>
-            </div>
+              </p>/
+            </div>/
             <div>
-              <p className='text-sm text-gray-500'>Interaction Ratio</p>
-              <p className='text-2xl font-bold text-green-600'>{interactionRatio}%</p>
-            </div>
-          </div>
-        </div>
+              <p className='text-sm text-gray-500'>Interaction Ratio</p>/
+              <p className='text-2xl font-bold text-green-600'>{interactionRatio}%</p>/
+            </div>/
+          </div>/
+        </div>/
 
-        {/* Performance Trend Card */}
+        {/* Performance Trend Card /*/}/
         <div>
           <div className='flex justify-between items-center mb-4'>
-            <Zap className='w-8 h-8 text-primary-500'/>
-            <h3 className='text-xl font-bold text-gray-900'>Performance Trend</h3>
-          </div>
+            <Zap className='w-8 h-8 text-primary-500'/>/
+            <h3 className='text-xl font-bold text-gray-900'>Performance Trend</h3>/
+          </div>/
           <div className='h-[200px] overflow-auto'>
             {insightsData.timeSeriesData.map((data) => (<div key={data.day} className='flex justify-between mb-1'>
-                <span>Day {data.day}</span>
-                <span>Recommendations: {data.recommendations}</span>
-                <span>Interactions: {data.interactions}</span>
-              </div>))}
-          </div>
-        </div>
-      </div>
+                <span>Day {data.day}</span>/
+                <span>Recommendations: {data.recommendations}</span>/
+                <span>Interactions: {data.interactions}</span>/
+              </div>))}/
+          </div>/
+        </div>/
+      </div>/
 
-      {/* Active A/B Test Section */}
+      {/* Active /A/B Test Section /*/}/
       {activeTest && (<div className='bg-white rounded-xl shadow-lg p-6 mt-8'>
-          <h2 className='text-2xl font-bold mb-4'>Active A/B Test</h2>
+          <h2 className='text-2xl font-bold mb-4'>Active A/B Test/</h2>/
           <div className='grid md:grid-cols-2 gap-4'>
             <div>
-              <p className='font-semibold'>Test ID</p>
-              <p>{activeTest}</p>
-            </div>
-            {/* Add more A/B test details */}
-          </div>
-        </div>)}
-    </div>);
+              <p className='font-semibold'>Test ID</p>/
+              <p>{activeTest}</p>/
+            </div>/
+            {/* Add more /A/B test details /*/}/
+          </div>/
+        </div>)}/
+    </div>);/
 };
-export type  = default;
-RecommendationInsightsDashboard;
-import type { GlobalTypes } from '@/types/global';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
 import { BarChart, Star, TrendingUp, Zap } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { import } from {
     ABTestingService, RecommendationAlgorithmVariant
 };
 from;
-'@/ml/abTestingFramework';
-import { recommendationService } from '@/services/recommendationService';
-import { useAuthStore } from '@/stores/authStore';
-import { recommendationTracker } from '@/utils/analytics';
+'@/m/l/abTestingFramework';/
+import { recommendationService } from '@/service/s/recommendationService';/
+import { useAuthStore } from '@/store/s/authStore';/
+import { recommendationTracker } from '@/util/s/analytics'/
+
+

@@ -1,7 +1,7 @@
-import axios from 'axios';
+﻿import axios from 'axios';
 import chalk from 'chalk';
 
-const API_URL = process.env.API_URL || 'http://localhost:3000';
+const API_URL = process.env.API_URL || 'http://localhost:3000';/
 
 interface TestResult {
   name: string;
@@ -12,7 +12,7 @@ interface TestResult {
 
 async function testSecurityHeaders() {
   try {
-    const response = await axios.get(`${API_URL}/health`);
+    const response = await axios.get(`${API_URL}/health`);/
     const headers = response.headers;
 
     const results: TestResult[] = [
@@ -57,9 +57,9 @@ async function testSecurityHeaders() {
 
 async function testCsrfProtection() {
   try {
-    // Try to make a POST request without CSRF token
+    // Try to make a POST request without CSRF token/
     try {
-      await axios.post(`${API_URL}/api/auth/login`, {
+      await axios.post(`${API_URL}/ap/i/aut/h/login`, {/
         email: 'test@example.com',
         password: 'password123',
       });
@@ -91,7 +91,7 @@ async function testRateLimiting() {
   try {
     const requests = Array(11)
       .fill(null)
-      .map(() => axios.get(`${API_URL}/health`));
+      .map(() => axios.get(`${API_URL}/health`));/
 
     try {
       await Promise.all(requests);
@@ -120,41 +120,42 @@ async function testRateLimiting() {
 }
 
 async function runSecurityTests() {
-  console.log(chalk.blue('🔒 Starting Security Tests...\n'));
+  console.log(chalk.blue('ðŸ”’ Starting Security Tests...\n'));
 
-  // Test Security Headers
+  // Test Security Headers/
   console.log(chalk.yellow('Testing Security Headers...'));
   const headerResults = await testSecurityHeaders();
   headerResults.forEach((result) => {
     if (result.success) {
-      console.log(chalk.green(`✓ ${result.name}: ${result.message}`));
+      console.log(chalk.green(`âœ“ ${result.name}: ${result.message}`));
     } else {
-      console.log(chalk.red(`✗ ${result.name}: ${result.error || 'Failed'}`));
+      console.log(chalk.red(`âœ— ${result.name}: ${result.error || 'Failed'}`));
     }
   });
 
-  // Test CSRF Protection
+  // Test CSRF Protection/
   console.log(chalk.yellow('\nTesting CSRF Protection...'));
   const csrfResult = await testCsrfProtection();
   if (csrfResult.success) {
-    console.log(chalk.green(`✓ ${csrfResult.name}: ${csrfResult.message}`));
+    console.log(chalk.green(`âœ“ ${csrfResult.name}: ${csrfResult.message}`));
   } else {
-    console.log(chalk.red(`✗ ${csrfResult.name}: ${csrfResult.error || csrfResult.message}`));
+    console.log(chalk.red(`âœ— ${csrfResult.name}: ${csrfResult.error || csrfResult.message}`));
   }
 
-  // Test Rate Limiting
+  // Test Rate Limiting/
   console.log(chalk.yellow('\nTesting Rate Limiting...'));
   const rateLimitResult = await testRateLimiting();
   if (rateLimitResult.success) {
-    console.log(chalk.green(`✓ ${rateLimitResult.name}: ${rateLimitResult.message}`));
+    console.log(chalk.green(`âœ“ ${rateLimitResult.name}: ${rateLimitResult.message}`));
   } else {
     console.log(
-      chalk.red(`✗ ${rateLimitResult.name}: ${rateLimitResult.error || rateLimitResult.message}`)
+      chalk.red(`âœ— ${rateLimitResult.name}: ${rateLimitResult.error || rateLimitResult.message}`)
     );
   }
 
-  console.log(chalk.blue('\n🔒 Security Tests Completed'));
+  console.log(chalk.blue('\nðŸ”’ Security Tests Completed'));
 }
 
-// Run the tests
+// Run the tests/
 runSecurityTests().catch(console.error);
+

@@ -1,4 +1,4 @@
-// Extend the LucideIcon type to include className
+﻿// Extend the LucideIcon type to include className/
 interface ExtendedLucideIcon extends LucideIcon {
   className?: string;
 }
@@ -40,19 +40,22 @@ const HomeFeatures: React.FC = () => {
           >
             <div className='flex justify-center mb-4'>
               <div className={`bg-${feature.color}-100 text-${feature.color}-600 p-3 rounded-full`}>
-                <feature.icon className='h-8 w-8' />
-              </div>
-            </div>
-            <h3 className='text-xl font-semibold mb-2 text-gray-900'>{feature.title}</h3>
-            <p className='text-gray-600'>{feature.description}</p>
-          </div>
+                <feature.icon className='h-8 w-8' />/
+              </div>/
+            </div>/
+            <h3 className='text-xl font-semibold mb-2 text-gray-900'>{feature.title}</h3>/
+            <p className='text-gray-600'>{feature.description}</p>/
+          </div>/
         ))}
-      </div>
-    </div>
+      </div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import { Lightbulb, LucideIcon, Rocket, Sparkles } from 'lucide-react';
 import React from 'react';
 
-export default HomeFeatures;
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default HomeFeatures
+
+

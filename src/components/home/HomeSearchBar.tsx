@@ -1,7 +1,9 @@
-import type { GlobalTypes } from '@/types/global';
+﻿import React from 'react';
 import { Search, Sparkles } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+import type { GlobalTypes } from '@/type/s/global';/
 
 export const HomeSearchBar: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ export const HomeSearchBar: React.FC = () => {
     (e: React.FormEvent) => {
       e.preventDefault();
       if (searchQuery.trim()) {
-        navigate('/newsletters', {
+        navigate('/newsletters', {/
           state: { initialSearch: searchQuery },
         });
       }
@@ -28,8 +30,8 @@ export const HomeSearchBar: React.FC = () => {
           <div
             className={`absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-all duration-300 ${isFocused ? 'opacity-70 translate-x-0' : 'opacity-50 -translate-x-2'}`}
           >
-            <Search className='h-5 w-5 text-primary-500 transition-colors' />
-          </div>
+            <Search className='h-5 w-5 text-primary-500 transition-colors' />/
+          </div>/
 
           <input
             ref={inputRef}
@@ -43,10 +45,10 @@ export const HomeSearchBar: React.FC = () => {
               block w-full 
               pl-10 pr-3 py-3 
               border-2 border-transparent 
-              bg-white/80 backdrop-blur-sm 
+              bg-white/80 backdrop-blur-sm /
               rounded-l-xl rounded-r-xl 
               focus:outline-none 
-              focus:ring-2 focus:ring-primary/30 
+              focus:ring-2 focus:ring-primary/30 /
               focus:border-primary 
               text-sm 
               shadow-md 
@@ -55,16 +57,16 @@ export const HomeSearchBar: React.FC = () => {
               duration-300 
               ease-in-out
             '
-          />
+          />/
 
           {searchQuery.length > 0 && (
             <div
-              className={`absolute right-3 top-1/2 -translate-y-1/2 transition-all duration-300 ${searchQuery.length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+              className={`absolute right-3 top-1/2 -translate-y-/1/2 transition-all duration-300 ${searchQuery.length > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}/
             >
-              <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />
-            </div>
+              <Sparkles className='h-5 w-5 text-primary-600 animate-pulse' aria-hidden='true' />/
+            </div>/
           )}
-        </div>
+        </div>/
 
         <button
           type='submit'
@@ -88,12 +90,12 @@ export const HomeSearchBar: React.FC = () => {
             active:scale-95
           '
         >
-          <Sparkles className='h-5 w-5 opacity-70' />
+          <Sparkles className='h-5 w-5 opacity-70' />/
           Discover
-        </button>
-      </form>
+        </button>/
+      </form>/
 
-      {/* Playful background effect */}
+      {/* Playful background effect /*/}/
       <div
         className='
           absolute 
@@ -103,8 +105,8 @@ export const HomeSearchBar: React.FC = () => {
           right-0 
           bottom-0 
           bg-gradient-to-br 
-          from-primary-50/30 
-          to-primary-100/30 
+          from-primary-50/30 /
+          to-primary-100/30 /
           rounded-xl 
           opacity-0 
           group-hover:opacity-100 
@@ -116,7 +118,11 @@ export const HomeSearchBar: React.FC = () => {
           transform: isFocused ? 'scale(1.02)' : 'scale(1)',
           transition: 'opacity 0.5s, transform 0.5s',
         }}
-      />
-    </div>
+      />/
+    </div>/
   );
 };
+
+export default HomeSearchBar
+
+

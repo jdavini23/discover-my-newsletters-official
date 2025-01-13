@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 export const validateRequest = (
@@ -19,5 +19,6 @@ export const validateRequest = (
 };
 
 export const validateAdminCreation = [
-  // Add specific validation rules for admin creation here
+  // Add specific validation rules for admin creation here/
 ];
+

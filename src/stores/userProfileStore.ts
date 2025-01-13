@@ -1,4 +1,5 @@
-export type interface = UserProfileState;
+﻿import React from 'react';
+
 {
     profile: UserProfile | null;
     loading: boolean;
@@ -30,7 +31,7 @@ const useUserProfileStore = create<UserProfileState>()(devtools(persist(immer((s
         }
         catch (error) {
             console.error('Profile fetch error:', error);
-            // If the error is a permissions issue, try to create the profile
+            // If the error is a permissions issue, try to create the profile/
             if (error instanceof Error &&
                 error.message.includes('Missing or insufficient permissions')) {
                 try {
@@ -125,14 +126,16 @@ const useUserProfileStore = create<UserProfileState>()(devtools(persist(immer((s
         profile: state.profile
     })
 })));
-export { default as useUserProfileStore } from './userProfileStore';
-export type  = default;
-useUserProfileStore;
-import type { GlobalTypes } from '@/types/global';
-import { getAuth } from 'firebase/auth';
+export { default as useUserProfileStore } from './userProfileStore';/
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
+import { getAuth } from 'firebase/auth';/
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import { createUserProfile, fetchUserProfile, updateUserProfile } from '@/services/firestore';
-import { UserProfile } from '@/types/profile';
-<>/UserProfileState>;
+import { devtools, persist } from 'zustand/middleware';/
+import { immer } from 'zustand/middlewar/e/immer';/
+import { createUserProfile, fetchUserProfile, updateUserProfile } from '@/service/s/firestore';/
+import { UserProfile } from '@/type/s/profile';/
+<>/UserProfileState>/
+
+
+

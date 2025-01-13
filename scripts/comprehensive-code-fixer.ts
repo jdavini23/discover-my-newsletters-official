@@ -1,8 +1,8 @@
-import { execSync } from 'child_process';
+﻿import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-// Color utility for console output
+// Color utility for console output/
 const colors = {
   green: '\x1b[32m',
   yellow: '\x1b[33m',
@@ -10,19 +10,19 @@ const colors = {
   reset: '\x1b[0m',
 };
 
-// Logging utility
+// Logging utility/
 function log(message: string, color = colors.green) {
   console.log(`${color}${message}${colors.reset}`);
 }
 
-// Function to install missing dependencies
+// Function to install missing dependencies/
 function installDependencies(): void {
   log('Installing missing dependencies...');
   const dependencies = [
     'eslint-plugin-prettier',
     'eslint-plugin-simple-import-sort',
-    '@typescript-eslint/eslint-plugin',
-    '@typescript-eslint/parser',
+    '@typescript-eslint/eslint-plugin',/
+    '@typescript-eslint/parser',/
   ];
 
   try {
@@ -36,7 +36,7 @@ function installDependencies(): void {
   }
 }
 
-// Function to update ESLint configuration
+// Function to update ESLint configuration/
 function updateESLintConfig(): void {
   const eslintConfigPath = path.resolve(process.cwd(), '.eslintrc.json');
 
@@ -44,11 +44,11 @@ function updateESLintConfig(): void {
     const eslintConfigContent = fs.readFileSync(eslintConfigPath, 'utf8');
     const eslintConfig = JSON.parse(eslintConfigContent);
 
-    // Enhance ESLint configuration
+    // Enhance ESLint configuration/
     eslintConfig.extends = [
       'eslint:recommended',
-      'plugin:@typescript-eslint/recommended',
-      'plugin:react-hooks/recommended',
+      'plugin:@typescript-eslint/recommended',/
+      'plugin:react-hooks/recommended',/
       'prettier',
     ];
 
@@ -62,13 +62,13 @@ function updateESLintConfig(): void {
     eslintConfig.rules = {
       ...(eslintConfig.rules || {}),
       'no-console': 'warn',
-      '@typescript-eslint/explicit-function-return-type': 'error',
-      '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/strict-boolean-expressions': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'error',/
+      '@typescript-eslint/no-explicit-any': 'error',/
+      '@typescript-eslint/strict-boolean-expressions': 'error',/
       'max-lines-per-function': ['warn', { max: 50 }],
       complexity: ['warn', { max: 10 }],
-      'simple-import-sort/imports': 'error',
-      'simple-import-sort/exports': 'error',
+      'simple-import-sort/imports': 'error',/
+      'simple-import-sort/exports': 'error',/
     };
 
     fs.writeFileSync(eslintConfigPath, JSON.stringify(eslintConfig, null, 2));
@@ -83,7 +83,7 @@ function updateESLintConfig(): void {
   }
 }
 
-// Function to update TypeScript configuration
+// Function to update TypeScript configuration/
 function updateTSConfig(): void {
   const tsconfigPath = path.resolve(process.cwd(), 'tsconfig.json');
 
@@ -91,7 +91,7 @@ function updateTSConfig(): void {
     const tsconfigContent = fs.readFileSync(tsconfigPath, 'utf8');
     const tsconfig = JSON.parse(tsconfigContent);
 
-    // Enhance TypeScript configuration
+    // Enhance TypeScript configuration/
     tsconfig.compilerOptions = {
       ...(tsconfig.compilerOptions || {}),
       strict: true,
@@ -116,7 +116,7 @@ function updateTSConfig(): void {
   }
 }
 
-// Main function to run all fixes
+// Main function to run all fixes/
 function runCodeFix(): void {
   log('Starting comprehensive code fix...', colors.yellow);
 
@@ -124,7 +124,7 @@ function runCodeFix(): void {
   updateESLintConfig();
   updateTSConfig();
 
-  // Run ESLint auto-fix
+  // Run ESLint auto-fix/
   try {
     log('Running ESLint auto-fix...', colors.yellow);
     execSync('npm run lint:fix', { stdio: 'inherit' });
@@ -134,7 +134,7 @@ function runCodeFix(): void {
     console.error(error);
   }
 
-  // Type checking
+  // Type checking/
   try {
     log('Running TypeScript type check...', colors.yellow);
     execSync('npm run typecheck', { stdio: 'inherit' });
@@ -147,5 +147,6 @@ function runCodeFix(): void {
   log('Comprehensive code fix completed!', colors.green);
 }
 
-// Execute the fix
+// Execute the fix/
 runCodeFix();
+

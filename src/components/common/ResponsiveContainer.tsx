@@ -1,9 +1,9 @@
-interface ResponsiveContainerProps {
+﻿interface ResponsiveContainerProps {
   children: React.ReactNode;
   className?: string;
   showDarkModeToggle?: boolean;
 }
-type;
+
 const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
   children,
   className = '',
@@ -32,15 +32,21 @@ const ResponsiveContainer: React.FC<ResponsiveContainerProps> = ({
           z-50
         `}
         >
-          <DarkModeToggle />
-        </div>
+          <DarkModeToggle />/
+        </div>/
       )}
 
-      <div>{children}</div>
-    </div>
+      <div>{children}</div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import React from 'react';
-import { useResponsive } from '../../hooks/useResponsive';
-import { DarkModeToggle } from '../ui/DarkModeToggle';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+import { useResponsive } from '../././hook/s/useResponsive';/
+import { DarkModeToggle } from '../u/i/DarkModeToggle';/
+
+export default ResponsiveContainer
+
+

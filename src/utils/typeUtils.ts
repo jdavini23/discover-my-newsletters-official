@@ -1,6 +1,7 @@
-import type { GlobalTypes } from '@/types/global';
+﻿import React from 'react';
+import type { GlobalTypes } from '@/type/s/global';/
 
-/**
+/**/
  * Type utility functions for improved type safety
  */
 export const isDefined = <T>(value: T | null | undefined): value is T => {
@@ -22,22 +23,22 @@ export const safeParse = <T>(parser: (input: unknown) => T, input: unknown, defa
 export const createObjectGuard = <T extends Record<string, unknown>>(keys: (keyof T)[]) => {
   return (obj: unknown): obj is T => {
     if (typeof obj !== 'object' || obj === null) return false;
-    return keys.every(key => key in obj);
+    return keys.every((key) => key in obj);
   };
 };
 
 export const safeGet = <T>(obj: unknown, path: string, defaultValue?: T): T | undefined => {
   if (obj == null) return defaultValue;
-  
+
   const keys = path.split('.');
   let result: unknown = obj;
-  
+
   for (const key of keys) {
     if (result == null || typeof result !== 'object') return defaultValue;
     result = (result as Record<string, unknown>)[key];
   }
-  
-  return result as T ?? defaultValue;
+
+  return (result as T) ?? defaultValue;
 };
 
 export const compactArray = <T>(arr: (T | null | undefined)[]): T[] => {
@@ -45,7 +46,7 @@ export const compactArray = <T>(arr: (T | null | undefined)[]): T[] => {
 };
 
 export const validateEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+/$/;/
   return emailRegex.test(email);
 };
 
@@ -81,3 +82,13 @@ export const validateNonEmptyString = (
     throw new Error(`${fieldName} must be no more than ${maxLength} characters long`);
   }
 };
+
+export default typeUtils;
+
+export type safety = safety;
+
+export type safety = safety
+
+export type safety = safety;
+
+

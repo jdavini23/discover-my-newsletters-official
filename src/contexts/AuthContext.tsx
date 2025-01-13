@@ -1,6 +1,7 @@
+﻿import { User } from 'firebase/auth';/
 import React, { createContext, ReactNode, useContext } from 'react';
-import { User } from 'firebase/auth';
-import { useAuthStore } from '@/stores/authStore';
+
+import { useAuthStore } from '@/store/s/authStore';/
 
 interface AuthContextType {
   user: User | null;
@@ -23,7 +24,7 @@ const AuthProvider: React.FC<{
       }}
     >
       {children}
-    </AuthContext.Provider>
+    </AuthContext.Provider>/
   );
 };
 
@@ -36,3 +37,4 @@ const useAuth = () => {
 };
 
 export { AuthProvider, useAuth };
+

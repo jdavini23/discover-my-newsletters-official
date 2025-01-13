@@ -1,5 +1,6 @@
+﻿import React from 'react';
 'use client';
-export type  = default;
+
 function ClientWrapper({ children }: {
     children: ReactNode;
 }) {
@@ -10,7 +11,11 @@ function ClientWrapper({ children }: {
     if (!isClient) {
         return null;
     }
-    return <unknown>{children}</>;
+    return <unknown>{children}</>;/
 }
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
 import { ReactNode, useEffect, useState } from 'react';
+
+export default ClientWrapper
+
+

@@ -1,28 +1,28 @@
-#!/usr/bin/env node
+﻿#!/us/r/bi/n/env node/
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Get the directory name of the current module
+// Get the directory name of the current module/
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configuration for type fixes
+// Configuration for type fixes/
 const CONFIG = {
-  // Directories to scan for type issues
+  // Directories to scan for type issues/
   SCAN_DIRS: [
-    'src/components',
-    'src/pages',
-    'src/services',
-    'src/stores',
-    'src/types',
-    'src/utils',
-    'src/ml',
+    'src/components',/
+    'src/pages',/
+    'src/services',/
+    'src/stores',/
+    'src/types',/
+    'src/utils',/
+    'src/ml',/
   ],
 
-  // Common type resolution strategies
+  // Common type resolution strategies/
   TYPE_FIXES: {
-    // Resolve missing imports
+    // Resolve missing imports/
     missingImports: {
       'react-hot-toast': [
         "import toast, { ToastOptions } from 'react-hot-toast';",
@@ -37,9 +37,9 @@ const CONFIG = {
       ],
     },
 
-    // Type declaration additions
+    // Type declaration additions/
     typeDeclarations: {
-      // Add missing type declarations
+      // Add missing type declarations/
       Newsletter: {
         requiredFields: [
           'id: string',
@@ -70,7 +70,7 @@ const CONFIG = {
       },
     },
 
-    // Enum and constant additions
+    // Enum and constant additions/
     enumFixes: {
       RecommendationAlgorithmVariant: [
         'CONTENT_BASED = "content_based"',
@@ -88,11 +88,11 @@ const CONFIG = {
     },
   },
 
-  // Utility functions for type resolution
+  // Utility functions for type resolution/
   resolveTypeIssues: function (filePath: string) {
     let fileContent = fs.readFileSync(filePath, 'utf-8');
 
-    // Add missing imports
+    // Add missing imports/
     Object.entries(this.TYPE_FIXES.missingImports).forEach(([module, imports]) => {
       if (
         fileContent.includes(module) &&
@@ -103,7 +103,7 @@ const CONFIG = {
       }
     });
 
-    // Add type declarations
+    // Add type declarations/
     Object.entries(this.TYPE_FIXES.typeDeclarations).forEach(([typeName, typeConfig]) => {
       if (
         fileContent.includes(typeName) &&
@@ -122,7 +122,7 @@ interface ${typeName} {
       }
     });
 
-    // Add enums
+    // Add enums/
     Object.entries(this.TYPE_FIXES.enumFixes).forEach(([enumName, enumValues]) => {
       if (fileContent.includes(enumName) && Array.isArray(enumValues)) {
         const enumDeclaration = `
@@ -139,12 +139,12 @@ enum ${enumName} {
     fs.writeFileSync(filePath, fileContent);
   },
 
-  // Main type fixing process
+  // Main type fixing process/
   fixTypes: function () {
     this.SCAN_DIRS.forEach((dir) => {
       const fullPath = path.join(__dirname, dir);
 
-      // Recursively find TypeScript files
+      // Recursively find TypeScript files/
       const findTsFiles = (dirPath: string): string[] => {
         const files = fs.readdirSync(dirPath);
 
@@ -176,5 +176,6 @@ enum ${enumName} {
   },
 };
 
-// Run type fixing process
+// Run type fixing process/
 CONFIG.fixTypes();
+

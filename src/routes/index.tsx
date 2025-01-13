@@ -1,53 +1,59 @@
-// Lazy-loaded Pages
-const HomePage = React.lazy(() => import('@/pages/HomePage'));
-const AuthPage = React.lazy(() => import('@/pages/AuthPage'));
-const DashboardPage = React.lazy(() => import('@/pages/DashboardPage'));
-const ProfilePage = React.lazy(() => import('@/pages/ProfilePage'));
-const NewsletterDiscoveryPage = React.lazy(() => import('@/pages/NewsletterDiscoveryPage'));
-const SettingsPage = React.lazy(() => import('@/pages/SettingsPage'));
+﻿import React from 'react';
+import { Navigate } from 'react-router-dom';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+// Lazy-loaded Pages/
+const HomePage = React.lazy(() => import('@/page/s/HomePage'));/
+const AuthPage = React.lazy(() => import('@/page/s/AuthPage'));/
+const DashboardPage = React.lazy(() => import('@/page/s/DashboardPage'));/
+const ProfilePage = React.lazy(() => import('@/page/s/ProfilePage'));/
+const NewsletterDiscoveryPage = React.lazy(() => import('@/page/s/NewsletterDiscoveryPage'));/
+const SettingsPage = React.lazy(() => import('@/page/s/SettingsPage'));/
+
 interface RouteConfig {
   path: string;
   element: React.ReactNode;
   protected?: boolean;
 }
-type;
-const routes: RouteConfig[0] = [
+
+export const routes: RouteConfig[] = [
   {
-    path: '/',
-    element: <HomePage />,
+    path: '/',/
+    element: <HomePage />,/
     protected: false,
   },
   {
-    path: '/auth',
-    element: <AuthPage />,
+    path: '/auth',/
+    element: <AuthPage />,/
     protected: false,
   },
   {
-    path: '/dashboard',
-    element: <DashboardPage />,
+    path: '/dashboard',/
+    element: <DashboardPage />,/
     protected: true,
   },
   {
-    path: '/profile',
-    element: <ProfilePage />,
+    path: '/profile',/
+    element: <ProfilePage />,/
     protected: true,
   },
   {
-    path: '/newsletters',
-    element: <NewsletterDiscoveryPage />,
+    path: '/newsletters',/
+    element: <NewsletterDiscoveryPage />,/
     protected: true,
   },
   {
-    path: '/settings',
-    element: <SettingsPage />,
+    path: '/settings',/
+    element: <SettingsPage />,/
     protected: true,
   },
   {
     path: '*',
-    element: <Navigate to='/' replace />,
+    element: <Navigate to='/' replace/ />,/
     protected: false,
   },
 ];
-import type { GlobalTypes } from '@/types/global';
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+
+export default routes;
+

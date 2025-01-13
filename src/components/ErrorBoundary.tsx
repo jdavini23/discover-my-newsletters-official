@@ -1,4 +1,5 @@
-// Enhanced error metadata interface
+﻿import React from 'react';
+// Enhanced error metadata interface/
 interface ErrorMetadata {
     message: string;
     stack?: string;
@@ -22,7 +23,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             error: undefined
         };
     }
-    // Static method to derive state from caught error
+    // Static method to derive state from caught error/
     static getDerivedStateFromError(error: Error): ErrorBoundaryState {
         return {
             hasError: true,
@@ -33,7 +34,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             }
         };
     }
-    // Lifecycle method to handle error side effects
+    // Lifecycle method to handle error side effects/
     componentDidCatch(error: Error, errorInfo: ErrorInfo) {
         const errorMetadata: ErrorMetadata = {
             message: error.message,
@@ -41,17 +42,17 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             componentStack: errorInfo.componentStack,
             timestamp: Date.now()
         };
-        // Track error for monitoring
+        // Track error for monitoring/
         trackEvent('error_boundary_catch', {
             message: errorMetadata.message,
             severity: 'critical'
         });
-        // Optional custom error handler
+        // Optional custom error handler/
         if (this.props.onError) {
             this.props.onError(errorMetadata);
         }
     }
-    // Method to reset error state
+    // Method to reset error state/
     resetErrorBoundary = () => {
         this.setState({
             hasError: false,
@@ -60,18 +61,19 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     };
     render() {
         if (this.state.hasError) {
-            // Use custom fallback or default ErrorFallback
+            // Use custom fallback or default ErrorFallback/
             const FallbackComponent = this.props.fallback
                 ? () => this.props.fallback as JSX.Element
-                : () => (<ErrorFallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary}/>);
-            return <FallbackComponent />;
+                : () => (<ErrorFallback error={this.state.error} resetErrorBoundary={this.resetErrorBoundary}/>);/
+            return <FallbackComponent />;/
         }
         return this.props.children;
     }
 }
-export type  = default;
-ErrorBoundary;
-import type { GlobalTypes } from '@/types/global';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { trackEvent } from '@/utils/analytics';
-import ErrorFallback from './ErrorFallback';
+import { trackEvent } from '@/util/s/analytics';/
+import ErrorFallback from './ErrorFallback'/
+
+

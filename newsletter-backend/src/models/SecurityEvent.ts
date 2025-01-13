@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
+﻿import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('security_events')
 export class SecurityEvent {
@@ -43,3 +43,4 @@ export class SecurityEvent {
     };
   }
 }
+

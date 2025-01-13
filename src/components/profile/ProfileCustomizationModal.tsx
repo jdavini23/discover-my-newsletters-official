@@ -1,3 +1,4 @@
+﻿import React from 'react';
 const NEWSLETTER_CATEGORIES = [
   'Technology',
   'Science',
@@ -28,7 +29,7 @@ interface ProfileCustomizationModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
-type;
+
 const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
   isOpen,
   onClose,
@@ -42,13 +43,13 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
     'weekly'
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // Dark mode state
+  // Dark mode state/
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
   useEffect(() => {
     if (user) {
       setDisplayName(user.displayName || '');
       setEmail(user.email || '');
-      // Check current theme preference
+      // Check current theme preference/
       const savedTheme = localStorage.getItem('theme');
       setIsDarkMode(savedTheme === 'dark');
     }
@@ -78,13 +79,13 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Validate inputs
+      // Validate inputs/
       if (!displayName) {
         toast.error('Display name cannot be empty');
         setIsLoading(false);
         return undefined;
       }
-      // Prepare update payload
+      // Prepare update payload/
       const updatePayload = {
         displayName,
         email,
@@ -94,10 +95,10 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
           darkMode: isDarkMode,
         },
       };
-      // Attempt to update profile
+      // Attempt to update profile/
       const authService = AuthService.getInstance();
       await authService.updateProfile(updatePayload);
-      // Handle profile image upload if exists
+      // Handle profile image upload if exists/
       if (profileImage) {
         const formData = new FormData();
         formData.append('profileImage', profileImage);
@@ -106,17 +107,17 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
           await authService.uploadProfileImage(formData);
         } catch (imageUploadError: unknown) {
           console.error('Image upload failed', imageUploadError);
-          // Non-blocking error for image upload
+          // Non-blocking error for image upload/
         }
       }
-      // Close modal and refresh profile
+      // Close modal and refresh profile/
       onClose();
     } catch (error: unknown) {
       console.error('Profile update error:', error);
-      // Specific error handling
+      // Specific error handling/
       if (error instanceof Error && error.message === 'Unauthorized') {
         toast.error('Your session has expired. Please log in again.');
-        // Optional: Trigger logout or redirect to login
+        // Optional: Trigger logout or redirect to login/
         const authService = AuthService.getInstance();
         authService.signOut();
       } else {
@@ -131,47 +132,47 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
     <div>
       <div onClick={(e) => e.stopPropagation()}>
         <div className='text-center mb-6'>
-          <User className='mx-auto h-12 w-12 text-primary-600 mb-4' />
-          <h2 className='text-2xl font-bold'>Customize Your Profile</h2>
-        </div>
+          <User className='mx-auto h-12 w-12 text-primary-600 mb-4' />/
+          <h2 className='text-2xl font-bold'>Customize Your Profile</h2>/
+        </div>/
 
         <form onSubmit={handleSubmit} className='space-y-6'>
-          {/* Profile Image Upload */}
+          {/* Profile Image Upload /*/}/
           <div className='flex justify-center mb-6'>
             <div className='relative'>
               <img
                 src={
                   profileImage
                     ? URL.createObjectURL(profileImage)
-                    : user?.photoURL || '/default-avatar.png'
+                    : user?.photoURL || '/default-avatar.png'/
                 }
                 alt='Profile'
                 className='w-24 h-24 rounded-full object-cover'
-              />
+              />/
               <label
                 htmlFor='profileImage'
                 className='absolute bottom-0 right-0 bg-primary-600 text-white p-2 rounded-full cursor-pointer'
               >
-                <Camera className='h-5 w-5' />
+                <Camera className='h-5 w-5' />/
                 <input
                   type='file'
                   id='profileImage'
-                  accept='image/*'
+                  accept='image/*'/
                   className='hidden'
                   onChange={handleProfileImageChange}
-                />
-              </label>
-            </div>
-          </div>
+                />/
+              </label>/
+            </div>/
+          </div>/
 
-          {/* Personal Details */}
+          {/* Personal Details /*/}/
           <div className='grid md:grid-cols-2 gap-4'>
             <div>
               <label htmlFor='displayName' className='block text-sm font-medium text-gray-700 mb-2'>
                 Display Name
-              </label>
+              </label>/
               <div className='relative'>
-                <User className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+                <User className='absolute left-3 top-1/2 transform -translate-y-/1/2 h-5 w-5 text-gray-400'/ />/
                 <input
                   type='text'
                   id='displayName'
@@ -179,32 +180,32 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
                   onChange={(e) => setDisplayName(e.target.value)}
                   className='pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500'
                   placeholder='Enter your name'
-                />
-              </div>
-            </div>
+                />/
+              </div>/
+            </div>/
             <div>
               <label htmlFor='email' className='block text-sm font-medium text-gray-700 mb-2'>
                 Email
-              </label>
+              </label>/
               <div className='relative'>
-                <EnvelopeIcon className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+                <EnvelopeIcon className='absolute left-3 top-1/2 transform -translate-y-/1/2 h-5 w-5 text-gray-400'/ />/
                 <input
                   type='email'
                   id='email'
                   value={email}
                   readOnly
                   className='pl-10 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100'
-                />
-              </div>
-            </div>
-          </div>
+                />/
+              </div>/
+            </div>/
+          </div>/
 
-          {/* Newsletter Preferences */}
+          {/* Newsletter Preferences /*/}/
           <div>
             <h3 className='text-lg font-semibold mb-4 flex items-center'>
-              <Star className='h-6 w-6 mr-2 text-yellow-500 dark:text-yellow-300' />
+              <Star className='h-6 w-6 mr-2 text-yellow-500 dark:text-yellow-300' />/
               Newsletter Interests
-            </h3>
+            </h3>/
             <div className='flex flex-wrap gap-2'>
               {NEWSLETTER_CATEGORIES.map((category) => (
                 <button
@@ -218,19 +219,19 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
                   }`}
                 >
                   {category}
-                </button>
+                </button>/
               ))}
-            </div>
-          </div>
+            </div>/
+          </div>/
 
-          {/* Newsletter Frequency */}
+          {/* Newsletter Frequency /*/}/
           <div className='mb-6'>
             <label
               htmlFor='newsletter-frequency'
               className='block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2'
             >
               Newsletter Frequency
-            </label>
+            </label>/
             <select
               id='newsletter-frequency'
               value={newsletterFrequency}
@@ -242,35 +243,35 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
               {NEWSLETTER_FREQUENCIES.map((freq) => (
                 <option key={freq.value} value={freq.value}>
                   {freq.label}
-                </option>
+                </option>/
               ))}
-            </select>
-          </div>
+            </select>/
+          </div>/
 
-          {/* Settings Section */}
+          {/* Settings Section /*/}/
           <div className='mt-6'>
             <h3 className='text-lg font-semibold mb-4 flex items-center'>
-              <Settings className='h-6 w-6 mr-2 text-gray-600 dark:text-gray-300' />
+              <Settings className='h-6 w-6 mr-2 text-gray-600 dark:text-gray-300' />/
               User Settings
-            </h3>
+            </h3>/
 
-            {/* Dark Mode Toggle */}
+            {/* Dark Mode Toggle /*/}/
             <div className='flex items-center justify-between bg-gray-100 dark:bg-dark-background p-4 rounded-lg mb-4'>
               <div className='flex items-center'>
                 {isDarkMode ? (
-                  <Moon className='h-6 w-6 mr-3 text-indigo-600' />
+                  <Moon className='h-6 w-6 mr-3 text-indigo-600' />/
                 ) : (
-                  <Sun className='h-6 w-6 mr-3 text-yellow-500' />
+                  <Sun className='h-6 w-6 mr-3 text-yellow-500' />/
                 )}
                 <div>
                   <span className='text-sm font-medium block'>
                     {isDarkMode ? 'Dark Mode' : 'Light Mode'}
-                  </span>
+                  </span>/
                   <span className='text-xs text-gray-500 dark:text-gray-400'>
                     Customize your app's appearance
-                  </span>
-                </div>
-              </div>
+                  </span>/
+                </div>/
+              </div>/
               <button
                 onClick={toggleDarkMode}
                 className='relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 bg-gray-200 dark:bg-gray-700'
@@ -278,27 +279,33 @@ const ProfileCustomizationModal: React.FC<ProfileCustomizationModalProps> = ({
               >
                 <span
                   className={`${isDarkMode ? 'translate-x-5' : 'translate-x-0'} pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out`}
-                />
-              </button>
-            </div>
-          </div>
+                />/
+              </button>/
+            </div>/
+          </div>/
 
-          {/* Submit Button */}
+          {/* Submit Button /*/}/
           <button
             type='submit'
             disabled={isLoading}
             className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 mt-6'
           >
             {isLoading ? 'Updating...' : 'Save Profile'}
-          </button>
-        </form>
-      </div>
-    </div>
+          </button>/
+        </form>/
+      </div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import { Camera, Mail as EnvelopeIcon, Moon, Settings, Star, Sun, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { AuthService } from '../../services/authService';
-import { useAuthStore } from '../../stores/authStore';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+import { AuthService } from '../././service/s/authService';/
+import { useAuthStore } from '../././store/s/authStore';/
+
+export default ProfileCustomizationModal
+
+

@@ -1,6 +1,8 @@
-import type { User as FirebaseUser } from 'firebase/auth';
-import { USER_ROLES } from './roles';
-import type { UserRole } from './roles';
+﻿import React from 'react';
+import type { User as FirebaseUser } from 'firebase/auth';/
+
+import type { UserRole } from './roles';/
+import { USER_ROLES } from './roles';/
 
 export interface UserProfile extends Partial<FirebaseUser> {
   id: string;
@@ -16,4 +18,14 @@ export interface UserProfile extends Partial<FirebaseUser> {
 }
 
 export type User = UserProfile;
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default user;
+
+export type User = User;
+
+export type User = UserProfile
+
+export type User = UserProfile;
+
+

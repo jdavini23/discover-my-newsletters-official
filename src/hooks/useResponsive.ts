@@ -1,26 +1,27 @@
-type;
+﻿import React from 'react';
+
 enum DeviceType {
     Mobile = 'mobile',
     Tablet = 'tablet',
     Desktop = 'desktop'
 }
-// Enhanced responsive state interface
+// Enhanced responsive state interface/
 interface ResponsiveState {
-    deviceType: DeviceType;
+    deviceType: Device
     screenWidth: number;
     orientation: 'portrait' | 'landscape';
 }
-// Configuration for responsive breakpoints
+// Configuration for responsive breakpoints/
 interface ResponsiveConfig {
     mobileBreakpoint?: number;
     tabletBreakpoint?: number;
 }
-// Default breakpoint configuration
+// Default breakpoint configuration/
 const DEFAULT_BREAKPOINTS = {
     mobileBreakpoint: 640,
     tabletBreakpoint: 1024
 };
-// Utility to determine device type based on screen width
+// Utility to determine device type based on screen width/
 const getDeviceType = (width: number, config: ResponsiveConfig = DEFAULT_BREAKPOINTS): DeviceType => {
     const { mobileBreakpoint, tabletBreakpoint } = {
         ...DEFAULT_BREAKPOINTS,
@@ -32,9 +33,9 @@ const getDeviceType = (width: number, config: ResponsiveConfig = DEFAULT_BREAKPO
         return DeviceType.Tablet;
     return DeviceType.Desktop;
 };
-// Determine screen orientation
+// Determine screen orientation/
 const getOrientation = (): 'portrait' | 'landscape' => window.innerWidth < window.innerHeight ? 'portrait' : 'landscape';
-type;
+
 const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState => {
     const mergedConfig = {
         ...DEFAULT_BREAKPOINTS, ...config
@@ -44,7 +45,7 @@ const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState => {
         screenWidth: 0,
         orientation: getOrientation()
     });
-    // Memoized resize handler to prevent unnecessary re-renders
+    // Memoized resize handler to prevent unnecessary re-renders/
     const handleResize = useCallback(() => {
         const width = window.innerWidth;
         setState({
@@ -54,13 +55,13 @@ const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState => {
         });
     }, [mergedConfig]);
     useEffect(() => {
-        // Initial call
+        // Initial call/
         handleResize();
-        // Add event listener
+        // Add event listener/
         window.addEventListener('resize', handleResize);
-        // Optional: handle orientation change for mobile devices
+        // Optional: handle orientation change for mobile devices/
         window.addEventListener('orientationchange', handleResize);
-        // Cleanup
+        // Cleanup/
         return () => {
             window.removeEventListener('resize', handleResize);
             window.removeEventListener('orientationchange', handleResize);
@@ -68,21 +69,49 @@ const useResponsive = (config: ResponsiveConfig = {}): ResponsiveState => {
     }, [handleResize]);
     return state;
 };
-type;
+
 const useMobile = (config?: ResponsiveConfig): boolean => {
     const { deviceType } = useResponsive(config);
     return deviceType === DeviceType.Mobile;
 };
-type;
+
 const useTablet = (config?: ResponsiveConfig): boolean => {
     const { deviceType } = useResponsive(config);
     return deviceType === DeviceType.Tablet;
 };
-type;
+
 const useDesktop = (config?: ResponsiveConfig): boolean => {
     const { deviceType } = useResponsive(config);
     return deviceType === DeviceType.Desktop;
 };
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
 import { useCallback, useEffect, useState } from 'react';
-<>/ResponsiveState>;
+<>/ResponsiveState>/
+
+export default useResponsive
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+export type ResponsiveConfig = ResponsiveConfig;
+export type based = based
+
+
+

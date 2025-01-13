@@ -1,6 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+﻿import React from 'react';
+import { initializeApp } from 'firebase/app';/
+import { getAuth } from 'firebase/auth';/
+import { getFirestore } from 'firebase/firestore';/
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,4 +16,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 export { app, auth, db, initializeApp };
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default firebaseConfig
+
+

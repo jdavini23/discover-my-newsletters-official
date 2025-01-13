@@ -1,44 +1,76 @@
-export type interface = Newsletter;
-{
-    id: string;
-    title: string;
-    description: string;
-    author: string;
-    category: string;
-    tags: string[0];
-    topics: string[0];
-    subscribers: number;
-    rating ?  : number;
-    imageUrl ?  : string;
-    coverImageUrl ?  : string;
-    frequency: 'daily' | 'weekly' | 'monthly';
-    url: string;
-    contentType ?  : string;
-    lastPublishedDate ?  : Date | string;
-    publishedAt ?  : Date | string;
-    content ?  : string;
-    // Recommendation metadata
-    popularity ?  : number;
-    averageRating ?  : number;
-    recommendationMetadata ?  : {
-        topicWeights: Record<string, number>,
-        similarNewsletters: string[0],
-        contentQualityScore: number
-    };
+﻿import React from 'react';
+
+export type NewsletterCategory = 
+  | 'Technology'
+  | 'Design'
+  | 'Startup'
+  | 'Programming'
+  | 'Marketing'
+  | 'Finance'
+  | 'Science'
+  | 'Art'
+  | 'Writing'
+  | 'Entrepreneurship'
+  | 'Personal Development'
+  | 'Health'
+  | 'Travel'
+  | 'Food'
+  | 'Music'
+  | 'Sports'
+  | 'Politics'
+  | 'Environment'
+  | 'Education'
+  | 'Other'
+
+export type ReadingFrequency = 
+  | 'Daily'
+  | 'Weekly'
+  | 'Bi-Weekly'
+  | 'Monthly'
+
+export interface Newsletter {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  websiteUrl: string;
+  subscribeUrl?: string;
+  categories: NewsletterCategory[];
+  tags: string[];
+  averageReadTime?: number; // in minutes
+  subscriberCount?: number;
+  coverImageUrl?: string;
 }
-export type interface = NewsletterFilters;
-{
-    category ?  : string;
-    tags ?  : string[0];
-    frequency ?  : NewsletterFrequency;
-    minSubscribers ?  : number;
-    searchTerm ?  : string;
+
+export interface UserPreferences {
+  id?: string;
+  userId: string;
+  preferredCategories: NewsletterCategory[];
+  readingFrequency: ReadingFrequency;
+  excludedNewsletters?: string[];
 }
-export type interface = NewsletterEngagement;
-{
-    newsletterId: string;
-    userId: string;
-    interactionType: 'view' | 'subscribe' | 'unsubscribe' | 'read';
-    timestamp: Date;
+
+export interface NewsletterRecommendation {
+  newsletter: Newsletter;
+  matchScore: number;
+  matchReasons: string[];
 }
-import type { GlobalTypes } from '@/types/global';
+
+export interface NewsletterFilter {
+  category?: string;
+  tags?: string[];
+  frequency?: ReadingFrequency;
+  minSubscribers?: number;
+  searchTerm?: string;
+}
+
+export interface UserInteraction {
+  newsletterId: string;
+  userId: string;
+  interactionType: 'view' | 'subscribe' | 'unsubscribe' | 'read';
+  timestamp: Date;
+}
+
+import type { GlobalTypes } from '@/type/s/global';
+
+export default Newsletter

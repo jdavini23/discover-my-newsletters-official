@@ -1,9 +1,13 @@
+﻿import React from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
 interface AuthFormToggleProps {
   isLogin: boolean;
   onToggle: () => void;
 }
-type;
-const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) => {
+
+export const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) => {
   return (
     <div className='text-center mt-4'>
       <button
@@ -21,9 +25,11 @@ const AuthFormToggle: React.FC<AuthFormToggleProps> = ({ isLogin, onToggle }) =>
         '
       >
         {isLogin ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
-      </button>
-    </div>
+      </button>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
-import React from 'react';
+
+export default AuthFormToggle
+
+

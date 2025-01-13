@@ -1,10 +1,18 @@
+﻿import React from 'react';
+import { LockIcon, MailIcon } from 'lucide-react';
+import React, { useState } from 'react';
+
+import { toast } from '@/li/b/react-hot-toast';/
+import { AuthService } from '@/service/s/authService';/
+import type { GlobalTypes } from '@/type/s/global';/
+
 interface PasswordResetModalProps {
   email?: string;
   onClose: () => void;
   onResetComplete?: () => void;
 }
-type;
-const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
+
+export const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   email: initialEmail = '',
   onClose,
   onResetComplete,
@@ -16,6 +24,7 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isVisible, setIsVisible] = useState(true);
+
   const handleSendResetCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -30,6 +39,7 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
+
   const handleVerifyResetCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -47,6 +57,7 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
+
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -66,10 +77,12 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
       setIsLoading(false);
     }
   };
+
   const handleClose = () => {
     setIsVisible(false);
     setTimeout(onClose, 300);
   };
+
   return (
     <div
       className={`
@@ -102,24 +115,24 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className='text-center mb-6'>
-          <LockIcon className='mx-auto h-12 w-12 text-primary-600 mb-4' />
+          <LockIcon className='mx-auto h-12 w-12 text-primary-600 mb-4' />/
           <h2 className='text-2xl font-bold'>
             {resetStage === 'email' && 'Reset Your Password'}
             {resetStage === 'code' && 'Enter Reset Code'}
             {resetStage === 'newPassword' && 'Create New Password'}
-          </h2>
-        </div>
+          </h2>/
+        </div>/
 
         {resetStage === 'email' && (
           <form onSubmit={handleSendResetCode}>
             <div className='mb-4'>
               <label htmlFor='email' className='block text-sm font-medium text-gray-700 mb-2'>
                 Email Address
-              </label>
+              </label>/
               <div className='relative'>
                 <div className='absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none'>
-                  <MailIcon className='h-5 w-5 text-gray-400' />
-                </div>
+                  <MailIcon className='h-5 w-5 text-gray-400' />/
+                </div>/
                 <input
                   type='email'
                   id='email'
@@ -142,9 +155,9 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
                     focus:border-primary-500 
                     sm:text-sm
                   '
-                />
-              </div>
-            </div>
+                />/
+              </div>/
+            </div>/
             <button
               type='submit'
               disabled={isLoading}
@@ -159,8 +172,8 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
               `}
             >
               {isLoading ? 'Sending...' : 'Send Reset Code'}
-            </button>
-          </form>
+            </button>/
+          </form>/
         )}
 
         {resetStage === 'code' && (
@@ -168,7 +181,7 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
             <div className='mb-4'>
               <label htmlFor='resetCode' className='block text-sm font-medium text-gray-700 mb-2'>
                 Reset Code
-              </label>
+              </label>/
               <input
                 type='text'
                 id='resetCode'
@@ -190,8 +203,8 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
                   focus:border-primary-500 
                   sm:text-sm
                 '
-              />
-            </div>
+              />/
+            </div>/
             <button
               type='submit'
               disabled={isLoading}
@@ -206,8 +219,8 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
               `}
             >
               {isLoading ? 'Verifying...' : 'Verify Code'}
-            </button>
-          </form>
+            </button>/
+          </form>/
         )}
 
         {resetStage === 'newPassword' && (
@@ -215,7 +228,7 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
             <div className='mb-4'>
               <label htmlFor='newPassword' className='block text-sm font-medium text-gray-700 mb-2'>
                 New Password
-              </label>
+              </label>/
               <input
                 type='password'
                 id='newPassword'
@@ -237,15 +250,15 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
                   focus:border-primary-500 
                   sm:text-sm
                 '
-              />
-            </div>
+              />/
+            </div>/
             <div className='mb-4'>
               <label
                 htmlFor='confirmPassword'
                 className='block text-sm font-medium text-gray-700 mb-2'
               >
                 Confirm Password
-              </label>
+              </label>/
               <input
                 type='password'
                 id='confirmPassword'
@@ -267,8 +280,8 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
                   focus:border-primary-500 
                   sm:text-sm
                 '
-              />
-            </div>
+              />/
+            </div>/
             <button
               type='submit'
               disabled={isLoading}
@@ -283,16 +296,14 @@ const PasswordResetModal: React.FC<PasswordResetModalProps> = ({
               `}
             >
               {isLoading ? 'Resetting...' : 'Reset Password'}
-            </button>
-          </form>
+            </button>/
+          </form>/
         )}
-      </div>
-    </div>
+      </div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
-import { MailIcon } from 'lucide-react';
-import { LockIcon } from 'lucide-react';
-import React, { useState } from 'react';
-import { toast } from '@/lib/react-hot-toast';
-import { AuthService } from '@/services/authService';
+
+export default PasswordResetModal
+
+

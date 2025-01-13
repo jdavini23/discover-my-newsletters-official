@@ -1,20 +1,20 @@
-import react from '@vitejs/plugin-react-swc';
+﻿import react from '@vitejs/plugin-react-swc';/
 import autoprefixer from 'autoprefixer';
 import path from 'path';
 import tailwindcss from 'tailwindcss';
 import { defineConfig, loadEnv } from 'vite';
 
-// https://vitejs.dev/config/
+// https/://vitejs.de/v/confi/g/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode`
+  // Load env file based on `mode`/
   const env = loadEnv(mode, process.cwd(), 'VITE_');
 
   return {
     plugins: [react()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src'),
-        src: path.resolve(__dirname, './src'),
+        '@': path.resolve(__dirname, './src'),/
+        src: path.resolve(__dirname, './src'),/
       },
     },
     define: {
@@ -46,3 +46,4 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
+

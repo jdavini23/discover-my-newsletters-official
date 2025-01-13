@@ -1,3 +1,4 @@
+﻿import React from 'react';
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
@@ -7,7 +8,7 @@ interface ErrorBoundaryState {
   error?: Error;
   errorInfo?: ErrorInfo;
 }
-type;
+
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -31,24 +32,29 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
   render() {
     if (this.state.hasError) {
-      // Custom fallback UI
+      // Custom fallback UI/
       return (
         <div className='error-boundary'>
-          <h1>Something went wrong</h1>
+          <h1>Something went wrong</h1>/
           <details
             style={{
               whiteSpace: 'pre-wrap',
             }}
           >
             {this.state.error && this.state.error.toString()}
-            <br />
+            <br />/
             {this.state.errorInfo?.componentStack}
-          </details>
-        </div>
+          </details>/
+        </div>/
       );
     }
     return this.props.children;
   }
 }
-import type { GlobalTypes } from '@/types/global';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default ErrorBoundary
+
+

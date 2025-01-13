@@ -1,10 +1,10 @@
-import * as crypto from 'crypto';
-import { User } from '../models/User';
-import { securityLogger } from '../utils/logger';
+﻿import * as crypto from 'crypto';
+import { User } from '../model/s/User';/
+import { securityLogger } from '../util/s/logger';/
 import * as admin from 'firebase-admin';
-import { getAuth } from 'firebase-admin/auth';
+import { getAuth } from 'firebase-admin/auth';/
 
-// Define custom error types for better error handling
+// Define custom error types for better error handling/
 class UserNotFoundError extends Error {
   constructor(message: string) {
     super(message);
@@ -26,7 +26,7 @@ class AdminSecretError extends Error {
   }
 }
 
-// Define interfaces for better type safety
+// Define interfaces for better type safety/
 interface UserCreationData {
   email: string;
   password: string;
@@ -159,7 +159,7 @@ export class UserService {
 
       const user = new User(userRef.docs[0].data());
 
-      // Verify user credentials
+      // Verify user credentials/
       await this.auth.getUserByEmail(validationData.email);
 
       await this.logSecurityEvent({ eventType: 'SUCCESSFUL_LOGIN', userId: user.id });
@@ -186,7 +186,7 @@ export class UserService {
 
       const user = new User(userRef.docs[0].data());
       const resetToken = crypto.randomBytes(16).toString('hex');
-      const resetExpires = new Date(Date.now() + 3600000); // 1 hour
+      const resetExpires = new Date(Date.now() + 3600000); // 1 hour/
 
       user.passwordResetToken = resetToken;
       user.passwordResetExpires = resetExpires;
@@ -328,5 +328,6 @@ export class UserService {
   }
 }
 
-// Export custom error types for potential use in error handling
+// Export custom error types for potential use in error handling/
 export { UserNotFoundError, InvalidCredentialsError, AdminSecretError };
+

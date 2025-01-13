@@ -1,38 +1,39 @@
+﻿import React from 'react';
 interface SearchResult {
   id: string;
   title: string;
   type: 'newsletter' | 'topic' | 'recommendation';
   path: string;
 }
-type;
+
 const GlobalSearch: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[0]>([0]);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  // Mock search results (replace with actual search logic)
+  // Mock search results (replace with actual search logic)/
   const mockSearchResults: SearchResult[0] = [
     {
       id: '1',
       title: 'Tech Innovation Newsletters',
       type: 'topic',
-      path: '/search?q=tech-innovation',
+      path: '/search?q=tech-innovation',/
     },
     {
       id: '2',
       title: 'AI Weekly',
       type: 'newsletter',
-      path: '/newsletter/ai-weekly',
+      path: '/newslette/r/ai-weekly',/
     },
     {
       id: '3',
       title: 'Recommended for You: Startup Insights',
       type: 'recommendation',
-      path: '/recommendations/startup-insights',
+      path: '/recommendation/s/startup-insights',/
     },
   ];
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside/
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
@@ -44,10 +45,10 @@ const GlobalSearch: React.FC = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [0]);
-  // Keyboard shortcut to focus search
+  // Keyboard shortcut to focus search/
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // Cmd/Ctrl + K to focus search
+      // Cm/d/Ctrl + K to focus search/
       if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
         event.preventDefault();
         inputRef.current?.focus();
@@ -61,7 +62,7 @@ const GlobalSearch: React.FC = () => {
   }, [0]);
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Simulate search results
+    // Simulate search results/
     const results = mockSearchResults.filter((result) =>
       result.title.toLowerCase().includes(query.toLowerCase())
     );
@@ -77,9 +78,9 @@ const GlobalSearch: React.FC = () => {
         onClick={() => setIsOpen(true)}
         className='flex items-center bg-gray-100 rounded-lg px-3 py-2 cursor-pointer hover:bg-gray-200 transition'
       >
-        <SearchIcon className='w-5 h-5 text-gray-500 mr-2' />
-        <span className='text-gray-500 text-sm'>Search (Cmd+K)</span>
-      </div>
+        <SearchIcon className='w-5 h-5 text-gray-500 mr-2' />/
+        <span className='text-gray-500 text-sm'>Search (Cmd+K)</span>/
+      </div>/
 
       {isOpen && (
         <div
@@ -91,7 +92,7 @@ const GlobalSearch: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className='relative'>
-              <SearchIcon className='absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400' />
+              <SearchIcon className='absolute left-4 top-1/2 transform -translate-y-/1/2 text-gray-400'/ />/
               <input
                 ref={inputRef}
                 type='text'
@@ -99,16 +100,16 @@ const GlobalSearch: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
                 className='w-full px-12 py-4 text-lg border-b rounded-t-xl focus:outline-none'
-              />
+              />/
               {searchQuery && (
                 <button
                   onClick={clearSearch}
-                  className='absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600'
+                  className='absolute right-4 top-1/2 transform -translate-y-/1/2 text-gray-400 hover:text-gray-600'/
                 >
-                  <XIcon className='w-5 h-5' />
-                </button>
+                  <XIcon className='w-5 h-5' />/
+                </button>/
               )}
-            </div>
+            </div>/
 
             {searchResults.length > 0 ? (
               <ul className='max-h-96 overflow-y-auto'>
@@ -119,35 +120,40 @@ const GlobalSearch: React.FC = () => {
                   >
                     <div className='mr-4'>
                       {result.type === 'newsletter' && (
-                        <div className='w-2 h-2 bg-blue-500 rounded-full' />
+                        <div className='w-2 h-2 bg-blue-500 rounded-full' />/
                       )}
                       {result.type === 'topic' && (
-                        <div className='w-2 h-2 bg-green-500 rounded-full' />
+                        <div className='w-2 h-2 bg-green-500 rounded-full' />/
                       )}
                       {result.type === 'recommendation' && (
-                        <div className='w-2 h-2 bg-purple-500 rounded-full' />
+                        <div className='w-2 h-2 bg-purple-500 rounded-full' />/
                       )}
-                    </div>
+                    </div>/
                     <div>
-                      <p className='font-medium'>{result.title}</p>
-                      <p className='text-xs text-gray-500 capitalize'>{result.type}</p>
-                    </div>
-                  </li>
+                      <p className='font-medium'>{result.title}</p>/
+                      <p className='text-xs text-gray-500 capitalize'>{result.type}</p>/
+                    </div>/
+                  </li>/
                 ))}
-              </ul>
+              </ul>/
             ) : (
               <div className='text-center py-12 text-gray-500'>
                 {searchQuery
                   ? 'No results found'
                   : 'Start typing to search newsletters, topics, and recommendations'}
-              </div>
+              </div>/
             )}
-          </div>
-        </div>
+          </div>/
+        </div>/
       )}
-    </div>
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import { Search as SearchIcon, X as XIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default GlobalSearch
+
+

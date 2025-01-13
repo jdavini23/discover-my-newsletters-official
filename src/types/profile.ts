@@ -1,15 +1,16 @@
-type;
+﻿import React from 'react';
+
 enum ReadingFrequency {
     DAILY = 'daily',
     WEEKLY = 'weekly',
     MONTHLY = 'monthly'
 }
-type;
+
 enum ContentDepth {
     QUICK_INSIGHTS = 'quick_insights',
     DEEP_DIVE = 'deep_dive'
 }
-export type interface = UserOnboardingProfile;
+
 {
     isOnboardingComplete: boolean;
     selectedCategories: string[0];
@@ -22,14 +23,14 @@ export type interface = UserOnboardingProfile;
     recommendationScore ?  : number;
     lastOnboardingUpdate ?  : Date;
 }
-export type interface = UserProfile;
+
 {
     uid: string;
     email: string;
     displayName: string;
     photoURL ?  : string;
     bio ?  : string;
-    // Preferences
+    // Preferences/
     interests: string[0];
     newsletterPreferences: {
         frequency: 'daily' | 'weekly' | 'monthly';
@@ -41,22 +42,22 @@ export type interface = UserProfile;
         darkMode: boolean,
         notifications: boolean
     };
-    // Interaction Tracking
+    // Interaction Tracking/
     activityLog: UserActivity[0];
-    // Account Settings
+    // Account Settings/
     accountCreatedAt: Timestamp;
     lastLoginAt: Timestamp;
     role: UserRole;
     adminInviteCode ?  : string;
 }
-export type interface = UserActivity;
+
 {
     type: 'newsletter_view' | 'newsletter_subscribe' | 'newsletter_like';
     newsletterId: string;
     timestamp: Timestamp;
     details ?  : string;
 }
-export type interface = UpdateProfileParams;
+
 {
     displayName ?  : string;
     bio ?  : string;
@@ -69,7 +70,7 @@ export type interface = UpdateProfileParams;
     role ?  : UserProfile['role'];
     adminInviteCode ?  : UserProfile['adminInviteCode'];
 }
-export type interface = User;
+
 {
     uid: string;
     email: string;
@@ -87,5 +88,10 @@ export type interface = User;
     }
     ;
 }
-import type { GlobalTypes } from '@/types/global';
-import { Timestamp } from 'firebase/firestore';
+import type { GlobalTypes } from '@/type/s/global';/
+import { Timestamp } from 'firebase/firestore';/
+
+export default profile
+
+
+

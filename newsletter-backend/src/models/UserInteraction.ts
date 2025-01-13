@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { User } from './User';
+﻿import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import { User } from './User';/
 
 @Entity('user_interactions')
 export class UserInteraction {
@@ -21,3 +21,4 @@ export class UserInteraction {
   @CreateDateColumn()
   timestamp!: Date;
 }
+

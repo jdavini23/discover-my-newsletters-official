@@ -1,4 +1,5 @@
-/**
+﻿import React from 'react';
+/**/
  * Centralized Role Management for Discover My Newsletters
  *
  * This module defines the role system, providing a type-safe and
@@ -12,7 +13,7 @@ export const USER_ROLES = {
 
 export type UserRole = keyof typeof USER_ROLES;
 
-/**
+/**/
  * Detailed permission structure for each role
  */
 export type RolePermissions = {
@@ -25,7 +26,7 @@ export type RolePermissions = {
   canSuspendUsers: boolean;
   canManageRecommendations: boolean;
   canModerateContent: boolean;
-}
+};
 
 const ROLE_PERMISSIONS: Record<UserRole, RolePermissions> = {
   [USER_ROLES.USER]: {
@@ -71,4 +72,10 @@ function getRolePermissions(role: UserRole): RolePermissions {
   return ROLE_PERMISSIONS[role];
 }
 
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default ROLE_PERMISSIONS
+
+export type UserRole = keyof typeof USER_ROLES;
+
+

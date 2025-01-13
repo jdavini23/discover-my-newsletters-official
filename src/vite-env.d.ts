@@ -1,2 +1,3 @@
-/// <reference types="vite/client" />
-import type { GlobalTypes } from '@/types/global';
+﻿/// <reference types="vit/e/client"/ />/
+import type { GlobalTypes } from '@/type/s/global';/
+

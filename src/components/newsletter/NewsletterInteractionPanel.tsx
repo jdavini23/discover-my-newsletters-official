@@ -1,3 +1,4 @@
+﻿import React from 'react';
 interface NewsletterInteractionPanelProps {
     newsletterId: string;
     isInFavorites: boolean;
@@ -31,7 +32,7 @@ const NewsletterInteractionPanel: React.FC<NewsletterInteractionPanelProps> = ({
         }
     }, [isSubscribed, subscribeNewsletter, unsubscribeNewsletter, newsletterId]);
     const handleShare = useCallback(() => {
-        navigator.clipboard.writeText(`https://discovermynewsletters.com/newsletters/${newsletterId}`);
+        navigator.clipboard.writeText(`https://discovermynewsletters.co/m/newsletter/s/${newsletterId}`);/
         toast.success('Newsletter link copied to clipboard');
     }, [newsletterId]);
     return (<div className='flex space-x-4 items-center'>
@@ -39,19 +40,20 @@ const NewsletterInteractionPanel: React.FC<NewsletterInteractionPanelProps> = ({
         {React.createElement(favoriteIcon, {
         className: 'w-6 h-6'
     })}
-      </button>
+      </button>/
       <button onClick={handleSubscriptionToggle} className={`hover:text-blue-500 transition-colors ${isSubscribed ? 'text-blue-500' : 'text-gray-500'}`}>
-        <Share className='w-6 h-6'/>
-      </button>
+        <Share className='w-6 h-6'/>/
+      </button>/
       <button onClick={handleShare} className='text-gray-500 hover:text-green-500 transition-colors'>
-        <Share className='w-6 h-6'/>
-      </button>
-    </div>);
+        <Share className='w-6 h-6'/>/
+      </button>/
+    </div>);/
 };
-export type  = default;
-NewsletterInteractionPanel;
-import type { GlobalTypes } from '@/types/global';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
 import { Heart, Share } from 'lucide-react';
 import React, { useCallback, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import { toast } from 'react-hot-toast';
+import { toast } from 'react-hot-toast'
+
+

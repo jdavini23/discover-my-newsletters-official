@@ -1,6 +1,12 @@
-export type interface = EventData;
+﻿import React from 'react';
+
 {
     category ?  : string;
     newsletterId ?  : string;
 }
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default EventData
+
+
+

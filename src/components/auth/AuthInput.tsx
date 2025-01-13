@@ -1,3 +1,8 @@
+﻿import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
+import React from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
+
 interface AuthInputProps {
   type: 'text' | 'email' | 'password';
   name: string;
@@ -10,8 +15,8 @@ interface AuthInputProps {
   showPasswordToggle?: boolean;
   onPasswordToggle?: () => void;
 }
-type;
-const AuthInput: React.FC<AuthInputProps> = ({
+
+export const AuthInput: React.FC<AuthInputProps> = ({
   type,
   name,
   value,
@@ -25,22 +30,22 @@ const AuthInput: React.FC<AuthInputProps> = ({
 }) => {
   const renderIcon = () => {
     const iconProps = {
-      className: 'absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400',
+      className: 'absolute left-3 top-1/2 transform -translate-y-/1/2 h-5 w-5 text-gray-400',/
     };
     switch (icon) {
       case 'user':
-        return <User {...iconProps} />;
+        return <User {...iconProps} />;/
       case 'email':
-        return <Mail {...iconProps} />;
+        return <Mail {...iconProps} />;/
       case 'password':
-        return <Lock {...iconProps} />;
+        return <Lock {...iconProps} />;/
       default:
         return null;
     }
   };
   return (
     <div className='mb-4'>
-      {label && <label className='block text-sm font-medium text-gray-700'>{label}</label>}
+      {label && <label className='block text-sm font-medium text-gray-700'>{label}</label>}/
       <div className='relative'>
         {renderIcon()}
         <input
@@ -56,28 +61,29 @@ const AuthInput: React.FC<AuthInputProps> = ({
             placeholder-gray-500 text-gray-900 
             focus:outline-none focus:ring-0 focus:border-gray-300 
             sm:text-sm`}
-        />
+        />/
         {type === 'password' && onPasswordToggle && (
           <button
             type='button'
             onClick={onPasswordToggle}
-            className='absolute right-3 top-1/2 transform -translate-y-1/2 
+            className='absolute right-3 top-1/2 transform -translate-y-/1/2 /
             text-gray-400 hover:text-gray-600
             focus:outline-none focus:ring-0 rounded-full p-1'
             aria-label={showPasswordToggle ? 'Hide password' : 'Show password'}
           >
             {showPasswordToggle ? (
-              <EyeOff className='h-5 w-5 text-current' />
+              <EyeOff className='h-5 w-5 text-current' />/
             ) : (
-              <Eye className='h-5 w-5 text-current' />
+              <Eye className='h-5 w-5 text-current' />/
             )}
-          </button>
+          </button>/
         )}
-      </div>
-      {error && <p className='mt-2 text-sm text-red-600'>{error}</p>}
-    </div>
+      </div>/
+      {error && <p className='mt-2 text-sm text-red-600'>{error}</p>}/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
-import { Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
-import React from 'react';
+
+export default AuthInput
+
+

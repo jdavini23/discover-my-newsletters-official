@@ -1,2 +1,3 @@
-export { doc, getDoc } from 'firebase/firestore';
-import type { GlobalTypes } from '@/types/global';
+﻿export { doc, getDoc } from 'firebase/firestore';/
+import type { GlobalTypes } from '@/type/s/global';/
+

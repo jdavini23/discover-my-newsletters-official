@@ -1,4 +1,5 @@
-type;
+﻿import React from 'react';
+
 const measurePerformance = (componentName: string) => {
   const start = performance.now();
   return {
@@ -8,8 +9,12 @@ const measurePerformance = (componentName: string) => {
     },
   };
 };
-type;
+
 const logRenderCycle = (componentName: string) => {
   console.log(`[Render] ${componentName} component rendered`);
 };
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
+
+export default performance
+
+

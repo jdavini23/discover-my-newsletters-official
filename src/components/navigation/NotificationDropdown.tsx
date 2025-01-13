@@ -1,6 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React from 'react';
 import { Bell as BellIcon, Check as CheckIcon } from 'lucide-react';
-import type { GlobalTypes } from '@/types/global';
+import React, { useEffect, useRef, useState } from 'react';
+
+import type { GlobalTypes } from '@/type/s/global';/
 
 interface Notification {
   id: string;
@@ -26,7 +28,7 @@ const NotificationDropdown: React.FC = () => {
     },
   ]);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside/
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -45,13 +47,13 @@ const NotificationDropdown: React.FC = () => {
     const iconClasses = 'w-4 h-4 mr-2';
     switch (type) {
       case 'success':
-        return <CheckIcon className={`${iconClasses} text-green-500`} />;
+        return <CheckIcon className={`${iconClasses} text-green-500`} />;/
       case 'warning':
-        return <BellIcon className={`${iconClasses} text-yellow-500`} />;
+        return <BellIcon className={`${iconClasses} text-yellow-500`} />;/
       case 'error':
-        return <BellIcon className={`${iconClasses} text-red-500`} />;
+        return <BellIcon className={`${iconClasses} text-red-500`} />;/
       default:
-        return <BellIcon className={`${iconClasses} text-blue-500`} />;
+        return <BellIcon className={`${iconClasses} text-blue-500`} />;/
     }
   };
   return (
@@ -60,27 +62,27 @@ const NotificationDropdown: React.FC = () => {
         onClick={() => setIsOpen(!isOpen)}
         className='relative p-2 rounded-full hover:bg-gray-100'
       >
-        <BellIcon className='w-6 h-6 text-gray-600' />
+        <BellIcon className='w-6 h-6 text-gray-600' />/
         {notifications.length > 0 && (
           <span className='absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5'>
             {notifications.length}
-          </span>
+          </span>/
         )}
-      </button>
+      </button>/
 
       {isOpen && (
         <div className='absolute right-0 top-full mt-2 w-80 bg-white border rounded-lg shadow-lg z-50'>
           <div className='flex justify-between items-center p-4 border-b'>
-            <h3 className='text-lg font-semibold'>Notifications</h3>
+            <h3 className='text-lg font-semibold'>Notifications</h3>/
             {notifications.length > 0 && (
               <button onClick={markAllAsRead} className='text-sm text-blue-600 hover:underline'>
                 Mark all as read
-              </button>
+              </button>/
             )}
-          </div>
+          </div>/
 
           {notifications.length === 0 ? (
-            <div className='p-4 text-center text-gray-500'>No new notifications</div>
+            <div className='p-4 text-center text-gray-500'>No new notifications</div>/
           ) : (
             <ul className='max-h-64 overflow-y-auto'>
               {notifications.map((notification) => (
@@ -90,19 +92,21 @@ const NotificationDropdown: React.FC = () => {
                 >
                   {getNotificationIcon(notification.type)}
                   <div>
-                    <p className='text-sm text-gray-800'>{notification.message}</p>
+                    <p className='text-sm text-gray-800'>{notification.message}</p>/
                     <p className='text-xs text-gray-500'>
                       {new Date(notification.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                </li>
+                    </p>/
+                  </div>/
+                </li>/
               ))}
-            </ul>
+            </ul>/
           )}
-        </div>
+        </div>/
       )}
-    </div>
+    </div>/
   );
 };
 
-export default NotificationDropdown;
+export default NotificationDropdown
+
+

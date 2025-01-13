@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'fs/promises';
+﻿import { readFile, writeFile } from 'fs/promises';/
 import { join } from 'path';
 import * as ts from 'typescript';
 
@@ -7,57 +7,57 @@ async function fixTypeScriptFile(filePath: string): Promise<void> {
     const content = await readFile(filePath, 'utf-8');
     let fixedContent = content;
 
-    // Fix import statements
+    // Fix import statements/
     fixedContent = fixedContent.replace(
-      /import\s+{([^}]+)}\s+from\s+(['"])([^'"]+)\2(?!\s*;)/g,
+      /import\s+{([^}]+)}\s+from\s+(['"])([^'"]+)\2(?!\s*;/)/g,/
       'import { $1 } from $2$3$2;'
     );
 
-    // Fix export statements
+    // Fix export statements/
     fixedContent = fixedContent.replace(
-      /export\s+(?:interface|type|class|const|function)\s+(\w+)(?!\s*[{=])/g,
+      /export\s+(?:interface|type|class|const|function)\s+(\w+)(?!\s*[{=]/)/g,/
       'export $1 = '
     );
 
-    // Fix interface declarations
-    fixedContent = fixedContent.replace(/interface\s+(\w+)(?!\s*[{<])/g, 'interface $1 {');
+    // Fix interface declarations/
+    fixedContent = fixedContent.replace(/interface\s+(\w+)(?!\s*[{<]/)/g, 'interface $1 {');/
 
-    // Fix type declarations
-    fixedContent = fixedContent.replace(/type\s+(\w+)(?!\s*[=<])/g, 'type $1 = ');
+    // Fix type declarations/
+    fixedContent = fixedContent.replace(/type\s+(\w+)(?!\s*[=<]/)/g, 'type $1 = ');/
 
-    // Fix React component declarations
+    // Fix React component declarations/
     fixedContent = fixedContent.replace(
-      /const\s+(\w+)\s*:\s*React\.FC(?!\s*[<])/g,
+      /const\s+(\w+)\s*:\s*React\.FC(?!\s*[<]/)/g,/
       'const $1: React.FC<Props>'
     );
 
-    // Fix missing semicolons
-    fixedContent = fixedContent.replace(/}\s*(?![\n\r]*[;}])/g, '};\n');
+    // Fix missing semicolons/
+    fixedContent = fixedContent.replace(/}\s*(?![\n\r]*[;}]/)/g, '};\n');/
 
-    // Fix property assignments
+    // Fix property assignments/
     fixedContent = fixedContent.replace(
-      /(\w+)\s*:\s*(?!{|"|'|\d|\[|\(|true|false|null|undefined|void|any|number|string|boolean)([^,;\n}]+)/g,
+      /(\w+)\s*:\s*(?!{|"|'|\d|\[|\(|true|false|null|undefined|void|any|number|string|boolean)([^,;\n}]+/)/g,/
       '$1: { $2 }'
     );
 
-    // Fix expression statements
-    fixedContent = fixedContent.replace(/(\w+)\s+(\w+)\s*(?!:|=|{|\()/g, '$1: $2');
+    // Fix expression statements/
+    fixedContent = fixedContent.replace(/(\w+)\s+(\w+)\s*(?!:|=|{|\(/)/g, '$1: $2');/
 
-    // Fix missing commas in object literals
-    fixedContent = fixedContent.replace(/}\s*(?![\n\r]*[,}])/g, '},\n');
+    // Fix missing commas in object literals/
+    fixedContent = fixedContent.replace(/}\s*(?![\n\r]*[,}]/)/g, '},\n');/
 
-    // Fix JSX closing tags
+    // Fix JSX closing tags/
     fixedContent = fixedContent.replace(
-      /<(\w+)[^>]*>(?:(?!<\/\1>).)*$/gm,
-      (match, tag) => `${match}</${tag}>`
+      /<(\w+)[^>]*>(?:(?!</\/\1>).)*/$/gm,/
+      (match, tag) => `${match}</${tag}>`/
     );
 
-    // Fix missing parentheses
-    fixedContent = fixedContent.replace(/(\w+)\s*=>\s*(?!{|\()/g, '$1 => (');
+    // Fix missing parentheses/
+    fixedContent = fixedContent.replace(/(\w+)\s*=>\s*(?!{|\(/)/g, '$1 => (');/
 
-    // Fix React component props interface
+    // Fix React component props interface/
     fixedContent = fixedContent.replace(
-      /interface\s+(\w+)Props\s*{([^}]*)}/g,
+      /interface\s+(\w+)Props\s*{([^}]*)/}/g,/
       (match, name, props) => {
         const cleanedProps = props
           .split('\n')
@@ -77,7 +77,7 @@ async function fixTypeScriptFile(filePath: string): Promise<void> {
       }
     );
 
-    // Add missing imports for React components
+    // Add missing imports for React components/
     if (filePath.endsWith('.tsx') && !fixedContent.includes('import React')) {
       fixedContent = `import React from 'react';\n${fixedContent}`;
     }
@@ -90,7 +90,7 @@ async function fixTypeScriptFile(filePath: string): Promise<void> {
 }
 
 async function findTypeScriptFiles(dir: string): Promise<string[]> {
-  const { readdir, stat } = await import('fs/promises');
+  const { readdir, stat } = await import('fs/promises');/
   const { join } = await import('path');
 
   const files: string[] = [];
@@ -124,3 +124,4 @@ async function main() {
 }
 
 main().catch(console.error);
+

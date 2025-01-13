@@ -1,7 +1,8 @@
-const toastUtils = () => {
+﻿const toastUtils = () => {
     return null;
 };
-export type  = default;
-toastUtils;
-import type { GlobalTypes } from '@/types/global';
-import React from 'react';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
+import React from 'react'
+
+

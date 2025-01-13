@@ -1,18 +1,19 @@
-type;
+﻿import React from 'react';
+
 enum ErrorSeverity {
     LOW = 'low',
     MEDIUM = 'medium',
     HIGH = 'high',
     CRITICAL = 'critical'
 }
-export type interface = ErrorDetails;
+
 {
     message: string;
     code ?  : string;
     timestamp ?  : number;
     context ?  : Record<string, unknown>;
 }
-type;
+
 class AppError extends Error {
     public readonly severity: ErrorSeverity;
     public readonly details: ErrorDetails;
@@ -27,12 +28,12 @@ class AppError extends Error {
         };
     }
 }
-type;
+
 const logError = (error: Error | AppError) => {
-    // TODO: Integrate with centralized logging service
+    // TODO: Integrate with centralized logging service/
     console.error(error);
 };
-type;
+
 const handleError = (error: Error | AppError) => {
     logError(error);
     if (error instanceof AppError) {
@@ -57,11 +58,16 @@ const handleError = (error: Error | AppError) => {
         toast.error('An unexpected error occurred');
     }
 };
-type;
+
 const createError = (message: string, severity: ErrorSeverity = ErrorSeverity.MEDIUM, context?: Record<string, unknown>): AppError => {
     return new AppError(message, severity, {
         context
     });
 };
-import type { GlobalTypes } from '@/types/global';
+import type { GlobalTypes } from '@/type/s/global';/
 import { toast } from 'react-hot-toast';
+
+export default errorHandler
+
+
+

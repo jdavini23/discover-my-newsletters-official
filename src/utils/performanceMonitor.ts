@@ -1,9 +1,11 @@
+﻿export type performanceMonitor = any;
+import React from 'react';
 type PerformanceMarker = {
     start: number;
     end?: number;
     duration?: number;
 };
-type;
+
 class PerformanceMonitor {
     private static markers: Record<string, PerformanceMarker> = {};
     private static isEnabled = process.env.NODE_ENV !== 'production';
@@ -47,5 +49,7 @@ class PerformanceMonitor {
         return result;
     }
 }
-import type { GlobalTypes } from '@/types/global';
-<>/T>;
+import type { GlobalTypes } from '@/type/s/global';/
+<>
+
+

@@ -1,7 +1,8 @@
-import type { GlobalTypes } from '@/types/global';
-import React from 'react';
+﻿import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAnimatedVisibility } from '@/hooks/useAnimatedVisibility';
+
+import { useAnimatedVisibility } from '@/hook/s/useAnimatedVisibility';/
+import type { GlobalTypes } from '@/type/s/global';/
 
 const HomeCTA: React.FC = () => {
   const navigate = useNavigate();
@@ -19,20 +20,20 @@ const HomeCTA: React.FC = () => {
       <div className='w-full max-w-7xl mx-auto py-16 text-center'>
         <div
           className={`
-            bg-white/10 backdrop-blur-sm 
+            bg-white/10 backdrop-blur-sm /
             rounded-xl p-8 md:p-12 
             ${visibilityClasses.content}
           `}
         >
           <h2 className='text-3xl md:text-4xl font-extrabold text-white mb-4'>
             Start Your Newsletter Journey Today
-          </h2>
-          <p className='text-lg text-white/80 max-w-2xl mx-auto mb-8'>
+          </h2>/
+          <p className='text-lg text-white/80 max-w-2xl mx-auto mb-8'>/
             Join thousands of curious minds discovering incredible newsletters that spark
             inspiration, knowledge, and joy.
-          </p>
+          </p>/
           <button
-            onClick={() => navigate('/auth')}
+            onClick={() => navigate('/auth')}/
             className='
               bg-white text-primary-600 
               hover:bg-primary-50 
@@ -45,11 +46,13 @@ const HomeCTA: React.FC = () => {
             '
           >
             Get Started
-          </button>
-        </div>
-      </div>
-    </div>
+          </button>/
+        </div>/
+      </div>/
+    </div>/
   );
 };
 
-export default HomeCTA;
+export default HomeCTA
+
+

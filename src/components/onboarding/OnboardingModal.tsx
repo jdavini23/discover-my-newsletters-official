@@ -1,3 +1,4 @@
+﻿import React from 'react';
 const NEWSLETTER_CATEGORIES = [
   'Technology',
   'Science',
@@ -38,7 +39,7 @@ const CONTENT_DEPTHS = [
     description: 'Comprehensive, in-depth content',
   },
 ];
-type;
+
 const OnboardingModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
@@ -62,7 +63,7 @@ const OnboardingModal: React.FC<{
     if (currentStep < 3) {
       setCurrentStep((prev) => prev + 1);
     } else {
-      // Final submission
+      // Final submission/
       if (user && selectedCategories.length && readingFrequency != null && contentDepth != null) {
         updateProfile({
           onboarding: {
@@ -76,7 +77,7 @@ const OnboardingModal: React.FC<{
             lastOnboardingUpdate: new Date(),
           },
         });
-        // Generate initial recommendations
+        // Generate initial recommendations/
         recommendationService.generateInitialRecommendations(user.uid, {
           categories: selectedCategories,
           readingFrequency,
@@ -97,19 +98,19 @@ const OnboardingModal: React.FC<{
       case 0:
         return (
           <div className='text-center'>
-            <h2 className='text-2xl font-bold mb-4'>Welcome to Newsletter Discovery</h2>
-            <p className='text-gray-600 mb-6'>Let's personalize your newsletter experience</p>
+            <h2 className='text-2xl font-bold mb-4'>Welcome to Newsletter Discovery</h2>/
+            <p className='text-gray-600 mb-6'>Let's personalize your newsletter experience</p>/
             <div className='flex justify-center space-x-4'>
               {[Sparkles, Search, Heart, GroupIcon].map((Icon, idx) => (
-                <Icon key={idx} className='w-12 h-12 text-primary-500 opacity-50' />
+                <Icon key={idx} className='w-12 h-12 text-primary-500 opacity-50' />/
               ))}
-            </div>
-          </div>
+            </div>/
+          </div>/
         );
       case 1:
         return (
           <div>
-            <h2 className='text-2xl font-bold mb-4'>Select Your Interests</h2>
+            <h2 className='text-2xl font-bold mb-4'>Select Your Interests</h2>/
             <div className='grid grid-cols-3 gap-2'>
               {NEWSLETTER_CATEGORIES.map((category) => (
                 <button
@@ -125,15 +126,15 @@ const OnboardingModal: React.FC<{
                   `}
                 >
                   {category}
-                </button>
+                </button>/
               ))}
-            </div>
-          </div>
+            </div>/
+          </div>/
         );
       case 2:
         return (
           <div>
-            <h2 className='text-2xl font-bold mb-4'>Reading Frequency</h2>
+            <h2 className='text-2xl font-bold mb-4'>Reading Frequency</h2>/
             <div className='space-y-2'>
               {READING_FREQUENCIES.map((freq) => (
                 <button
@@ -149,15 +150,15 @@ const OnboardingModal: React.FC<{
                   `}
                 >
                   {freq.label}
-                </button>
+                </button>/
               ))}
-            </div>
-          </div>
+            </div>/
+          </div>/
         );
       case 3:
         return (
           <div>
-            <h2 className='text-2xl font-bold mb-4'>Content Depth Preference</h2>
+            <h2 className='text-2xl font-bold mb-4'>Content Depth Preference</h2>/
             <div className='space-y-2'>
               {CONTENT_DEPTHS.map((depth) => (
                 <button
@@ -174,15 +175,15 @@ const OnboardingModal: React.FC<{
                 >
                   <div className='flex justify-between items-center'>
                     <div>
-                      <div className='font-semibold'>{depth.label}</div>
-                      <div className='text-sm opacity-70'>{depth.description}</div>
-                    </div>
-                    {contentDepth === depth.value && <CheckIcon className='w-6 h-6' />}
-                  </div>
-                </button>
+                      <div className='font-semibold'>{depth.label}</div>/
+                      <div className='text-sm opacity-70'>{depth.description}</div>/
+                    </div>/
+                    {contentDepth === depth.value && <CheckIcon className='w-6 h-6' />}/
+                  </div>/
+                </button>/
               ))}
-            </div>
-          </div>
+            </div>/
+          </div>/
         );
       default:
         return null;
@@ -223,7 +224,7 @@ const OnboardingModal: React.FC<{
         `}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className='mb-6'>{renderStep()}</div>
+        <div className='mb-6'>{renderStep()}</div>/
 
         <div className='flex justify-between'>
           {currentStep > 0 && (
@@ -240,7 +241,7 @@ const OnboardingModal: React.FC<{
               '
             >
               Back
-            </button>
+            </button>/
           )}
           <button
             onClick={handleNext}
@@ -265,16 +266,21 @@ const OnboardingModal: React.FC<{
             `}
           >
             {currentStep === 3 ? 'Finish' : 'Next'}
-          </button>
-        </div>
-      </div>
-    </div>
+          </button>/
+        </div>/
+      </div>/
+    </div>/
   );
 };
-import type { GlobalTypes } from '@/types/global';
 import { CheckIcon, GroupIcon, Heart, Search, Sparkles } from 'lucide-react';
 import React, { useCallback, useState } from 'react';
-import { recommendationService } from '@/services/recommendationService';
-import { useAuthStore } from '@/stores/authStore';
-import { useUserProfileStore } from '@/stores/userProfileStore';
-import { ContentDepth, ReadingFrequency } from '@/types/profile';
+
+import { recommendationService } from '@/service/s/recommendationService';/
+import { useAuthStore } from '@/store/s/authStore';/
+import { useUserProfileStore } from '@/store/s/userProfileStore';/
+import type { GlobalTypes } from '@/type/s/global';/
+import { ContentDepth, ReadingFrequency } from '@/type/s/profile';/
+
+export default OnboardingModal
+
+

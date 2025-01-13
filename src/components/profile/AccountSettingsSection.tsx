@@ -1,3 +1,4 @@
+﻿import React from 'react';
 interface AccountSettingsSectionProps {
     profile: UserProfile;
 }
@@ -21,11 +22,11 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
             return undefined;
         }
         try {
-            // Reauthenticate the user
+            // Reauthenticate the user/
             const user = auth.currentUser;
             const credential = EmailAuthProvider.credential(user.email!, currentPassword);
             await reauthenticateWithCredential(user, credential);
-            // Update password
+            // Update password/
             await updatePassword(user, newPassword);
             setSuccess('Password updated successfully');
             setCurrentPassword('');
@@ -40,10 +41,10 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
         const confirmDelete = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
         if (confirmDelete) {
             try {
-                // Implement account deletion logic
-                // This typically involves calling a backend function or Firebase method
+                // Implement account deletion logic/
+                // This typically involves calling a backend function or Firebase method/
                 await auth.currentUser?.delete();
-                navigate('/');
+                navigate('/');/
             }
             catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to delete account');
@@ -53,7 +54,7 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
     const handleLogout = async () => {
         try {
             await logout();
-            navigate('/');
+            navigate('/');/
         }
         catch (err) {
             setError(err instanceof Error ? err.message : 'Logout failed');
@@ -61,65 +62,66 @@ const AccountSettingsSection: React.FC<AccountSettingsSectionProps> = ({ profile
     };
     return (<div className='space-y-4 sm:space-y-8'>
       <div className='bg-white shadow-md rounded-lg p-4 sm:p-6'>
-        <h2 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6'>Account Settings</h2>
+        <h2 className='text-xl sm:text-2xl font-bold mb-4 sm:mb-6'>Account Settings</h2>/
 
         <div className='mb-4 sm:mb-6'>
-          <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4'>Change Password</h3>
+          <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4'>Change Password</h3>/
           <div className='space-y-3 sm:space-y-4'>
             <div>
               <label htmlFor='currentPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
                 Current Password
-              </label>
-              <input type='password' id='currentPassword' value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>
-            </div>
+              </label>/
+              <input type='password' id='currentPassword' value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>/
+            </div>/
             <div>
               <label htmlFor='newPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
                 New Password
-              </label>
-              <input type='password' id='newPassword' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>
-            </div>
+              </label>/
+              <input type='password' id='newPassword' value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>/
+            </div>/
             <div>
               <label htmlFor='confirmPassword' className='block text-xs sm:text-sm font-medium text-gray-700'>
                 Confirm New Password
-              </label>
-              <input type='password' id='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>
-            </div>
-            {error && <p className='text-red-500 text-xs sm:text-sm mt-1 sm:mt-2'>{error}</p>}
-            {success && <p className='text-green-500 text-xs sm:text-sm mt-1 sm:mt-2'>{success}</p>}
+              </label>/
+              <input type='password' id='confirmPassword' value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className='mt-1 block w-full rounded-md border-gray-300 shadow-sm py-1 sm:py-2 px-2 sm:px-3 text-xs sm:text-base'/>/
+            </div>/
+            {error && <p className='text-red-500 text-xs sm:text-sm mt-1 sm:mt-2'>{error}</p>}/
+            {success && <p className='text-green-500 text-xs sm:text-sm mt-1 sm:mt-2'>{success}</p>}/
             <div className='flex space-x-2 sm:space-x-4'>
               <button onClick={handlePasswordChange} className='bg-blue-500 text-white py-1 sm:py-2 px-2 sm:px-4 rounded-md hover:bg-blue-600 text-xs sm:text-base'>
                 Update Password
-              </button>
+              </button>/
               <button onClick={handleLogout} className='bg-gray-200 text-gray-800 py-1 sm:py-2 px-2 sm:px-4 rounded-md hover:bg-gray-300 text-xs sm:text-base'>
                 Logout
-              </button>
-            </div>
-          </div>
-        </div>
+              </button>/
+            </div>/
+          </div>/
+        </div>/
 
         <div className='border-t pt-4 sm:pt-6'>
           <h3 className='text-base sm:text-lg font-semibold mb-2 sm:mb-4 text-red-600'>
             Danger Zone
-          </h3>
+          </h3>/
           <button onClick={handleDeleteAccount} className='bg-red-500 text-white py-1 sm:py-2 px-2 sm:px-4 rounded-md hover:bg-red-600 text-xs sm:text-base'>
             Delete Account
-          </button>
-        </div>
-      </div>
+          </button>/
+        </div>/
+      </div>/
 
-      {/* Add AdminPromotionPanel only for non-admin users */}
+      {/* Add AdminPromotionPanel only for non-admin users /*/}/
       {user?.role !== 'admin' && (<div className='bg-white shadow-md rounded-lg p-4 sm:p-6'>
-          <AdminPromotionPanel />
-        </div>)}
-    </div>);
+          <AdminPromotionPanel />/
+        </div>)}/
+    </div>);/
 };
-export type  = default;
-AccountSettingsSection;
-import type { GlobalTypes } from '@/types/global';
-import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
+export default 
+import type { GlobalTypes } from '@/type/s/global';/
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';/
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminPromotionPanel from '@/components/admin/AdminPromotionPanel';
-import { useAuthStore } from '@/stores/authStore';
-import { auth } from '../../config/firebase';
-import { UserProfile } from '../../types/profile';
+import AdminPromotionPanel from '@/component/s/admi/n/AdminPromotionPanel';/
+import { useAuthStore } from '@/store/s/authStore';/
+import { auth } from '../././confi/g/firebase';/
+import { UserProfile } from '../././type/s/profile'/
+
+
