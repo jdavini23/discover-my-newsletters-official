@@ -61,8 +61,4 @@ src/
 
 ## License
 
-[Insert License Here - e.g., MIT]
-
-## Contact
-
-[Your Contact Information]
+MIT
