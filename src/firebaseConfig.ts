@@ -1,3 +1,20 @@
+// Add type declarations for Vite environment variables
+/// <reference types="vite/client" />
+
+interface ImportMetaEnv {
+  readonly VITE_FIREBASE_API_KEY: string;
+  readonly VITE_FIREBASE_AUTH_DOMAIN: string;
+  readonly VITE_FIREBASE_PROJECT_ID: string;
+  readonly VITE_FIREBASE_STORAGE_BUCKET: string;
+  readonly VITE_FIREBASE_MESSAGING_SENDER_ID: string;
+  readonly VITE_FIREBASE_APP_ID: string;
+  // Add other environment variables as needed
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 // Firebase Configuration
 import { initializeApp } from 'firebase/app';
 import { 
@@ -18,6 +35,7 @@ import {
   getDoc,
   DocumentData 
 } from 'firebase/firestore';
+import { getAnalytics, logEvent } from 'firebase/analytics';
 
 // Firebase configuration object
 export const firebaseConfig = {
@@ -33,6 +51,7 @@ export const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const analytics = getAnalytics(app);
 
 // Authentication service
 export const authService = {
@@ -70,13 +89,28 @@ export const authService = {
 
 // User Profile Services
 export const userService = {
-  async getUserProfile(userId: string): Promise<DocumentData | null> {
+  async getUserProfile(userId: string, options?: { displayName?: string | null; email?: string | null; }): Promise<DocumentData | null> {
     const userDoc = await getDoc(doc(db, 'users', userId));
     return userDoc.exists() ? userDoc.data() : null;
   },
 
   async updateUserProfile(userId: string, updates: Record<string, any>): Promise<void> {
     await setDoc(doc(db, 'users', userId), updates, { merge: true });
+  },
+
+  async updateUserInterests(userId: string, interests: string[]): Promise<void> {
+    await setDoc(doc(db, 'users', userId), { interests }, { merge: true });
+  },
+
+  async trackNewsletterView(userId: string, newsletterId: string): Promise<void> {
+    const userRef = doc(db, 'users', userId);
+    const userDoc = await getDoc(userRef);
+    const userData = userDoc.data() || {};
+    
+    const viewedNewsletters = userData.viewedNewsletters || {};
+    viewedNewsletters[newsletterId] = (viewedNewsletters[newsletterId] || 0) + 1;
+
+    await setDoc(userRef, { viewedNewsletters }, { merge: true });
   }
 };
 

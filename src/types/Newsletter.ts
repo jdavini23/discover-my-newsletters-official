@@ -1,26 +1,28 @@
-import * as React from 'react';
+import { NewsletterCategory } from '../constants/categories';
 
-export type NewsletterCategory = 
-  | 'Technology'
-  | 'Design'
-  | 'Startup'
-  | 'Programming'
-  | 'Marketing'
-  | 'Finance'
-  | 'Science'
-  | 'Art'
-  | 'Writing'
-  | 'Entrepreneurship'
-  | 'Personal Development'
-  | 'Health'
-  | 'Travel'
-  | 'Food'
-  | 'Music'
-  | 'Sports'
-  | 'Politics'
-  | 'Environment'
-  | 'Education'
-  | 'Other'
+// Array of all categories for easy access
+export const NEWSLETTER_CATEGORIES: NewsletterCategory[] = [
+  'Technology',
+  'Design',
+  'Startup',
+  'Programming',
+  'Marketing',
+  'Finance',
+  'Science',
+  'Art',
+  'Writing',
+  'Entrepreneurship',
+  'Personal Development',
+  'Health',
+  'Travel',
+  'Food',
+  'Music',
+  'Sports',
+  'Politics',
+  'Environment',
+  'Education',
+  'Other'
+];
 
 export type ReadingFrequency = 
   | 'Daily'
@@ -57,7 +59,7 @@ export interface NewsletterRecommendation {
 }
 
 export interface NewsletterFilter {
-  category?: string;
+  category?: NewsletterCategory;
   tags?: string[];
   frequency?: ReadingFrequency;
   minSubscribers?: number;
@@ -70,7 +72,3 @@ export interface UserInteraction {
   interactionType: 'view' | 'subscribe' | 'unsubscribe' | 'read';
   timestamp: Date;
 }
-
-import type { GlobalTypes } from '@/types/global';
-
-export default Newsletter

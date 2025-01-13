@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import FeedbackModal from '../components/FeedbackModal';
+import FeedbackWidget from '../components/FeedbackWidget';
+import newsletterService from '../services/newsletterService';
+import { Newsletter } from '../types/newsletter';
 
 interface Newsletter {
   id: string;
@@ -35,14 +39,37 @@ const SAMPLE_NEWSLETTERS: Newsletter[] = [
 ];
 
 const Dashboard: React.FC = () => {
-  const { currentUser, signOut, userProfile } = useAuth();
+  const { currentUser, logout, userProfile } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = React.useState('');
   const [selectedCategory, setSelectedCategory] = React.useState('All');
+  const [recentNewsletters, setRecentNewsletters] = React.useState<Newsletter[]>([]);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchRecentNewsletters = async () => {
+      try {
+        // Fetch recently viewed newsletters (mock implementation for now)
+        const newsletters = await newsletterService.getRecentlyViewedNewsletters(
+          currentUser?.uid || ''
+        );
+        setRecentNewsletters(newsletters);
+      } catch (error) {
+        console.error('Failed to fetch recent newsletters:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (currentUser) {
+      fetchRecentNewsletters();
+    }
+  }, [currentUser]);
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
       navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
@@ -57,91 +84,160 @@ const Dashboard: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="bg-white shadow rounded-lg mb-6 p-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-gray-600">Welcome, {userProfile?.displayName || currentUser?.email}</p>
-            </div>
-            <button
-              onClick={handleSignOut}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
+    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 max-w-7xl">
+      {/* Responsive Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 w-full sm:w-auto">
+          Welcome, {userProfile?.displayName || currentUser?.email}
+        </h1>
+        <button 
+          className="w-full sm:w-auto px-4 py-2 border border-red-500 text-red-500 hover:bg-red-50 rounded transition duration-300"
+          onClick={handleSignOut}
+        >
+          Log Out
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        {/* Search and Filter - Responsive Layout */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Search and Filter
+          </h2>
+          <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <input 
+              type="text" 
+              placeholder="Search newsletters..." 
+              value={searchTerm} 
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <select 
+              value={selectedCategory} 
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              style={{
+                backgroundImage: 'url("data:image/svg+xml,%3csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3e%3cpath stroke=\'%236b7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M6 8l4 4 4-4\'/%3e%3c/svg%3e")',
+                backgroundPosition: 'right 0.5rem center',
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: '1.5em 1.5em',
+                paddingRight: '2.5rem'
+              }}
             >
-              Log Out
-            </button>
+              <option value="All">All Categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Finance">Finance</option>
+              <option value="Health">Health</option>
+            </select>
           </div>
         </div>
 
-        {/* Search and Filter Section */}
-        <div className="bg-white shadow rounded-lg mb-6 p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search newsletters..."
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div>
-              <select
-                className="w-full md:w-auto px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                <option value="All">All Categories</option>
-                <option value="Technology">Technology</option>
-                <option value="Finance">Finance</option>
-                <option value="Health">Health</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Newsletters Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredNewsletters.map(newsletter => (
-            <div key={newsletter.id} className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">{newsletter.title}</h3>
-              <p className="text-gray-600 mb-4">{newsletter.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  {newsletter.category}
-                </span>
-                <span className="text-gray-500 text-sm">
-                  {newsletter.subscribers.toLocaleString()} subscribers
-                </span>
+        {/* Recent Newsletters - Responsive Layout */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Recent Newsletters
+          </h2>
+          {isLoading ? (
+            <div className="flex justify-center items-center py-8">
+              <div className="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full text-gray-600" role="status">
+                <span className="sr-only">Loading...</span>
               </div>
-              <button className="mt-4 w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded">
-                Subscribe
-              </button>
             </div>
-          ))}
+          ) : recentNewsletters.length > 0 ? (
+            <div className="space-y-4">
+              {recentNewsletters.map(newsletter => (
+                <div 
+                  key={newsletter.id} 
+                  className="p-4 border border-gray-200 rounded-md hover:shadow-md transition duration-300"
+                >
+                  <h3 className="text-lg font-semibold text-gray-800">{newsletter.title}</h3>
+                  <p className="text-gray-600 mt-2">{newsletter.description}</p>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 space-y-2 sm:space-y-0">
+                    <span className="text-sm text-gray-500">{newsletter.category}</span>
+                    <button 
+                      onClick={() => navigate(`/newsletter/${newsletter.id}`)}
+                      className="w-full sm:w-auto px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-center py-4">No recent newsletters found.</p>
+          )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mt-6 bg-white shadow rounded-lg p-4">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => navigate('/preferences')}
-              className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+        {/* Newsletters - Responsive Grid */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Newsletters
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {filteredNewsletters.map(newsletter => (
+              <div 
+                key={newsletter.id}
+                className="p-4 border border-gray-200 rounded-md hover:shadow-md transition duration-300 flex flex-col"
+              >
+                <h3 className="text-lg font-semibold text-gray-800">{newsletter.title}</h3>
+                <p className="text-gray-600 mt-2 flex-grow">{newsletter.description}</p>
+                <div className="flex justify-between items-center mt-4">
+                  <span className="text-sm text-gray-500">{newsletter.category}</span>
+                  <span className="text-sm text-gray-600">
+                    {newsletter.subscribers.toLocaleString()} subscribers
+                  </span>
+                </div>
+                <button 
+                  className="w-full mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                >
+                  Subscribe
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions - Responsive Grid */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4 text-gray-700">
+            Quick Actions
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <button 
+              onClick={() => navigate('/discover')}
+              className="px-4 py-3 bg-indigo-500 text-white rounded-md hover:bg-indigo-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md"
             >
-              Update Preferences
+              <span className="text-sm sm:text-base">Discover</span>
             </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
-              Discover New Newsletters
+            <button 
+              onClick={() => navigate('/analytics')}
+              className="px-4 py-3 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md"
+            >
+              <span className="text-sm sm:text-base">Analytics</span>
             </button>
-            <button className="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700">
-              View Subscriptions
+            <button 
+              onClick={() => navigate('/preferences')}
+              className="px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md"
+            >
+              <span className="text-sm sm:text-base">Preferences</span>
+            </button>
+            <button 
+              onClick={() => setIsFeedbackModalOpen(true)}
+              className="px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-300 flex items-center justify-center space-x-2 shadow-md"
+            >
+              <span className="text-sm sm:text-base">Feedback</span>
             </button>
           </div>
         </div>
       </div>
+
+      <FeedbackWidget />
+
+      <FeedbackModal 
+        isOpen={isFeedbackModalOpen} 
+        onClose={() => setIsFeedbackModalOpen(false)} 
+      />
     </div>
   );
 };

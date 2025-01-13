@@ -16,16 +16,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     pathname: location.pathname
   });
 
+  // If still loading, show a loading state or null
   if (loading) {
-    // You might want to show a loading spinner here
     return <div>Loading...</div>;
   }
 
+  // If no user, redirect to signup
   if (!currentUser) {
     console.log('[ProtectedRoute] No user, redirecting to signup');
     return <Navigate to="/signup" state={{ from: location }} replace />;
   }
 
+  // If user exists, render children
   return <>{children}</>;
 };
 

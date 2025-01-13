@@ -12,7 +12,7 @@ import {
 import { firebaseConfig } from '../src/firebaseConfig';
 import { 
   UserPreferences, 
-  NewsletterCategory, 
+  NEWSLETTER_CATEGORIES, 
   ReadingFrequency 
 } from '../src/types/newsletter';
 
