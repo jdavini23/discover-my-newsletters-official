@@ -1,24 +1,40 @@
-import React, { useState, FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const { login } = useAuth();
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [error, setError] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const { signIn, currentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleSubmit = async (e: FormEvent) => {
+  React.useEffect(() => {
+    console.log('Login component:', {
+      currentUser: currentUser ? 'logged in' : 'not logged in',
+      pathname: location.pathname
+    });
+
+    if (currentUser) {
+      navigate('/dashboard');
+    }
+  }, [currentUser, navigate, location]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-
+    
     try {
-      await login(email, password);
-      navigate('/dashboard'); // Redirect after successful login
+      setError('');
+      setLoading(true);
+      await signIn(email, password);
+      navigate('/dashboard');
     } catch (err) {
-      setError('Failed to log in');
+      setError('Failed to log in. Please check your email and password.');
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -27,9 +43,20 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to Newsletter Discovery
+            Sign in to your account
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{' '}
+            <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              create a new account
+            </Link>
+          </p>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <input type="hidden" name="remember" defaultValue="true" />
           <div className="rounded-md shadow-sm -space-y-px">
@@ -67,31 +94,21 @@ const Login: React.FC = () => {
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-500 text-center">
-              {error}
-            </div>
-          )}
-
           <div className="flex items-center justify-between">
             <div className="text-sm">
-              <Link to="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Create an account
+              <Link to="/reset-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
               </Link>
-            </div>
-            <div className="text-sm">
-              <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
-                Forgot password?
-              </a>
             </div>
           </div>
 
           <div>
             <button
               type="submit"
+              disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>

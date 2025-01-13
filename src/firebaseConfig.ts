@@ -1,13 +1,83 @@
 // Firebase Configuration
+import { initializeApp } from 'firebase/app';
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  sendPasswordResetEmail, 
+  signOut as firebaseSignOut, 
+  updateProfile,
+  onAuthStateChanged,
+  User,
+  AuthError
+} from 'firebase/auth';
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  getDoc,
+  DocumentData 
+} from 'firebase/firestore';
+
+// Firebase configuration object
 export const firebaseConfig = {
-  apiKey: "AIzaSyBiPk62_ddMQCOnfMRAeOIpZOthgs_0c80",
-  authDomain: "discover-my-newsletters-mvp.firebaseapp.com",
-  projectId: "discover-my-newsletters-mvp",
-  storageBucket: "discover-my-newsletters-mvp.appspot.com",
-  messagingSenderId: "12274410026",
-  appId: "1:12274410026:web:cdedf6bdb9c64e4289d953",
-  measurementId: "G-K1DMXL6RR8"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID as string
 };
 
-// Note: In a production environment, use environment variables
-// and never commit actual credentials to version control
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+
+// Authentication service
+export const authService = {
+  auth,
+  
+  async createUserWithEmailAndPassword(email: string, password: string): Promise<{ user: User }> {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    return { user: userCredential.user };
+  },
+
+  async signInWithEmailAndPassword(email: string, password: string): Promise<{ user: User }> {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    return { user: userCredential.user };
+  },
+
+  async updateProfile(user: User, { displayName }: { displayName?: string }): Promise<void> {
+    await updateProfile(user, { displayName });
+  },
+
+  // Password reset
+  async resetPassword(email: string): Promise<void> {
+    await sendPasswordResetEmail(auth, email);
+  },
+
+  // Sign out
+  async signOut(): Promise<void> {
+    await firebaseSignOut(auth);
+  },
+
+  // Get current user
+  getCurrentUser(): User | null {
+    return auth.currentUser;
+  }
+};
+
+// User Profile Services
+export const userService = {
+  async getUserProfile(userId: string): Promise<DocumentData | null> {
+    const userDoc = await getDoc(doc(db, 'users', userId));
+    return userDoc.exists() ? userDoc.data() : null;
+  },
+
+  async updateUserProfile(userId: string, updates: Record<string, any>): Promise<void> {
+    await setDoc(doc(db, 'users', userId), updates, { merge: true });
+  }
+};
+
+export default app;

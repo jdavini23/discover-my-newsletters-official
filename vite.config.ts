@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
         src: path.resolve(__dirname, './src'),
       },
     },
-    define: Object.entries(env).reduce((acc, [key, value]) => {
+    define: Object.entries(env).reduce((acc: Record<string, string>, [key, value]) => {
       if (key.startsWith('VITE_FIREBASE_')) {
         acc[`import.meta.env.${key}`] = JSON.stringify(value);
       }

@@ -1,49 +1,17 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import * as React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { useAuth } from './contexts/AuthContext';
-
-// Import components
-import Login from './components/auth/Login';
-import SignUp from './components/auth/SignUp';
-import Dashboard from './pages/Dashboard';
-import PreferencesPage from './pages/PreferencesPage';
-
-// Protected Route Component
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { currentUser } = useAuth();
-  return currentUser ? <>{children}</> : <Navigate to="/login" replace />;
-};
+import AppRoutes from './routes/AppRoutes';
 
 const App: React.FC = () => {
+  console.log('[App] Rendering App component');
+  
   return (
-    <AuthProvider>
-      <Router>
-        <div className="app-container">
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route 
-              path="/dashboard" 
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/preferences" 
-              element={
-                <ProtectedRoute>
-                  <PreferencesPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
 };
 
