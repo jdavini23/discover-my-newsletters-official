@@ -1,12 +1,12 @@
-import fs from 'fs';
+﻿import fs from 'fs';
 import path from 'path';
 import dotenv from 'dotenv';
 
-// Load existing environment variables
+// Load existing environment variables/
 dotenv.config();
 
 function setupFirebaseCredentials() {
-  console.log('🔐 Firebase Credentials Setup Helper 🔐');
+  console.log('ðŸ” Firebase Credentials Setup Helper ðŸ”');
   console.log('');
   console.log('Instructions:');
   console.log('1. Go to Firebase Console > Project Settings > Service Accounts');
@@ -18,14 +18,14 @@ function setupFirebaseCredentials() {
   console.log('   - private_key');
   console.log('');
 
-  // Prompt for input (this is a mock since we can't do interactive input in this context)
+  // Prompt for input (this is a mock since we can't do interactive input in this context)/
   const envFilePath = path.resolve(process.cwd(), '.env');
 
-  console.log('🔍 Current .env contents:');
+  console.log('ðŸ” Current .env contents:');
   const existingEnvContents = fs.readFileSync(envFilePath, 'utf8');
   console.log(existingEnvContents);
 
-  console.log('\n🛠️ To set up your Firebase credentials:');
+  console.log('\nðŸ› ï¸ To set up your Firebase credentials:');
   console.log('1. Open your .env file');
   console.log('2. Add or update these variables:');
   console.log('   FIREBASE_PROJECT_ID=your_project_id');
@@ -34,10 +34,11 @@ function setupFirebaseCredentials() {
     '   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----\\n"'
   );
   console.log('');
-  console.log('⚠️  IMPORTANT:');
+  console.log('âš ï¸  IMPORTANT:');
   console.log('- Ensure the private key is enclosed in double quotes');
   console.log('- Replace any \\n in the private key with actual newline characters');
   console.log('- Never commit your .env file to version control');
 }
 
 setupFirebaseCredentials();
+

@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "discover-my-newsletters",
+    "staging": "discover-my-newsletters-staging",
+    "production": "discover-my-newsletters-prod"
+  },
+  "targets": {
+    "discover-my-newsletters": {
+      "hosting": {
+        "main": ["discover-my-newsletters-main"],
+        "staging": ["discover-my-newsletters-staging"]
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+﻿import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 
 export const validateRequest = (
@@ -9,7 +9,7 @@ export const validateRequest = (
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({
-      errors: errors.array().map(err => ({
+      errors: errors.array().map((err) => ({
         field: (err as any).path || (err as any).param || 'unknown',
         message: err.msg,
       })),
@@ -19,5 +19,6 @@ export const validateRequest = (
 };
 
 export const validateAdminCreation = [
-  // Add specific validation rules for admin creation here
+  // Add specific validation rules for admin creation here/
 ];
+

@@ -1,6 +1,6 @@
-import { Interest } from './Interest';
-import { Subscription } from './Subscription';
-import { UserInteraction } from './UserInteraction';
+﻿import { Interest } from './Interest';/
+import { Subscription } from './Subscription';/
+import { UserInteraction } from './UserInteraction';/
 
 export class User {
   id?: string;
@@ -50,3 +50,4 @@ export class User {
     };
   }
 }
+

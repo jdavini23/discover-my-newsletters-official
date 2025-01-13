@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+﻿import { DataSource } from 'typeorm';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -12,8 +12,8 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || 'newsletter_development',
   synchronize: true,
   logging: false,
-  entities: [], // Add your entity files here
-  migrations: [], // Add your migration files here
+  entities: [], // Add your entity files here/
+  migrations: [], // Add your migration files here/
 });
 
 export async function initializeDatabase() {
@@ -25,3 +25,4 @@ export async function initializeDatabase() {
     throw error;
   }
 }
+

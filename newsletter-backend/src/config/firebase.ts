@@ -1,11 +1,11 @@
-import * as admin from 'firebase-admin';
-import { ServiceAccount } from 'firebase-admin/lib/credential';
+﻿import * as admin from 'firebase-admin';
+import { ServiceAccount } from 'firebase-admin/li/b/credential';/
 
-// Ensure environment variables are loaded
+// Ensure environment variables are loaded/
 const serviceAccountKey: ServiceAccount = {
   projectId: process.env.FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\/n/g, '\n'),/
 };
 
 console.log('Firebase Config:', {
@@ -14,12 +14,12 @@ console.log('Firebase Config:', {
   privateKeyExists: !!serviceAccountKey.privateKey,
 });
 
-// Initialize Firebase Admin SDK
+// Initialize Firebase Admin SDK/
 try {
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccountKey),
-      // Add other configuration options if needed
+      // Add other configuration options if needed/
     });
     console.log('Firebase Admin SDK initialized successfully');
   } else {
@@ -30,3 +30,4 @@ try {
 }
 
 export default admin;
+

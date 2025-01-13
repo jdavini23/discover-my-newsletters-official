@@ -1,12 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { User } from './User';
+﻿import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
+import { User } from './User';/
 
 @Entity('user_interactions')
 export class UserInteraction {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @ManyToOne(() => User, user => user.interactions)
+  @ManyToOne(() => User, (user) => user.interactions)
   user!: User;
 
   @Column()
@@ -21,3 +21,4 @@ export class UserInteraction {
   @CreateDateColumn()
   timestamp!: Date;
 }
+

@@ -3,24 +3,34 @@ const forms = require('@tailwindcss/forms');
 const typography = require('@tailwindcss/typography');
 
 module.exports = {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     screens: {
-      'xs': '320px',   // Extra small devices
-      'sm': '640px',   // Small devices
-      'md': '768px',   // Medium devices
-      'lg': '1024px',  // Large devices
-      'xl': '1280px',  // Extra large devices
+      xs: '320px', // Extra small devices
+      sm: '640px', // Small devices
+      md: '768px', // Medium devices
+      lg: '1024px', // Large devices
+      xl: '1280px', // Extra large devices
       '2xl': '1536px', // 2X large devices
     },
     extend: {
       fontFamily: {
         // Add a modern sans-serif font stack
-        'sans': ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Open Sans', 'Helvetica Neue', 'sans-serif'],
+        sans: [
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Open Sans',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
       },
       colors: {
         background: 'var(--background)',
@@ -53,9 +63,9 @@ module.exports = {
           800: '#434190',
           900: '#3c366b',
           DEFAULT: '#4A90E2',
-          ...Array.from({length: 10}, (_, i) => ({
+          ...Array.from({ length: 10 }, (_, i) => ({
             [`${(i + 1) * 10}`]: `color-mix(in srgb, var(--primary) ${(i + 1) * 10}%, white)`,
-          })).reduce((acc, curr) => ({...acc, ...curr}), {}),
+          })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         },
         secondary: {
           50: '#f9fafb',
@@ -69,9 +79,9 @@ module.exports = {
           800: '#343a40',
           900: '#212529',
           DEFAULT: '#F5A623',
-          ...Array.from({length: 10}, (_, i) => ({
+          ...Array.from({ length: 10 }, (_, i) => ({
             [`${(i + 1) * 10}`]: `color-mix(in srgb, var(--secondary) ${(i + 1) * 10}%, white)`,
-          })).reduce((acc, curr) => ({...acc, ...curr}), {}),
+          })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         },
         destructive: {
           DEFAULT: 'var(--destructive)',
@@ -83,7 +93,7 @@ module.exports = {
           DEFAULT: 'rgba(74, 144, 226, 0.5)', // Primary color with opacity
           primary: 'rgba(74, 144, 226, 0.5)', // Same as default
           secondary: 'rgba(245, 166, 35, 0.5)', // Secondary color with opacity
-          accent: 'rgba(80, 227, 194, 0.5)' // Accent color with opacity
+          accent: 'rgba(80, 227, 194, 0.5)', // Accent color with opacity
         },
         text: {
           primary: {
@@ -93,7 +103,7 @@ module.exports = {
           secondary: {
             light: 'var(--text-secondary)',
             dark: 'var(--text-secondary-dark, var(--text-secondary))',
-          }
+          },
         },
         neutralBackground: {
           100: 'var(--neutral-background-100, #F5F5F5)',
@@ -101,7 +111,7 @@ module.exports = {
         neutralText: {
           500: 'var(--neutral-text-500, #6B7280)',
           700: 'var(--neutral-text-700, #374151)',
-        }
+        },
       },
       ringOpacity: {
         DEFAULT: '0.5',
@@ -120,7 +130,8 @@ module.exports = {
       },
       boxShadow: {
         soft: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-        'lg-purple': '0 10px 15px -3px rgba(124, 58, 237, 0.2), 0 4px 6px -2px rgba(124, 58, 237, 0.1)',
+        'lg-purple':
+          '0 10px 15px -3px rgba(124, 58, 237, 0.2), 0 4px 6px -2px rgba(124, 58, 237, 0.1)',
       },
       animation: {
         'bounce-slow': 'bounce 2s infinite',
@@ -128,7 +139,8 @@ module.exports = {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'hero-pattern': 'linear-gradient(to right, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1))',
+        'hero-pattern':
+          'linear-gradient(to right, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.1))',
       },
       fontSize: {
         'xs-mobile': '0.65rem',
@@ -138,13 +150,13 @@ module.exports = {
   plugins: [
     forms,
     typography,
-    function({ addBase, theme }) {
+    function ({ addBase, theme }) {
       addBase({
         '::selection': {
           backgroundColor: theme('colors.primary.500'),
           color: theme('colors.white'),
         },
       });
-    }
+    },
   ],
 };

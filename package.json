@@ -1,80 +1,48 @@
 {
-  "name": "discover-my-newsletters",
-  "version": "1.0.0",
+  "name": "newsletter-discovery-mvp",
+  "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "description": "MVP for Newsletter Discovery Platform",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint . --ext ts,tsx --fix",
-    "prepare": "husky",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,md}\"",
-    "deps:check": "npm-check-updates",
-    "deps:update": "npm-check-updates -u && npm install",
-    "preview": "vite preview",
-    "test": "echo \"No tests specified\" && exit 0"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "format": "prettier --write src/**/*.{ts,tsx}"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.3.4",
-    "@radix-ui/react-icons": "^1.3.0",
-    "@radix-ui/react-slot": "^1.0.2",
-    "@tanstack/react-query": "^5.17.5",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
-    "axios": "^1.6.5",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.0",
-    "firebase": "^10.7.1",
-    "framer-motion": "^11.0.3",
-    "immer": "^10.0.3",
-    "lucide-react": "^0.303.0",
-    "plausible-tracker": "^0.3.9",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-error-boundary": "^4.0.11",
-    "react-hook-form": "^7.49.2",
-    "react-hot-toast": "^2.5.1",
-    "react-router-dom": "^6.21.3",
-    "tailwind-merge": "^2.2.0",
-    "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.22.4",
-    "zustand": "^4.5.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
+    "typescript": "^4.4.3"
   },
   "devDependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.16",
-    "@types/eslint": "^8.56.2",
-    "@types/node": "^22.10.5",
-    "@types/uuid": "^10.0.0",
-    "@typescript-eslint/eslint-plugin": "^6.19.0",
-    "@typescript-eslint/parser": "^6.19.0",
-    "@vitejs/plugin-react-swc": "^3.5.0",
-    "autoprefixer": "^10.4.17",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.5",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
-    "husky": "^9.0.6",
-    "lint-staged": "^15.2.0",
-    "npm-check-updates": "^16.14.12",
-    "postcss": "^8.4.33",
-    "prettier": "^3.2.4",
-    "prettier-plugin-tailwindcss": "^0.5.11",
-    "recharts": "^2.15.0",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3",
-    "typescript-eslint": "^0.0.1-alpha.0",
-    "uuid": "^11.0.4",
-    "vite": "^6.0.7"
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.2.1",
+    "@types/jest": "^27.0.2",
+    "@types/node": "^16.11.6",
+    "@types/react": "^17.0.33",
+    "@types/react-dom": "^17.0.10",
+    "eslint": "^7.32.0",
+    "prettier": "^2.4.1"
   },
-  "lint-staged": {
-    "src/**/*.{ts,tsx,js,jsx,json,md}": [
-      "prettier --write",
-      "eslint --fix"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
     ]
   }
 }
