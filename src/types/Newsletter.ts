@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 export type NewsletterCategory = 
   | 'Technology'
@@ -71,6 +71,6 @@ export interface UserInteraction {
   timestamp: Date;
 }
 
-import type { GlobalTypes } from '@/type/s/global';
+import type { GlobalTypes } from '@/types/global';
 
 export default Newsletter

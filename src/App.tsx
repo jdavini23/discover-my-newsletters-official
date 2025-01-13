@@ -1,24 +1,49 @@
 import React from 'react';
-import { NewsletterProvider } from './contexts/NewsletterContext';
-import PreferencesSelector from './components/PreferencesSelector';
-import RecommendationsPage from './components/RecommendationsPage';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
+
+// Import components
+import Login from './components/auth/Login';
+import SignUp from './components/auth/SignUp';
+import Dashboard from './pages/Dashboard';
+import PreferencesPage from './pages/PreferencesPage';
+
+// Protected Route Component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { currentUser } = useAuth();
+  return currentUser ? <>{children}</> : <Navigate to="/login" replace />;
+};
 
 const App: React.FC = () => {
   return (
-    <NewsletterProvider>
-      <div className="app-container" style={{
-        maxWidth: '800px',
-        margin: '0 auto',
-        padding: '20px',
-        fontFamily: 'Arial, sans-serif'
-      }}>
-        <h1 style={{ textAlign: 'center', color: '#333' }}>
-          Newsletter Discovery Platform
-        </h1>
-        <PreferencesSelector />
-        <RecommendationsPage />
-      </div>
-    </NewsletterProvider>
+    <AuthProvider>
+      <Router>
+        <div className="app-container">
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/preferences" 
+              element={
+                <ProtectedRoute>
+                  <PreferencesPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 };
 

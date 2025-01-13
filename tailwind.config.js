@@ -1,9 +1,12 @@
 /** @type {import('tailwindcss').Config} */
-const forms = require('@tailwindcss/forms');
-const typography = require('@tailwindcss/typography');
+import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
 
-module.exports = {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     screens: {
