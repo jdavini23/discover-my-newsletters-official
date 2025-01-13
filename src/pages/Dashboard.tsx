@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import FeedbackModal from '../components/FeedbackModal';
 import FeedbackWidget from '../components/FeedbackWidget';
 import newsletterService from '../services/newsletterService';
+import { errorLoggingService } from '../services/errorLoggingService';
 import { Newsletter } from '../types/newsletter';
 
 interface Newsletter {
@@ -56,7 +57,11 @@ const Dashboard: React.FC = () => {
         );
         setRecentNewsletters(newsletters);
       } catch (error) {
-        console.error('Failed to fetch recent newsletters:', error);
+        errorLoggingService.logError(error as Error, {
+          userId: currentUser?.uid,
+          context: 'Dashboard Newsletter Fetch'
+        });
+        setRecentNewsletters([]);
       } finally {
         setIsLoading(false);
       }
@@ -72,7 +77,9 @@ const Dashboard: React.FC = () => {
       await logout();
       navigate('/');
     } catch (error) {
-      console.error('Sign out error:', error);
+      errorLoggingService.logError(error as Error, {
+        context: 'Dashboard Sign Out'
+      });
     }
   };
 

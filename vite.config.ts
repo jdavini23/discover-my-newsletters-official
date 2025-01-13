@@ -1,8 +1,9 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
+import * as path from 'path';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
@@ -22,6 +23,11 @@ export default defineConfig(({ mode }) => {
           ],
         },
       }),
+      sentryVitePlugin({
+        org: "discover-my-newsletters",
+        project: "javascript-react",
+        authToken: process.env.SENTRY_AUTH_TOKEN
+      })
     ],
     css: {
       postcss: {
