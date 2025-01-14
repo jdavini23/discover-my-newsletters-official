@@ -78,13 +78,20 @@ export const newsletterService = {
 
   // Record user interaction with a newsletter
   async recordUserInteraction(interaction: UserInteraction): Promise<void> {
+    if (!interaction.newsletterId || !interaction.userId) {
+      console.warn('Invalid interaction data:', interaction);
+      return;
+    }
+
     try {
       await addDoc(collection(db, 'user_interactions'), {
         ...interaction,
-        timestamp: new Date()
+        timestamp: new Date(),
+        source: interaction.newsletterId.startsWith('rss-') ? 'rss' : 'newsletter'
       });
     } catch (error) {
       console.error('Error recording user interaction:', error);
+      throw error; // Re-throw to handle in the UI
     }
   },
 
